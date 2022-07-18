@@ -23,5 +23,6 @@ export default defineConfig({
 
       return { ...config, ...configOverrides };
     },
+    defaultCommandTimeout: 10000,
   },
 });
