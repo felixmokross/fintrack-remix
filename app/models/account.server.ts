@@ -26,3 +26,7 @@ export function createAccount({
     },
   });
 }
+
+export function deleteAccount({ id }: Pick<Account, "id">) {
+  return prisma.account.delete({ where: { id } });
+}
