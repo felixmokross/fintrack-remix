@@ -13,6 +13,7 @@ import { Fragment, useRef } from "react";
 import { PlusIcon, TrashIcon } from "~/icons";
 import { getAccountListItems } from "~/models/account.server";
 import { requireUserId } from "~/session.server";
+import { Button, ModalButton } from "~/shared/button";
 
 type LoaderData = {
   accounts: Awaited<ReturnType<typeof getAccountListItems>>;
@@ -32,7 +33,9 @@ export default function AccountsPage() {
   const submitButtonRef = useRef(null);
   return (
     <div>
-      <Link to="new">Create</Link>
+      <Button variant="primary" as="Link" to="new">
+        New
+      </Button>
 
       <ul className="m-4 grid grid-cols-4 gap-4">
         {accounts.map((account) => (
@@ -186,19 +189,16 @@ export default function AccountsPage() {
                     </div>
                   </div>
                   <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-                    <button
+                    <ModalButton
+                      variant="primary"
                       type="submit"
                       ref={submitButtonRef}
-                      className="inline-flex w-full justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
                     >
                       Create
-                    </button>
-                    <Link
-                      to="."
-                      className="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-                    >
+                    </ModalButton>
+                    <ModalButton as={Link} to="." className="mt-3 sm:mt-0">
                       Cancel
-                    </Link>
+                    </ModalButton>
                   </div>
                 </Dialog.Panel>
               </Transition.Child>
