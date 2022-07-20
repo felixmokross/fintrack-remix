@@ -22,7 +22,7 @@ model User {
 model Password {
   hash String
 
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String @unique
 }
 
@@ -34,17 +34,74 @@ model Note {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String
 }
 
 model Account {
-  id   String @id @default(cuid())
+  id   String      @id @default(cuid())
   name String
+  type AccountType @default(ASSET)
+
+  assetClass   AssetClass? @relation(fields: [assetClassId], references: [id], onDelete: Restrict)
+  assetClassId String?
+
+  group   AccountGroup? @relation(fields: [groupId], references: [id], onDelete: Restrict)
+  groupId String?
+
+  accountUnit AccountUnit @default(CURRENCY)
+
+  currency   Currency? @relation(fields: [currencyId], references: [id], onDelete: Restrict)
+  currencyId String?
+
+  stock   Stock?  @relation(fields: [stockId], references: [id], onDelete: Restrict)
+  stockId String?
+
+  openingBalance Decimal?
+  openingDate    DateTime? @db.Date
+  closingDate    DateTime? @db.Date
+
+  isActive Boolean @default(true)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Restrict)
   userId String
+}
+
+enum AccountUnit {
+  CURRENCY
+  STOCK
+}
+
+enum AccountType {
+  ASSET
+  LIABILITY
+}
+
+model AssetClass {
+  id      String    @id @default(cuid())
+  name    String
+  Account Account[]
+}
+
+model AccountGroup {
+  id      String    @id @default(cuid())
+  name    String
+  Account Account[]
+}
+
+model Currency {
+  id      String    @id
+  name    String
+  Account Account[]
+  Stock   Stock[]
+}
+
+model Stock {
+  id                String    @id
+  tradingCurrency   Currency  @relation(fields: [tradingCurrencyId], references: [id], onDelete: Restrict)
+  tradingCurrencyId String
+  Account           Account[]
 }
