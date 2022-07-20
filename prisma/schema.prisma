@@ -14,9 +14,12 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  password Password?
-  notes    Note[]
-  accounts Account[]
+  password     Password?
+  notes        Note[]
+  accounts     Account[]
+  AssetClass   AssetClass[]
+  AccountGroup AccountGroup[]
+  Stock        Stock[]
 }
 
 model Password {
@@ -51,8 +54,7 @@ model Account {
 
   accountUnit AccountUnit @default(CURRENCY)
 
-  currency   Currency? @relation(fields: [currencyId], references: [id], onDelete: Restrict)
-  currencyId String?
+  currency String?
 
   stock   Stock?  @relation(fields: [stockId], references: [id], onDelete: Restrict)
   stockId String?
@@ -81,27 +83,38 @@ enum AccountType {
 }
 
 model AssetClass {
-  id      String    @id @default(cuid())
-  name    String
-  Account Account[]
+  id        String    @id @default(cuid())
+  name      String
+  sortOrder Int       @default(0)
+  Account   Account[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Restrict)
+  userId String
 }
 
 model AccountGroup {
   id      String    @id @default(cuid())
   name    String
   Account Account[]
-}
 
-model Currency {
-  id      String    @id
-  name    String
-  Account Account[]
-  Stock   Stock[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Restrict)
+  userId String
 }
 
 model Stock {
-  id                String    @id
-  tradingCurrency   Currency  @relation(fields: [tradingCurrencyId], references: [id], onDelete: Restrict)
-  tradingCurrencyId String
-  Account           Account[]
+  id              String    @id
+  tradingCurrency String
+  Account         Account[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Restrict)
+  userId String
 }
