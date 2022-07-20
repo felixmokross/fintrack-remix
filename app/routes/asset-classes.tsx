@@ -13,6 +13,7 @@ import { Fragment, useRef } from "react";
 import { PlusIcon } from "~/icons";
 import { getAssetClassListItems } from "~/models/asset-class.server";
 import { requireUserId } from "~/session.server";
+import { Button } from "~/shared/button";
 
 type LoaderData = {
   assetClasses: Awaited<ReturnType<typeof getAssetClassListItems>>;
@@ -42,12 +43,9 @@ export default function AssetClassesPage() {
           </p>
         </div>
         <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
-          <Link
-            to="new"
-            className="inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:w-auto"
-          >
+          <Button as={Link} to="new">
             Add asset class
-          </Link>
+          </Button>
         </div>
       </div>
       <div className="mt-8 flex flex-col">
