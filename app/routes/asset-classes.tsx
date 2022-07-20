@@ -13,7 +13,7 @@ import { Fragment, useRef } from "react";
 import { PlusIcon } from "~/icons";
 import { getAssetClassListItems } from "~/models/asset-class.server";
 import { requireUserId } from "~/session.server";
-import { Button } from "~/shared/button";
+import { Button, ModalButton } from "~/shared/button";
 
 type LoaderData = {
   assetClasses: Awaited<ReturnType<typeof getAssetClassListItems>>;
@@ -43,7 +43,7 @@ export default function AssetClassesPage() {
           </p>
         </div>
         <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
-          <Button as={Link} to="new">
+          <Button as={Link} to="new" variant="primary">
             Add asset class
           </Button>
         </div>
@@ -216,19 +216,16 @@ export default function AssetClassesPage() {
                     </div>
                   </div>
                   <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-                    <button
+                    <ModalButton
                       type="submit"
+                      variant="primary"
                       ref={submitButtonRef}
-                      className="inline-flex w-full justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
                     >
                       Create
-                    </button>
-                    <Link
-                      to="."
-                      className="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-                    >
+                    </ModalButton>
+                    <ModalButton as={Link} to="." className="mt-3 sm:mt-0">
                       Cancel
-                    </Link>
+                    </ModalButton>
                   </div>
                 </Dialog.Panel>
               </Transition.Child>
