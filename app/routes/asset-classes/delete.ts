@@ -11,7 +11,7 @@ type ActionData = {
 };
 
 export const action: ActionFunction = async ({ request }) => {
-  await requireUserId(request);
+  const userId = await requireUserId(request);
 
   const formData = await request.formData();
   const id = formData.get("id");
@@ -23,7 +23,7 @@ export const action: ActionFunction = async ({ request }) => {
     );
   }
 
-  await deleteAssetClass({ id });
+  await deleteAssetClass({ id, userId });
 
   return redirect(`/asset-classes`);
 };

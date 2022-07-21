@@ -9,6 +9,18 @@ export function getAccountGroupListItems({ userId }: { userId: User["id"] }) {
   });
 }
 
+export function getAccountGroup({
+  id,
+  userId,
+}: Pick<AccountGroup, "id"> & {
+  userId: User["id"];
+}) {
+  return prisma.accountGroup.findFirst({
+    select: { id: true, name: true },
+    where: { id, userId },
+  });
+}
+
 export function createAccountGroup({
   name,
   userId,
@@ -24,6 +36,19 @@ export function createAccountGroup({
         },
       },
     },
+  });
+}
+
+export function updateAccountGroup({
+  id,
+  name,
+  userId,
+}: Pick<AccountGroup, "id" | "name"> & {
+  userId: User["id"];
+}) {
+  return prisma.assetClass.updateMany({
+    where: { id, userId },
+    data: { name },
   });
 }
 
