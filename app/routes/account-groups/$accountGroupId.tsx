@@ -10,6 +10,10 @@ import { json } from "@remix-run/server-runtime";
 import { useRef } from "react";
 import invariant from "tiny-invariant";
 import { PencilIcon } from "~/icons";
+import type {
+  AccountGroupErrors,
+  AccountGroupValues,
+} from "~/models/account-group.server";
 import {
   getAccountGroup,
   validateAccountGroup,
@@ -20,12 +24,8 @@ import { Input } from "~/shared/forms";
 import { Modal } from "~/shared/modal";
 
 type ActionData = {
-  errors?: {
-    name?: string;
-  };
-  values?: {
-    name: string;
-  };
+  errors?: AccountGroupErrors;
+  values?: AccountGroupValues;
 };
 
 type LoaderData = {

@@ -10,6 +10,10 @@ import { json } from "@remix-run/server-runtime";
 import { useRef } from "react";
 import invariant from "tiny-invariant";
 import { PencilIcon } from "~/icons";
+import type {
+  AssetClassErrors,
+  AssetClassValues,
+} from "~/models/asset-class.server";
 import {
   getAssetClass,
   parseSortOrder,
@@ -21,14 +25,8 @@ import { Input } from "~/shared/forms";
 import { Modal } from "~/shared/modal";
 
 type ActionData = {
-  errors?: {
-    name?: string;
-    sortOrder?: string;
-  };
-  values?: {
-    name: string;
-    sortOrder: string;
-  };
+  errors?: AssetClassErrors;
+  values?: AssetClassValues;
 };
 
 type LoaderData = {

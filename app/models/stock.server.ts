@@ -32,3 +32,25 @@ export function createStock({
 export function deleteStock({ id, userId }: Pick<Stock, "id" | "userId">) {
   return prisma.stock.deleteMany({ where: { id } });
 }
+
+export function validateStock({ id, tradingCurrency }: StockValues) {
+  const errors: StockErrors = {};
+  if (id.length === 0) {
+    errors.id = "ID is required";
+  }
+  if (tradingCurrency.length === 0) {
+    errors.tradingCurrency = "Trading currency is required";
+  }
+
+  return errors;
+}
+
+export type StockValues = {
+  id: string;
+  tradingCurrency: string;
+};
+
+export type StockErrors = {
+  id?: string;
+  tradingCurrency?: string;
+};
