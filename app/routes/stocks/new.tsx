@@ -48,27 +48,21 @@ export default function NewStockModal() {
     <Modal initialFocus={submitButtonRef} onClose={onClose}>
       <Form method="post">
         <Modal.Body title="New Stock" icon={PlusIcon}>
-          <div className="space-y-8 divide-y divide-gray-200">
-            <div className="space-y-8 divide-y divide-gray-200">
-              <div>
-                <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
-                  <Input
-                    label="Symbol"
-                    name="id"
-                    id="id"
-                    error={actionData?.errors?.id}
-                    groupClassName="sm:col-span-2"
-                  />
-                  <CurrencyCombobox
-                    name="tradingCurrency"
-                    id="tradingCurrency"
-                    label="Trading currency"
-                    error={actionData?.errors?.tradingCurrency}
-                    groupClassName="sm:col-span-4"
-                  />
-                </div>
-              </div>
-            </div>
+          <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+            <Input
+              label="Symbol"
+              name="id"
+              id="id"
+              error={actionData?.errors?.id}
+              groupClassName="sm:col-span-2"
+            />
+            <CurrencyCombobox
+              name="tradingCurrency"
+              id="tradingCurrency"
+              label="Trading currency"
+              error={actionData?.errors?.tradingCurrency}
+              groupClassName="sm:col-span-4"
+            />
           </div>
         </Modal.Body>
         <Modal.Footer>

@@ -44,7 +44,7 @@ function ModalRoot({ onClose, initialFocus, children }: ModalProps) {
               leaveFrom="opacity-100 translate-y-0 sm:scale-100"
               leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
-              <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+              <Dialog.Panel className="relative w-full transform text-left shadow-xl transition-all sm:my-8 sm:max-w-lg">
                 {children}
               </Dialog.Panel>
             </Transition.Child>
@@ -75,7 +75,7 @@ const Button = forwardRef(function ModalButton<T extends ElementType>(
 
 function Footer({ children }: PropsWithChildren<{}>) {
   return (
-    <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+    <div className="rounded-b-lg bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
       {children}
     </div>
   );
@@ -87,7 +87,7 @@ function Body({
   children,
 }: PropsWithChildren<ModalBodyProps>) {
   return (
-    <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+    <div className="rounded-t-lg bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
       <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
         <Icon className="h-6 w-6 text-green-600" aria-hidden="true" />
       </div>
@@ -98,7 +98,7 @@ function Body({
         >
           {title}
         </Dialog.Title>
-        <div className="mt-2">{children}</div>
+        <div className="mt-5">{children}</div>
       </div>
     </div>
   );

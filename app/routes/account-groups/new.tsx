@@ -48,20 +48,14 @@ export default function NewAccountGroupModal() {
     <Modal initialFocus={submitButtonRef} onClose={onClose}>
       <Form method="post">
         <Modal.Body title="New Account Group" icon={PlusIcon}>
-          <div className="space-y-8 divide-y divide-gray-200">
-            <div className="space-y-8 divide-y divide-gray-200">
-              <div>
-                <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
-                  <Input
-                    label="Name"
-                    name="name"
-                    id="name"
-                    error={actionData?.errors?.name}
-                    groupClassName="sm:col-span-6"
-                  />
-                </div>
-              </div>
-            </div>
+          <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+            <Input
+              label="Name"
+              name="name"
+              id="name"
+              error={actionData?.errors?.name}
+              groupClassName="sm:col-span-6"
+            />
           </div>
         </Modal.Body>
         <Modal.Footer>
