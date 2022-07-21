@@ -31,7 +31,7 @@ export function createStock({
 }
 
 export function deleteStock({ id, userId }: Pick<Stock, "id" | "userId">) {
-  return prisma.stock.deleteMany({ where: { id } });
+  return prisma.stock.deleteMany({ where: { id, userId } });
 }
 
 export async function validateStock(
