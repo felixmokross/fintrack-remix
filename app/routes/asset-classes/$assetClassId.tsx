@@ -81,7 +81,7 @@ export default function EditPage() {
   const navigate = useNavigate();
   return (
     <Modal initialFocus={submitButtonRef} onClose={onClose}>
-      <Form method="post">
+      <Form method="post" replace={true}>
         <Modal.Body title="Edit Asset Class" icon={PencilIcon}>
           <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
             <Input

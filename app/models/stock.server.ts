@@ -1,4 +1,5 @@
 import type { Stock, User } from "@prisma/client";
+import { currenciesByCode } from "~/currencies";
 import { prisma } from "~/db.server";
 
 export function getStockListItems({ userId }: { userId: User["id"] }) {
@@ -18,7 +19,7 @@ export function createStock({
 }) {
   return prisma.stock.create({
     data: {
-      id,
+      id: id.toUpperCase(),
       tradingCurrency,
       user: {
         connect: {
@@ -33,13 +34,25 @@ export function deleteStock({ id, userId }: Pick<Stock, "id" | "userId">) {
   return prisma.stock.deleteMany({ where: { id } });
 }
 
-export function validateStock({ id, tradingCurrency }: StockValues) {
+export async function validateStock(
+  { id, tradingCurrency }: StockValues,
+  userId: User["id"]
+) {
   const errors: StockErrors = {};
   if (id.length === 0) {
-    errors.id = "ID is required";
+    errors.id = "Symbol is required";
+  } else if (
+    (await prisma.stock.findFirst({
+      where: { id: id.toUpperCase(), userId },
+    })) !== null
+  ) {
+    errors.id = "Stock already exists";
   }
+
   if (tradingCurrency.length === 0) {
     errors.tradingCurrency = "Trading currency is required";
+  } else if (!Object.keys(currenciesByCode).includes(tradingCurrency)) {
+    errors.tradingCurrency = "Trading currency is not supported";
   }
 
   return errors;

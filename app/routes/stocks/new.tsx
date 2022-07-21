@@ -26,7 +26,7 @@ export const action: ActionFunction = async ({ request }) => {
   invariant(typeof id === "string", "id not found");
   invariant(typeof tradingCurrency === "string", "tradingCurrency not found");
 
-  const errors = validateStock({ id, tradingCurrency });
+  const errors = await validateStock({ id, tradingCurrency }, userId);
 
   if (Object.values(errors).length > 0) {
     return json<ActionData>(
@@ -46,7 +46,7 @@ export default function NewStockModal() {
   const actionData = useActionData<ActionData>();
   return (
     <Modal initialFocus={submitButtonRef} onClose={onClose}>
-      <Form method="post">
+      <Form method="post" replace={true}>
         <Modal.Body title="New Stock" icon={PlusIcon}>
           <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
             <Input
