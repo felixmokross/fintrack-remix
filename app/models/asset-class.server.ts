@@ -9,6 +9,18 @@ export function getAssetClassListItems({ userId }: { userId: User["id"] }) {
   });
 }
 
+export function getAssetClass({
+  id,
+  userId,
+}: Pick<AssetClass, "id"> & {
+  userId: User["id"];
+}) {
+  return prisma.assetClass.findFirst({
+    select: { id: true, name: true, sortOrder: true },
+    where: { id, userId },
+  });
+}
+
 export function createAssetClass({
   name,
   sortOrder,
@@ -29,6 +41,21 @@ export function createAssetClass({
   });
 }
 
+export function updateAssetClass({
+  id,
+  name,
+  sortOrder,
+  userId,
+}: Pick<AssetClass, "id" | "name" | "sortOrder"> & {
+  userId: User["id"];
+}) {
+  return prisma.assetClass.updateMany({
+    where: { id, userId },
+    data: { name, sortOrder },
+  });
+}
+
+// TODO add user ID
 export function deleteAssetClass({ id }: Pick<AssetClass, "id">) {
   return prisma.assetClass.delete({ where: { id } });
 }

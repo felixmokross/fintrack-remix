@@ -13,7 +13,8 @@ import { Fragment, useRef } from "react";
 import { PlusIcon, TrashIcon } from "~/icons";
 import { getAccountListItems } from "~/models/account.server";
 import { requireUserId } from "~/session.server";
-import { Button, ModalButton } from "~/shared/button";
+import { Button } from "~/shared/button";
+import { Modal } from "~/shared/modal";
 
 type LoaderData = {
   accounts: Awaited<ReturnType<typeof getAccountListItems>>;
@@ -189,16 +190,16 @@ export default function AccountsPage() {
                     </div>
                   </div>
                   <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-                    <ModalButton
+                    <Modal.Button
                       variant="primary"
                       type="submit"
                       ref={submitButtonRef}
                     >
                       Create
-                    </ModalButton>
-                    <ModalButton as={Link} to="." className="mt-3 sm:mt-0">
+                    </Modal.Button>
+                    <Modal.Button as={Link} to="." className="mt-3 sm:mt-0">
                       Cancel
-                    </ModalButton>
+                    </Modal.Button>
                   </div>
                 </Dialog.Panel>
               </Transition.Child>

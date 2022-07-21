@@ -1,11 +1,11 @@
 import type {
-  ComponentPropsWithoutRef,
   ComponentPropsWithRef,
   ElementType,
   PropsWithChildren,
 } from "react";
 import { forwardRef } from "react";
 import { cn } from "./classnames";
+import type { PolymorphicComponentProps } from "./util";
 
 export const Button = forwardRef(function Button<T extends ElementType>(
   { as, variant = "secondary", children, className, ...props }: ButtonProps<T>,
@@ -32,23 +32,8 @@ export const Button = forwardRef(function Button<T extends ElementType>(
   );
 });
 
-export type ButtonProps<T extends ElementType> = PropsWithChildren<{
-  as?: T;
-  variant?: "primary" | "secondary";
-}> &
-  ComponentPropsWithoutRef<T>;
-
-export const ModalButton = forwardRef(function ModalButton<
-  T extends ElementType
->(
-  { className, ...props }: ButtonProps<T>,
-  ref?: ComponentPropsWithRef<T>["ref"]
-) {
-  return (
-    <Button
-      className={cn(className, "w-full text-base sm:ml-3 sm:text-sm")}
-      {...props}
-      ref={ref}
-    />
-  );
-});
+export type ButtonProps<T extends ElementType> = PropsWithChildren<
+  PolymorphicComponentProps<T> & {
+    variant?: "primary" | "secondary";
+  }
+>;
