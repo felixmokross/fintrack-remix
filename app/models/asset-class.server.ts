@@ -55,7 +55,9 @@ export function updateAssetClass({
   });
 }
 
-// TODO add user ID
-export function deleteAssetClass({ id }: Pick<AssetClass, "id">) {
-  return prisma.assetClass.delete({ where: { id } });
+export function deleteAssetClass({
+  id,
+  userId,
+}: Pick<AssetClass, "id" | "userId">) {
+  return prisma.assetClass.deleteMany({ where: { id, userId } });
 }

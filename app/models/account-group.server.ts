@@ -27,6 +27,9 @@ export function createAccountGroup({
   });
 }
 
-export function deleteAccountGroup({ id }: Pick<AccountGroup, "id">) {
-  return prisma.accountGroup.delete({ where: { id } });
+export function deleteAccountGroup({
+  id,
+  userId,
+}: Pick<AccountGroup, "id" | "userId">) {
+  return prisma.accountGroup.deleteMany({ where: { id, userId } });
 }

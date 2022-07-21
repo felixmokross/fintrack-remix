@@ -90,7 +90,7 @@ export default function EditPage() {
   return (
     <Modal initialFocus={submitButtonRef} onClose={onClose}>
       <Form method="post">
-        <Modal.Body title={"Edit Asset Class"} icon={PencilIcon}>
+        <Modal.Body title="Edit Asset Class" icon={PencilIcon}>
           <div className="space-y-8 divide-y divide-gray-200">
             <div className="space-y-8 divide-y divide-gray-200">
               <div>

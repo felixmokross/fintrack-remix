@@ -29,6 +29,6 @@ export function createStock({
   });
 }
 
-export function deleteStock({ id }: Pick<Stock, "id">) {
-  return prisma.stock.delete({ where: { id } });
+export function deleteStock({ id, userId }: Pick<Stock, "id" | "userId">) {
+  return prisma.stock.deleteMany({ where: { id } });
 }
