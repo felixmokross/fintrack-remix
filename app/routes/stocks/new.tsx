@@ -8,7 +8,7 @@ import type { StockErrors, StockValues } from "~/models/stock.server";
 import { createStock } from "~/models/stock.server";
 import { validateStock } from "~/models/stock.server";
 import { requireUserId } from "~/session.server";
-import { Input } from "~/shared/forms";
+import { CurrencyCombobox, Input } from "~/shared/forms";
 import { Modal } from "~/shared/modal";
 
 type ActionData = {
@@ -59,10 +59,10 @@ export default function NewStockModal() {
                     error={actionData?.errors?.id}
                     groupClassName="sm:col-span-2"
                   />
-                  <Input
-                    label="Trading currency"
+                  <CurrencyCombobox
                     name="tradingCurrency"
                     id="tradingCurrency"
+                    label="Trading currency"
                     error={actionData?.errors?.tradingCurrency}
                     groupClassName="sm:col-span-4"
                   />
