@@ -10,9 +10,11 @@ import { json } from "@remix-run/server-runtime";
 import { useRef } from "react";
 import invariant from "tiny-invariant";
 import { PencilIcon } from "~/icons";
-import { getAccountGroup } from "~/models/account-group.server";
+import {
+  getAccountGroup,
+  validateAccountGroup,
+} from "~/models/account-group.server";
 import { updateAccountGroup } from "~/models/account-group.server";
-import { getAssetClass } from "~/models/asset-class.server";
 import { requireUserId } from "~/session.server";
 import { Input } from "~/shared/forms";
 import { Modal } from "~/shared/modal";
@@ -40,11 +42,7 @@ export const action: ActionFunction = async ({ request, params }) => {
 
   invariant(typeof name === "string", "name not found");
 
-  const errors: ActionData["errors"] = {};
-
-  if (name.length === 0) {
-    errors.name = "Name is required";
-  }
+  const errors = validateAccountGroup({ name });
 
   if (Object.values(errors).length > 0) {
     return json<ActionData>({ errors, values: { name } }, { status: 400 });

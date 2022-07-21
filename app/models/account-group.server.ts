@@ -58,3 +58,20 @@ export function deleteAccountGroup({
 }: Pick<AccountGroup, "id" | "userId">) {
   return prisma.accountGroup.deleteMany({ where: { id, userId } });
 }
+
+export function validateAccountGroup({ name }: AccountGroupValues) {
+  const errors: AccountGroupErrors = {};
+  if (name.length === 0) {
+    errors.name = "Name is required";
+  }
+
+  return errors;
+}
+
+export type AccountGroupValues = {
+  name: string;
+};
+
+export type AccountGroupErrors = {
+  name?: string;
+};

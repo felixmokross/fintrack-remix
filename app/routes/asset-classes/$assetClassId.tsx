@@ -10,7 +10,12 @@ import { json } from "@remix-run/server-runtime";
 import { useRef } from "react";
 import invariant from "tiny-invariant";
 import { PencilIcon } from "~/icons";
-import { getAssetClass, updateAssetClass } from "~/models/asset-class.server";
+import {
+  getAssetClass,
+  parseSortOrder,
+  updateAssetClass,
+  validateAssetClass,
+} from "~/models/asset-class.server";
 import { requireUserId } from "~/session.server";
 import { Input } from "~/shared/forms";
 import { Modal } from "~/shared/modal";
@@ -42,18 +47,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   invariant(typeof name === "string", "name not found");
   invariant(typeof sortOrder === "string", "sortOrder not found");
 
-  const errors: ActionData["errors"] = {};
-
-  if (name.length === 0) {
-    errors.name = "Name is required";
-  }
-
-  const parsedSortOrder = parseInt(sortOrder, 10);
-  if (sortOrder.length === 0) {
-    errors.sortOrder = "Sort order is required";
-  } else if (isNaN(parsedSortOrder)) {
-    errors.sortOrder = "Sort order must be a number";
-  }
+  const errors = validateAssetClass({ name, sortOrder });
 
   if (Object.values(errors).length > 0) {
     return json<ActionData>(
@@ -65,7 +59,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   await updateAssetClass({
     id: params.assetClassId,
     name,
-    sortOrder: parsedSortOrder,
+    sortOrder: parseSortOrder(sortOrder),
     userId,
   });
 

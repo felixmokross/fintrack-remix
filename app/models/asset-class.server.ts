@@ -61,3 +61,32 @@ export function deleteAssetClass({
 }: Pick<AssetClass, "id" | "userId">) {
   return prisma.assetClass.deleteMany({ where: { id, userId } });
 }
+
+export function validateAssetClass({ name, sortOrder }: AssetClassValues) {
+  const errors: AssetClassErrors = {};
+  if (name.length === 0) {
+    errors.name = "Name is required";
+  }
+
+  if (sortOrder.length === 0) {
+    errors.sortOrder = "Sort order is required";
+  } else if (isNaN(parseSortOrder(sortOrder))) {
+    errors.sortOrder = "Sort order must be a number";
+  }
+
+  return errors;
+}
+
+export function parseSortOrder(sortOrder: string) {
+  return parseInt(sortOrder, 10);
+}
+
+export type AssetClassValues = {
+  name: string;
+  sortOrder: string;
+};
+
+export type AssetClassErrors = {
+  name?: string;
+  sortOrder?: string;
+};
