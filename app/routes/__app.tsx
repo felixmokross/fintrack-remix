@@ -1,5 +1,5 @@
 import { Disclosure, Menu, Transition } from "@headlessui/react";
-import { NavLink, Link, Outlet } from "@remix-run/react";
+import { NavLink, Link, Outlet, Form } from "@remix-run/react";
 import { Fragment } from "react";
 import { SearchIcon, XIcon, MenuIcon, CogIcon } from "~/icons";
 import { cn } from "~/shared/classnames";
@@ -8,7 +8,7 @@ export default function App() {
   return (
     <>
       <Disclosure as="nav" className="bg-white shadow">
-        {({ open }) => (
+        {({ open, close }) => (
           <>
             <div className="mx-auto max-w-7xl px-2 sm:px-4 lg:px-8">
               <div className="flex h-16 justify-between">
@@ -135,15 +135,21 @@ export default function App() {
                         </Menu.Item>
                         <Menu.Item>
                           {({ active }) => (
-                            <a
-                              href="#"
+                            <Form
+                              action="/logout"
+                              method="post"
                               className={cn(
                                 active ? "bg-gray-100" : "",
                                 "block px-4 py-2 text-sm text-gray-700"
                               )}
                             >
-                              Sign out
-                            </a>
+                              <button
+                                type="submit"
+                                className="w-full text-left"
+                              >
+                                Sign out
+                              </button>
+                            </Form>
                           )}
                         </Menu.Item>
                       </Menu.Items>
@@ -156,29 +162,28 @@ export default function App() {
             <Disclosure.Panel className="lg:hidden">
               <div className="space-y-1 pt-2 pb-3">
                 {/* Current: "bg-indigo-50 border-indigo-500 text-indigo-700", Default: "border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800" */}
-                <Disclosure.Button
-                  as={NavLink}
+                <NavLink
                   to="#"
+                  // onClick={() => close()}
                   aria-disabled="true"
                   className="block cursor-not-allowed border-l-4 border-transparent py-2 pl-3 pr-4 text-base font-medium text-gray-600 opacity-50"
                 >
                   Dashboard
-                </Disclosure.Button>
-                <Disclosure.Button as="div">
-                  <NavLink
-                    to="accounts"
-                    className={({ isActive }) =>
-                      cn(
-                        "block border-l-4 py-2 pl-3 pr-4 text-base font-medium",
-                        isActive
-                          ? "border-indigo-500 bg-indigo-50 text-indigo-700"
-                          : "border-transparent text-gray-600 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-800"
-                      )
-                    }
-                  >
-                    Accounts
-                  </NavLink>
-                </Disclosure.Button>
+                </NavLink>
+                <NavLink
+                  to="accounts"
+                  onClick={() => close()}
+                  className={({ isActive }) =>
+                    cn(
+                      "block border-l-4 py-2 pl-3 pr-4 text-base font-medium",
+                      isActive
+                        ? "border-indigo-500 bg-indigo-50 text-indigo-700"
+                        : "border-transparent text-gray-600 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-800"
+                    )
+                  }
+                >
+                  Accounts
+                </NavLink>
               </div>
               <div className="border-t border-gray-200 pt-4 pb-3">
                 <div className="flex items-center px-4">
@@ -199,6 +204,7 @@ export default function App() {
                   </div>
                   <Link
                     to="settings"
+                    onClick={() => close()}
                     className="ml-auto flex-shrink-0 rounded-full bg-white p-1 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                   >
                     <span className="sr-only">Go to settings</span>
@@ -206,20 +212,23 @@ export default function App() {
                   </Link>
                 </div>
                 <div className="mt-3 space-y-1">
-                  <Disclosure.Button
-                    as="a"
+                  <a
                     href="#"
+                    onClick={() => close()}
                     className="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800"
                   >
                     Your Profile
-                  </Disclosure.Button>
-                  <Disclosure.Button
-                    as="a"
-                    href="#"
+                  </a>
+                  <Form
+                    action="/logout"
+                    method="post"
+                    onSubmit={() => close()}
                     className="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800"
                   >
-                    Sign out
-                  </Disclosure.Button>
+                    <button type="submit" className="w-full text-left">
+                      Sign out
+                    </button>
+                  </Form>
                 </div>
               </div>
             </Disclosure.Panel>
