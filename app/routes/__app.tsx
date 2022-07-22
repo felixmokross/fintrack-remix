@@ -3,9 +3,11 @@ import { NavLink, Link, Outlet, Form } from "@remix-run/react";
 import { Fragment, useRef } from "react";
 import { SearchIcon, XIcon, MenuIcon, CogIcon } from "~/icons";
 import { cn } from "~/shared/classnames";
+import { useUser } from "~/utils";
 
 export default function App() {
   const noFocusRef = useRef(null);
+  const user = useUser();
   return (
     <>
       {/* noFocusRef: prevent close() calls from focusing the triggering Disclosure.Button by passing a ref to an element which cannot be focused to the close() calls */}
@@ -205,7 +207,7 @@ export default function App() {
                         Tom Cook
                       </div>
                       <div className="text-sm font-medium text-gray-500">
-                        tom@example.com
+                        {user.email}
                       </div>
                     </div>
                     <Link
