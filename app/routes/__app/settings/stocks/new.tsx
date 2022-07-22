@@ -46,7 +46,7 @@ export default function NewStockModal() {
   const actionData = useActionData<ActionData>();
   return (
     <Modal initialFocus={submitButtonRef} onClose={onClose}>
-      <Form method="post">
+      <Form method="post" replace>
         <Modal.Body title="New Stock" icon={PlusIcon}>
           <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
             <Input
