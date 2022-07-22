@@ -46,14 +46,12 @@ export function updateStock({
   id,
   tradingCurrency,
   userId,
-  previousId,
 }: Pick<Stock, "id" | "tradingCurrency"> & {
   userId: User["id"];
-  previousId: string;
 }) {
   return prisma.stock.updateMany({
-    where: { id: previousId, userId },
-    data: { id, tradingCurrency },
+    where: { id, userId },
+    data: { tradingCurrency },
   });
 }
 
@@ -64,14 +62,14 @@ export function deleteStock({ id, userId }: Pick<Stock, "id" | "userId">) {
 export async function validateStock(
   { id, tradingCurrency }: StockValues,
   userId: User["id"],
-  previousId?: string
+  isNew: boolean
 ) {
   const errors: StockErrors = {};
 
   if (id.length === 0) {
     errors.id = "Symbol is required";
   } else if (
-    (!previousId || id !== previousId) &&
+    isNew &&
     (await prisma.stock.findFirst({
       where: { id: id.toUpperCase(), userId },
     })) !== null

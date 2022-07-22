@@ -26,7 +26,7 @@ export const action: ActionFunction = async ({ request }) => {
   invariant(typeof id === "string", "id not found");
   invariant(typeof tradingCurrency === "string", "tradingCurrency not found");
 
-  const errors = await validateStock({ id, tradingCurrency }, userId);
+  const errors = await validateStock({ id, tradingCurrency }, userId, true);
 
   if (Object.values(errors).length > 0) {
     return json<ActionData>(

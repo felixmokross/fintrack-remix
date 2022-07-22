@@ -10,22 +10,8 @@ import { json } from "@remix-run/server-runtime";
 import { useRef } from "react";
 import invariant from "tiny-invariant";
 import { PencilIcon } from "~/icons";
-import type {
-  AccountGroupErrors,
-  AccountGroupValues,
-} from "~/models/account-group.server";
-import {
-  getAccountGroup,
-  validateAccountGroup,
-} from "~/models/account-group.server";
-import { updateAccountGroup } from "~/models/account-group.server";
-import {
-  getStock,
-  StockErrors,
-  StockValues,
-  updateStock,
-  validateStock,
-} from "~/models/stock.server";
+import type { StockErrors, StockValues } from "~/models/stock.server";
+import { getStock, updateStock, validateStock } from "~/models/stock.server";
 import { requireUserId } from "~/session.server";
 import { CurrencyCombobox, Input } from "~/shared/forms";
 import { Modal } from "~/shared/modal";
@@ -45,30 +31,27 @@ export const action: ActionFunction = async ({ request, params }) => {
   invariant(params.stockId, "stockId not found");
 
   const formData = await request.formData();
-  const id = formData.get("id");
   const tradingCurrency = formData.get("tradingCurrency");
 
-  invariant(typeof id === "string", "id not found");
   invariant(typeof tradingCurrency === "string", "tradingCurrency not found");
 
   const errors = await validateStock(
-    { id, tradingCurrency },
+    { id: params.stockId, tradingCurrency },
     userId,
-    params.stockId
+    false
   );
 
   if (Object.values(errors).length > 0) {
     return json<ActionData>(
-      { errors, values: { id, tradingCurrency } },
+      { errors, values: { id: params.stockId, tradingCurrency } },
       { status: 400 }
     );
   }
 
   await updateStock({
-    id,
+    id: params.stockId,
     tradingCurrency,
     userId,
-    previousId: params.stockId,
   });
 
   return redirect(`/stocks`);
@@ -103,6 +86,7 @@ export default function EditPage() {
               name="id"
               id="id"
               defaultValue={actionData?.values?.id || stock.id}
+              disabled={true}
               error={actionData?.errors?.id}
               groupClassName="sm:col-span-2"
             />

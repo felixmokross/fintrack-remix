@@ -1,10 +1,5 @@
 import { Combobox } from "@headlessui/react";
-import type {
-  ComponentProps,
-  ComponentPropsWithoutRef,
-  DetailedHTMLProps,
-  HTMLAttributes,
-} from "react";
+import type { DetailedHTMLProps } from "react";
 import { useState } from "react";
 import { currenciesByCode, currencyItems } from "~/currencies";
 import { CheckIcon, SelectorIcon } from "~/icons";
@@ -15,8 +10,9 @@ export function Input({
   name,
   id,
   error,
-  defaultValue,
   groupClassName,
+  defaultValue,
+  disabled,
 }: InputProps) {
   const errorId = `${id}-error`;
   return (
@@ -29,10 +25,11 @@ export function Input({
           type="text"
           name={name}
           id={id}
-          className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:opacity-50 sm:text-sm"
           aria-invalid={error ? "true" : undefined}
           aria-describedby={error ? errorId : undefined}
           defaultValue={defaultValue}
+          disabled={disabled}
         />
 
         {error && (
@@ -49,13 +46,15 @@ export type InputProps = {
   name: string;
   id: string;
   label: string;
-  defaultValue?: DetailedHTMLProps<
-    React.InputHTMLAttributes<HTMLInputElement>,
-    HTMLInputElement
-  >["defaultValue"];
   error?: string;
   groupClassName?: string;
-};
+} & Pick<
+  DetailedHTMLProps<
+    React.InputHTMLAttributes<HTMLInputElement>,
+    HTMLInputElement
+  >,
+  "defaultValue" | "disabled"
+>;
 
 export function CurrencyCombobox({
   groupClassName,
