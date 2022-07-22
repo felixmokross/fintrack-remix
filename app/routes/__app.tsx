@@ -235,7 +235,9 @@ export default function App() {
           </>
         )}
       </Disclosure>
-      <Outlet />
+      <div className="mx-auto max-w-7xl sm:px-4 lg:px-8">
+        <Outlet />
+      </div>
     </>
   );
 }
