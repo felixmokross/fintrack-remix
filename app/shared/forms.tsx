@@ -1,5 +1,10 @@
 import { Combobox } from "@headlessui/react";
-import type { DetailedHTMLProps } from "react";
+import type {
+  ComponentProps,
+  ComponentPropsWithoutRef,
+  DetailedHTMLProps,
+  HTMLAttributes,
+} from "react";
 import { useState } from "react";
 import { currenciesByCode, currencyItems } from "~/currencies";
 import { CheckIcon, SelectorIcon } from "~/icons";
@@ -58,8 +63,9 @@ export function CurrencyCombobox({
   name,
   error,
   id,
+  defaultValue,
 }: CurrencyComboboxProps) {
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState(defaultValue);
   const [query, setQuery] = useState("");
   const filteredCurrencies =
     query === ""
@@ -168,4 +174,5 @@ type CurrencyComboboxProps = {
   name: string;
   id: string;
   error?: string;
+  defaultValue?: string;
 };

@@ -1,12 +1,31 @@
-import { Form, useActionData, useNavigate } from "@remix-run/react";
-import type { ActionFunction } from "@remix-run/server-runtime";
-import { json, redirect } from "@remix-run/server-runtime";
+import {
+  Form,
+  useActionData,
+  useLoaderData,
+  useNavigate,
+} from "@remix-run/react";
+import type { ActionFunction, LoaderFunction } from "@remix-run/server-runtime";
+import { redirect } from "@remix-run/server-runtime";
+import { json } from "@remix-run/server-runtime";
 import { useRef } from "react";
 import invariant from "tiny-invariant";
-import { PlusIcon } from "~/icons";
-import type { StockErrors, StockValues } from "~/models/stock.server";
-import { createStock } from "~/models/stock.server";
-import { validateStock } from "~/models/stock.server";
+import { PencilIcon } from "~/icons";
+import type {
+  AccountGroupErrors,
+  AccountGroupValues,
+} from "~/models/account-group.server";
+import {
+  getAccountGroup,
+  validateAccountGroup,
+} from "~/models/account-group.server";
+import { updateAccountGroup } from "~/models/account-group.server";
+import {
+  getStock,
+  StockErrors,
+  StockValues,
+  updateStock,
+  validateStock,
+} from "~/models/stock.server";
 import { requireUserId } from "~/session.server";
 import { CurrencyCombobox, Input } from "~/shared/forms";
 import { Modal } from "~/shared/modal";
@@ -16,8 +35,14 @@ type ActionData = {
   values?: StockValues;
 };
 
-export const action: ActionFunction = async ({ request }) => {
+type LoaderData = {
+  stock: NonNullable<Awaited<ReturnType<typeof getStock>>>;
+};
+
+export const action: ActionFunction = async ({ request, params }) => {
   const userId = await requireUserId(request);
+
+  invariant(params.stockId, "stockId not found");
 
   const formData = await request.formData();
   const id = formData.get("id");
@@ -26,7 +51,11 @@ export const action: ActionFunction = async ({ request }) => {
   invariant(typeof id === "string", "id not found");
   invariant(typeof tradingCurrency === "string", "tradingCurrency not found");
 
-  const errors = await validateStock({ id, tradingCurrency }, userId);
+  const errors = await validateStock(
+    { id, tradingCurrency },
+    userId,
+    params.stockId
+  );
 
   if (Object.values(errors).length > 0) {
     return json<ActionData>(
@@ -35,24 +64,45 @@ export const action: ActionFunction = async ({ request }) => {
     );
   }
 
-  await createStock({ id, tradingCurrency, userId });
+  await updateStock({
+    id,
+    tradingCurrency,
+    userId,
+    previousId: params.stockId,
+  });
 
   return redirect(`/stocks`);
 };
 
-export default function NewStockModal() {
+export const loader: LoaderFunction = async ({ request, params }) => {
+  const userId = await requireUserId(request);
+  invariant(params.stockId, "stockId not found");
+  const stock = await getStock({
+    userId,
+    id: params.stockId,
+  });
+  if (!stock) {
+    throw new Response("Not Found", { status: 404 });
+  }
+  return json<LoaderData>({ stock });
+};
+
+export default function EditPage() {
+  const { stock } = useLoaderData<LoaderData>();
+  const actionData = useActionData<ActionData>();
   const submitButtonRef = useRef(null);
   const navigate = useNavigate();
-  const actionData = useActionData<ActionData>();
+  console.log(stock.tradingCurrency);
   return (
     <Modal initialFocus={submitButtonRef} onClose={onClose}>
       <Form method="post">
-        <Modal.Body title="New Stock" icon={PlusIcon}>
+        <Modal.Body title="Edit Stock" icon={PencilIcon}>
           <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
             <Input
               label="Symbol"
               name="id"
               id="id"
+              defaultValue={actionData?.values?.id || stock.id}
               error={actionData?.errors?.id}
               groupClassName="sm:col-span-2"
             />
@@ -61,6 +111,9 @@ export default function NewStockModal() {
               id="tradingCurrency"
               label="Trading currency"
               error={actionData?.errors?.tradingCurrency}
+              defaultValue={
+                actionData?.values?.tradingCurrency || stock.tradingCurrency
+              }
               groupClassName="sm:col-span-4"
             />
           </div>

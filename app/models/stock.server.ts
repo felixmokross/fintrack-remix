@@ -10,6 +10,18 @@ export function getStockListItems({ userId }: { userId: User["id"] }) {
   });
 }
 
+export function getStock({
+  id,
+  userId,
+}: Pick<Stock, "id"> & {
+  userId: User["id"];
+}) {
+  return prisma.stock.findFirst({
+    select: { id: true, tradingCurrency: true },
+    where: { id, userId },
+  });
+}
+
 export function createStock({
   id,
   tradingCurrency,
@@ -30,18 +42,36 @@ export function createStock({
   });
 }
 
+export function updateStock({
+  id,
+  tradingCurrency,
+  userId,
+  previousId,
+}: Pick<Stock, "id" | "tradingCurrency"> & {
+  userId: User["id"];
+  previousId: string;
+}) {
+  return prisma.stock.updateMany({
+    where: { id: previousId, userId },
+    data: { id, tradingCurrency },
+  });
+}
+
 export function deleteStock({ id, userId }: Pick<Stock, "id" | "userId">) {
   return prisma.stock.deleteMany({ where: { id, userId } });
 }
 
 export async function validateStock(
   { id, tradingCurrency }: StockValues,
-  userId: User["id"]
+  userId: User["id"],
+  previousId?: string
 ) {
   const errors: StockErrors = {};
+
   if (id.length === 0) {
     errors.id = "Symbol is required";
   } else if (
+    (!previousId || id !== previousId) &&
     (await prisma.stock.findFirst({
       where: { id: id.toUpperCase(), userId },
     })) !== null
