@@ -11,7 +11,10 @@ const navigation = [
 export default function SettingsPage() {
   return (
     <div className="flex flex-col md:flex-row">
-      <nav className="flex-none space-y-1 py-2 md:w-52" aria-label="Sidebar">
+      <nav
+        className="flex-none space-y-1 py-2 md:w-52 md:py-4"
+        aria-label="Sidebar"
+      >
         {navigation.map((item) => (
           <NavLink
             key={item.name}
