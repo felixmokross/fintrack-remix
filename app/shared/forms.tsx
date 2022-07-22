@@ -1,4 +1,5 @@
-import { Combobox } from "@headlessui/react";
+import { Combobox, RadioGroup } from "@headlessui/react";
+import { AccountType } from "@prisma/client";
 import type { DetailedHTMLProps } from "react";
 import { useState } from "react";
 import { currenciesByCode, currencyItems } from "~/currencies";
@@ -167,11 +168,84 @@ export function CurrencyCombobox({
   }
 }
 
-type CurrencyComboboxProps = {
+export type CurrencyComboboxProps = {
   groupClassName?: string;
   label: string;
   name: string;
   id: string;
   error?: string;
   defaultValue?: string;
+};
+
+export function AccountTypeRadioGroup({
+  groupClassName,
+  label,
+  name,
+  id,
+  error,
+  defaultValue = AccountType.ASSET,
+}: AccountTypeRadioGroupProps) {
+  const [value, setValue] = useState<AccountType>(defaultValue);
+  const errorId = `${id}-error`;
+  return (
+    <RadioGroup
+      value={value}
+      onChange={setValue}
+      className={groupClassName}
+      name={name}
+      id={id}
+      aria-invalid={error ? "true" : undefined}
+      aria-describedby={error ? errorId : undefined}
+    >
+      <RadioGroup.Label className="block text-sm font-medium text-gray-700">
+        {label}
+      </RadioGroup.Label>
+      <div className="mt-1 grid grid-cols-2 gap-x-3">
+        <RadioGroup.Option
+          value={AccountType.ASSET}
+          className={({ active, checked }) =>
+            cn(
+              "cursor-pointer focus:outline-none",
+              active ? "ring-2 ring-indigo-500 ring-offset-2" : "",
+              checked
+                ? "border-transparent bg-indigo-600 text-white hover:bg-indigo-700"
+                : "border-gray-200 bg-white text-gray-900 hover:bg-gray-50",
+              "flex items-center justify-center rounded-md border py-2 px-3 text-sm font-medium sm:flex-1"
+            )
+          }
+        >
+          <RadioGroup.Label as="span">Asset</RadioGroup.Label>
+        </RadioGroup.Option>
+        <RadioGroup.Option
+          value={AccountType.LIABILITY}
+          className={({ active, checked }) =>
+            cn(
+              "cursor-pointer focus:outline-none",
+              active ? "ring-2 ring-indigo-500 ring-offset-2" : "",
+              checked
+                ? "border-transparent bg-indigo-600 text-white hover:bg-indigo-700"
+                : "border-gray-200 bg-white text-gray-900 hover:bg-gray-50",
+              "flex items-center justify-center rounded-md border py-2 px-3 text-sm font-medium sm:flex-1"
+            )
+          }
+        >
+          <RadioGroup.Label as="span">Liability</RadioGroup.Label>
+        </RadioGroup.Option>
+        {error && (
+          <p className="mt-2 text-sm text-red-600" id={errorId}>
+            {error}
+          </p>
+        )}
+      </div>
+    </RadioGroup>
+  );
+}
+
+export type AccountTypeRadioGroupProps = {
+  groupClassName?: string;
+  label: string;
+  name: string;
+  id: string;
+  error?: string;
+  defaultValue?: AccountType;
 };
