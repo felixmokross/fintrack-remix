@@ -1,78 +1,67 @@
 import { Form, useActionData, useNavigate } from "@remix-run/react";
 import type { ActionFunction } from "@remix-run/server-runtime";
-import { json } from "@remix-run/server-runtime";
-import { redirect } from "@remix-run/server-runtime";
+import { json, redirect } from "@remix-run/server-runtime";
 import { useRef } from "react";
 import invariant from "tiny-invariant";
 import { PlusIcon } from "~/icons";
-import type {
-  AssetClassErrors,
-  AssetClassValues,
-} from "~/models/asset-class.server";
-import {
-  parseSortOrder,
-  validateAssetClass,
-} from "~/models/asset-class.server";
-import { createAssetClass } from "~/models/asset-class.server";
+import type { StockErrors, StockValues } from "~/models/stock.server";
+import { createStock } from "~/models/stock.server";
+import { validateStock } from "~/models/stock.server";
 import { requireUserId } from "~/session.server";
-import { Input } from "~/shared/forms";
+import { CurrencyCombobox, Input } from "~/shared/forms";
 import { Modal } from "~/shared/modal";
 
 type ActionData = {
-  errors?: AssetClassErrors;
-  values?: AssetClassValues;
+  errors?: StockErrors;
+  values?: StockValues;
 };
 
 export const action: ActionFunction = async ({ request }) => {
   const userId = await requireUserId(request);
 
   const formData = await request.formData();
-  const name = formData.get("name");
-  const sortOrder = formData.get("sortOrder");
+  const id = formData.get("id");
+  const tradingCurrency = formData.get("tradingCurrency");
 
-  invariant(typeof name === "string", "name not found");
-  invariant(typeof sortOrder === "string", "sortOrder not found");
+  invariant(typeof id === "string", "id not found");
+  invariant(typeof tradingCurrency === "string", "tradingCurrency not found");
 
-  const errors = validateAssetClass({ name, sortOrder });
+  const errors = await validateStock({ id, tradingCurrency }, userId, true);
 
   if (Object.values(errors).length > 0) {
     return json<ActionData>(
-      { errors, values: { name, sortOrder } },
+      { errors, values: { id, tradingCurrency } },
       { status: 400 }
     );
   }
 
-  await createAssetClass({
-    name,
-    sortOrder: parseSortOrder(sortOrder),
-    userId,
-  });
+  await createStock({ id, tradingCurrency, userId });
 
-  return redirect(`/asset-classes`);
+  return redirect(`/settings/stocks`);
 };
 
-export default function NewAssetClassModal() {
+export default function NewStockModal() {
   const submitButtonRef = useRef(null);
   const navigate = useNavigate();
   const actionData = useActionData<ActionData>();
   return (
     <Modal initialFocus={submitButtonRef} onClose={onClose}>
       <Form method="post">
-        <Modal.Body title="New Asset Class" icon={PlusIcon}>
+        <Modal.Body title="New Stock" icon={PlusIcon}>
           <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
             <Input
-              label="Name"
-              name="name"
-              id="name"
-              error={actionData?.errors?.name}
-              groupClassName="sm:col-span-3"
+              label="Symbol"
+              name="id"
+              id="id"
+              error={actionData?.errors?.id}
+              groupClassName="sm:col-span-2"
             />
-            <Input
-              label="Sort order"
-              name="sortOrder"
-              id="sortOrder"
-              error={actionData?.errors?.sortOrder}
-              groupClassName="sm:col-span-3"
+            <CurrencyCombobox
+              name="tradingCurrency"
+              id="tradingCurrency"
+              label="Trading currency"
+              error={actionData?.errors?.tradingCurrency}
+              groupClassName="sm:col-span-4"
             />
           </div>
         </Modal.Body>

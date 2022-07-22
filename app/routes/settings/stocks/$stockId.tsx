@@ -10,83 +10,95 @@ import { json } from "@remix-run/server-runtime";
 import { useRef } from "react";
 import invariant from "tiny-invariant";
 import { PencilIcon } from "~/icons";
-import type {
-  AccountGroupErrors,
-  AccountGroupValues,
-} from "~/models/account-group.server";
-import {
-  getAccountGroup,
-  validateAccountGroup,
-} from "~/models/account-group.server";
-import { updateAccountGroup } from "~/models/account-group.server";
+import type { StockErrors, StockValues } from "~/models/stock.server";
+import { getStock, updateStock, validateStock } from "~/models/stock.server";
 import { requireUserId } from "~/session.server";
-import { Input } from "~/shared/forms";
+import { CurrencyCombobox, Input } from "~/shared/forms";
 import { Modal } from "~/shared/modal";
 
 type ActionData = {
-  errors?: AccountGroupErrors;
-  values?: AccountGroupValues;
+  errors?: StockErrors;
+  values?: StockValues;
 };
 
 type LoaderData = {
-  accountGroup: NonNullable<Awaited<ReturnType<typeof getAccountGroup>>>;
+  stock: NonNullable<Awaited<ReturnType<typeof getStock>>>;
 };
 
 export const action: ActionFunction = async ({ request, params }) => {
   const userId = await requireUserId(request);
 
-  invariant(params.accountGroupId, "accountGroupId not found");
+  invariant(params.stockId, "stockId not found");
 
   const formData = await request.formData();
-  const name = formData.get("name");
+  const tradingCurrency = formData.get("tradingCurrency");
 
-  invariant(typeof name === "string", "name not found");
+  invariant(typeof tradingCurrency === "string", "tradingCurrency not found");
 
-  const errors = validateAccountGroup({ name });
+  const errors = await validateStock(
+    { id: params.stockId, tradingCurrency },
+    userId,
+    false
+  );
 
   if (Object.values(errors).length > 0) {
-    return json<ActionData>({ errors, values: { name } }, { status: 400 });
+    return json<ActionData>(
+      { errors, values: { id: params.stockId, tradingCurrency } },
+      { status: 400 }
+    );
   }
 
-  await updateAccountGroup({
-    id: params.accountGroupId,
-    name,
+  await updateStock({
+    id: params.stockId,
+    tradingCurrency,
     userId,
   });
 
-  return redirect(`/account-groups`);
+  return redirect(`/settings/stocks`);
 };
 
 export const loader: LoaderFunction = async ({ request, params }) => {
   const userId = await requireUserId(request);
-  invariant(params.accountGroupId, "accountGroupId not found");
-  const accountGroup = await getAccountGroup({
+  invariant(params.stockId, "stockId not found");
+  const stock = await getStock({
     userId,
-    id: params.accountGroupId,
+    id: params.stockId,
   });
-  if (!accountGroup) {
+  if (!stock) {
     throw new Response("Not Found", { status: 404 });
   }
-  return json<LoaderData>({ accountGroup });
+  return json<LoaderData>({ stock });
 };
 
 export default function EditPage() {
-  const { accountGroup } = useLoaderData<LoaderData>();
+  const { stock } = useLoaderData<LoaderData>();
   const actionData = useActionData<ActionData>();
   const submitButtonRef = useRef(null);
   const navigate = useNavigate();
+  console.log(stock.tradingCurrency);
   return (
     <Modal initialFocus={submitButtonRef} onClose={onClose}>
       <Form method="post">
-        <Modal.Body title="Edit Account Group" icon={PencilIcon}>
+        <Modal.Body title="Edit Stock" icon={PencilIcon}>
           <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
             <Input
-              label="Name"
-              name="name"
-              id="name"
-              error={actionData?.errors?.name}
-              defaultValue={actionData?.values?.name || accountGroup.name}
-              groupClassName="sm:col-span-6"
+              label="Symbol"
+              name="id"
+              id="id"
+              defaultValue={actionData?.values?.id || stock.id}
+              disabled={true}
+              error={actionData?.errors?.id}
+              groupClassName="sm:col-span-2"
+            />
+            <CurrencyCombobox
+              name="tradingCurrency"
+              id="tradingCurrency"
+              label="Trading currency"
+              error={actionData?.errors?.tradingCurrency}
+              defaultValue={
+                actionData?.values?.tradingCurrency || stock.tradingCurrency
+              }
+              groupClassName="sm:col-span-4"
             />
           </div>
         </Modal.Body>

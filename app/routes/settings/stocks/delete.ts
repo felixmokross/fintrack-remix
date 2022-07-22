@@ -1,7 +1,7 @@
 import type { ActionFunction } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import { redirect } from "@remix-run/server-runtime";
-import { deleteAssetClass } from "~/models/asset-class.server";
+import { deleteStock } from "~/models/stock.server";
 import { requireUserId } from "~/session.server";
 
 type ActionData = {
@@ -23,7 +23,7 @@ export const action: ActionFunction = async ({ request }) => {
     );
   }
 
-  await deleteAssetClass({ id, userId });
+  await deleteStock({ id, userId });
 
-  return redirect(`/asset-classes`);
+  return redirect(`/settings/stocks`);
 };

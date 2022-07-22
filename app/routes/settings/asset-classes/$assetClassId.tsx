@@ -61,7 +61,7 @@ export const action: ActionFunction = async ({ request, params }) => {
     userId,
   });
 
-  return redirect(`/asset-classes`);
+  return redirect(`/settings/asset-classes`);
 };
 
 export const loader: LoaderFunction = async ({ request, params }) => {
