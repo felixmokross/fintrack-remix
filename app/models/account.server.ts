@@ -53,7 +53,7 @@ export type AccountValues = {
   unit: string;
   currency: string | null;
   stockId: string | null;
-  preExisting: string;
+  preExisting: "on" | null;
 };
 
 export type AccountErrors = {

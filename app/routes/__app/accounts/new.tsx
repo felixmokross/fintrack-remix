@@ -71,7 +71,10 @@ export const action: ActionFunction = async ({ request }) => {
   invariant(typeof unit === "string", "unit not found");
   invariant(!currency || typeof currency === "string", "currency not found");
   invariant(!stockId || typeof stockId === "string", "stockId not found");
-  invariant(typeof preExisting === "string", "preExisting not found");
+  invariant(
+    preExisting === null || preExisting === "on",
+    "preExisting not found"
+  );
 
   const errors = validateAccount({
     name,
@@ -110,7 +113,7 @@ export const action: ActionFunction = async ({ request }) => {
     unit: unit as AccountUnit,
     currency,
     userId,
-    preExisting: preExisting === "true",
+    preExisting: preExisting === "on",
   });
 
   return redirect(`/accounts`);
@@ -225,7 +228,7 @@ export default function NewPage() {
               description="This account has existed since before the accounting start date."
               name="preExisting"
               id="preExisting"
-              defaultValue={actionData?.values?.preExisting}
+              defaultValue={actionData?.values?.preExisting || undefined}
             />
           </div>
         </Modal.Body>
