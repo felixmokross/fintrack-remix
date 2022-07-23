@@ -1,11 +1,36 @@
 import { Combobox, RadioGroup, Switch } from "@headlessui/react";
 import { AccountType, AccountUnit } from "@prisma/client";
-import type { DetailedHTMLProps } from "react";
 import { forwardRef } from "react";
+import type { DetailedHTMLProps, PropsWithChildren } from "react";
 import { useState } from "react";
 import { currenciesByCode, currencyItems } from "~/currencies";
 import { CheckIcon, SelectorIcon } from "~/icons";
 import { cn } from "./classnames";
+
+const labelClassName = "block text-sm font-medium text-gray-700";
+
+function Label({ htmlFor, children }: PropsWithChildren<LabelProps>) {
+  return (
+    <label htmlFor={htmlFor} className={labelClassName}>
+      {children}
+    </label>
+  );
+}
+
+type LabelProps = {
+  htmlFor: string;
+};
+
+function ErrorMessage({ error, errorId }: ErrorMessageProps) {
+  if (!error) return null;
+  return (
+    <p className="mt-2 text-sm text-red-600" id={errorId}>
+      {error}
+    </p>
+  );
+}
+
+type ErrorMessageProps = { error?: string; errorId: string };
 
 export const Input = forwardRef(function Input(
   {
@@ -22,28 +47,19 @@ export const Input = forwardRef(function Input(
   const errorId = `${id}-error`;
   return (
     <div className={groupClassName}>
-      <label htmlFor={id} className="block text-sm font-medium text-gray-700">
-        {label}
-      </label>
-      <div className="mt-1">
-        <input
-          type="text"
-          name={name}
-          id={id}
-          className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:opacity-50 sm:text-sm"
-          aria-invalid={error ? "true" : undefined}
-          aria-describedby={error ? errorId : undefined}
-          defaultValue={defaultValue}
-          disabled={disabled}
-          ref={ref}
-        />
-
-        {error && (
-          <p className="mt-2 text-sm text-red-600" id={errorId}>
-            {error}
-          </p>
-        )}
-      </div>
+      <Label htmlFor={id}>{label}</Label>
+      <input
+        type="text"
+        name={name}
+        id={id}
+        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:opacity-50 sm:text-sm"
+        aria-invalid={error ? "true" : undefined}
+        aria-describedby={error ? errorId : undefined}
+        defaultValue={defaultValue}
+        disabled={disabled}
+        ref={ref}
+      />
+      <ErrorMessage error={error} errorId={errorId} />
     </div>
   );
 });
@@ -78,9 +94,7 @@ export const Select = forwardRef(function Select(
   const errorId = `${id}-error`;
   return (
     <div className={groupClassName}>
-      <label htmlFor={id} className="block text-sm font-medium text-gray-700">
-        {label}
-      </label>
+      <Label htmlFor={id}>{label}</Label>
       <select
         id={id}
         name={name}
@@ -93,12 +107,7 @@ export const Select = forwardRef(function Select(
       >
         {children}
       </select>
-
-      {error && (
-        <p className="mt-2 text-sm text-red-600" id={errorId}>
-          {error}
-        </p>
-      )}
+      <ErrorMessage error={error} errorId={errorId} />
     </div>
   );
 });
@@ -149,10 +158,7 @@ export const CurrencyCombobox = forwardRef(function CurrencyCombobox(
       name={name}
       className={groupClassName}
     >
-      <Combobox.Label
-        htmlFor={id}
-        className="block text-sm font-medium text-gray-700"
-      >
+      <Combobox.Label htmlFor={id} className={labelClassName}>
         {label}
       </Combobox.Label>
       <div className="relative mt-1">
@@ -216,11 +222,7 @@ export const CurrencyCombobox = forwardRef(function CurrencyCombobox(
           </Combobox.Options>
         )}
       </div>
-      {error && (
-        <p className="mt-2 text-sm text-red-600" id={errorId}>
-          {error}
-        </p>
-      )}
+      <ErrorMessage error={error} errorId={errorId} />
     </Combobox>
   );
 
@@ -270,9 +272,7 @@ export function AccountTypeRadioGroup({
       aria-invalid={error ? "true" : undefined}
       aria-describedby={error ? errorId : undefined}
     >
-      <RadioGroup.Label className="block text-sm font-medium text-gray-700">
-        {label}
-      </RadioGroup.Label>
+      <RadioGroup.Label className={labelClassName}>{label}</RadioGroup.Label>
       <div className="mt-1 grid grid-cols-2 gap-x-3">
         <RadioGroup.Option
           value={AccountType.ASSET}
@@ -304,12 +304,8 @@ export function AccountTypeRadioGroup({
         >
           <RadioGroup.Label as="span">Liability</RadioGroup.Label>
         </RadioGroup.Option>
-        {error && (
-          <p className="mt-2 text-sm text-red-600" id={errorId}>
-            {error}
-          </p>
-        )}
       </div>
+      <ErrorMessage error={error} errorId={errorId} />
     </RadioGroup>
   );
 }
@@ -348,9 +344,7 @@ export function AccountUnitRadioGroup({
       aria-invalid={error ? "true" : undefined}
       aria-describedby={error ? errorId : undefined}
     >
-      <RadioGroup.Label className="block text-sm font-medium text-gray-700">
-        {label}
-      </RadioGroup.Label>
+      <RadioGroup.Label className={labelClassName}>{label}</RadioGroup.Label>
       <div className="mt-1 grid grid-cols-2 gap-x-3">
         <RadioGroup.Option
           value={AccountUnit.CURRENCY}
@@ -382,12 +376,8 @@ export function AccountUnitRadioGroup({
         >
           <RadioGroup.Label as="span">Stock</RadioGroup.Label>
         </RadioGroup.Option>
-        {error && (
-          <p className="mt-2 text-sm text-red-600" id={errorId}>
-            {error}
-          </p>
-        )}
       </div>
+      <ErrorMessage error={error} errorId={errorId} />
     </RadioGroup>
   );
 }
