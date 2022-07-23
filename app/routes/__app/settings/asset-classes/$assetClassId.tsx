@@ -77,10 +77,10 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 export default function EditPage() {
   const { assetClass } = useLoaderData<LoaderData>();
   const actionData = useActionData<ActionData>();
-  const submitButtonRef = useRef(null);
+  const nameInputRef = useRef(null);
   const navigate = useNavigate();
   return (
-    <Modal initialFocus={submitButtonRef} onClose={onClose}>
+    <Modal initialFocus={nameInputRef} onClose={onClose}>
       <Form method="post" replace>
         <Modal.Body title="Edit Asset Class" icon={PencilIcon}>
           <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
@@ -91,6 +91,7 @@ export default function EditPage() {
               error={actionData?.errors?.name}
               defaultValue={actionData?.values?.name || assetClass.name}
               groupClassName="sm:col-span-3"
+              ref={nameInputRef}
             />
             <Input
               label="Sort order"
@@ -105,7 +106,7 @@ export default function EditPage() {
           </div>
         </Modal.Body>
         <Modal.Footer>
-          <Modal.Button type="submit" variant="primary" ref={submitButtonRef}>
+          <Modal.Button type="submit" variant="primary">
             Save
           </Modal.Button>
           <Modal.Button

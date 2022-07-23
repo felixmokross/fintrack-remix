@@ -41,11 +41,11 @@ export const action: ActionFunction = async ({ request }) => {
 };
 
 export default function NewStockModal() {
-  const submitButtonRef = useRef(null);
+  const symbolInputRef = useRef(null);
   const navigate = useNavigate();
   const actionData = useActionData<ActionData>();
   return (
-    <Modal initialFocus={submitButtonRef} onClose={onClose}>
+    <Modal initialFocus={symbolInputRef} onClose={onClose}>
       <Form method="post" replace>
         <Modal.Body title="New Stock" icon={PlusIcon}>
           <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
@@ -55,6 +55,7 @@ export default function NewStockModal() {
               id="id"
               error={actionData?.errors?.id}
               groupClassName="sm:col-span-2"
+              ref={symbolInputRef}
             />
             <CurrencyCombobox
               name="tradingCurrency"
@@ -66,7 +67,7 @@ export default function NewStockModal() {
           </div>
         </Modal.Body>
         <Modal.Footer>
-          <Modal.Button type="submit" variant="primary" ref={submitButtonRef}>
+          <Modal.Button type="submit" variant="primary">
             Save
           </Modal.Button>
           <Modal.Button

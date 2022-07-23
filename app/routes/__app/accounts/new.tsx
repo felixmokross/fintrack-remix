@@ -63,13 +63,13 @@ export const action: ActionFunction = async ({ request }) => {
 };
 
 export default function NewPage() {
-  const submitButtonRef = useRef(null); // TODO do not focus submit button but first input (for all form modals)
+  const nameInputRef = useRef(null);
   const actionData = useActionData<ActionData>();
   const navigate = useNavigate();
   const { assetClasses } = useLoaderData<LoaderData>();
   const assetClassSelectRef = useRef<HTMLSelectElement>(null);
   return (
-    <Modal initialFocus={submitButtonRef} onClose={onClose}>
+    <Modal initialFocus={nameInputRef} onClose={onClose}>
       <Form method="post" replace>
         <Modal.Body title="New Account" icon={PlusIcon}>
           <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
@@ -80,6 +80,7 @@ export default function NewPage() {
               error={actionData?.errors?.name}
               groupClassName="sm:col-span-4"
               defaultValue={actionData?.values?.name}
+              ref={nameInputRef}
             />
             <AccountTypeRadioGroup
               label="Account type"
@@ -116,7 +117,7 @@ export default function NewPage() {
           </div>
         </Modal.Body>
         <Modal.Footer>
-          <Modal.Button type="submit" variant="primary" ref={submitButtonRef}>
+          <Modal.Button type="submit" variant="primary">
             Save
           </Modal.Button>
           <Modal.Button

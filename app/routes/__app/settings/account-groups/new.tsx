@@ -41,11 +41,11 @@ export const action: ActionFunction = async ({ request }) => {
 };
 
 export default function NewAccountGroupModal() {
-  const submitButtonRef = useRef(null);
+  const nameInputRef = useRef(null);
   const navigate = useNavigate();
   const actionData = useActionData<ActionData>();
   return (
-    <Modal initialFocus={submitButtonRef} onClose={onClose}>
+    <Modal initialFocus={nameInputRef} onClose={onClose}>
       <Form method="post" replace>
         <Modal.Body title="New Account Group" icon={PlusIcon}>
           <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
@@ -55,11 +55,12 @@ export default function NewAccountGroupModal() {
               id="name"
               error={actionData?.errors?.name}
               groupClassName="sm:col-span-6"
+              ref={nameInputRef}
             />
           </div>
         </Modal.Body>
         <Modal.Footer>
-          <Modal.Button type="submit" variant="primary" ref={submitButtonRef}>
+          <Modal.Button type="submit" variant="primary">
             Save
           </Modal.Button>
           <Modal.Button

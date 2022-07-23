@@ -52,11 +52,11 @@ export const action: ActionFunction = async ({ request }) => {
 };
 
 export default function NewAssetClassModal() {
-  const submitButtonRef = useRef(null);
+  const nameInputRef = useRef(null);
   const navigate = useNavigate();
   const actionData = useActionData<ActionData>();
   return (
-    <Modal initialFocus={submitButtonRef} onClose={onClose}>
+    <Modal initialFocus={nameInputRef} onClose={onClose}>
       <Form method="post" replace>
         <Modal.Body title="New Asset Class" icon={PlusIcon}>
           <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
@@ -66,6 +66,7 @@ export default function NewAssetClassModal() {
               id="name"
               error={actionData?.errors?.name}
               groupClassName="sm:col-span-3"
+              ref={nameInputRef}
             />
             <Input
               label="Sort order"
@@ -77,7 +78,7 @@ export default function NewAssetClassModal() {
           </div>
         </Modal.Body>
         <Modal.Footer>
-          <Modal.Button type="submit" variant="primary" ref={submitButtonRef}>
+          <Modal.Button type="submit" variant="primary">
             Save
           </Modal.Button>
           <Modal.Button

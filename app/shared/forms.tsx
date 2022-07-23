@@ -7,15 +7,18 @@ import { currenciesByCode, currencyItems } from "~/currencies";
 import { CheckIcon, SelectorIcon } from "~/icons";
 import { cn } from "./classnames";
 
-export function Input({
-  label,
-  name,
-  id,
-  error,
-  groupClassName,
-  defaultValue,
-  disabled,
-}: InputProps) {
+export const Input = forwardRef(function Input(
+  {
+    label,
+    name,
+    id,
+    error,
+    groupClassName,
+    defaultValue,
+    disabled,
+  }: InputProps,
+  ref: InputProps["ref"]
+) {
   const errorId = `${id}-error`;
   return (
     <div className={groupClassName}>
@@ -32,6 +35,7 @@ export function Input({
           aria-describedby={error ? errorId : undefined}
           defaultValue={defaultValue}
           disabled={disabled}
+          ref={ref}
         />
 
         {error && (
@@ -42,7 +46,7 @@ export function Input({
       </div>
     </div>
   );
-}
+});
 
 export type InputProps = {
   name: string;
@@ -55,7 +59,7 @@ export type InputProps = {
     React.InputHTMLAttributes<HTMLInputElement>,
     HTMLInputElement
   >,
-  "defaultValue" | "disabled"
+  "defaultValue" | "disabled" | "ref"
 >;
 
 export const Select = forwardRef(function Select(
@@ -113,14 +117,17 @@ export type SelectProps = {
   "defaultValue" | "disabled" | "children" | "ref"
 >;
 
-export function CurrencyCombobox({
-  groupClassName,
-  label,
-  name,
-  error,
-  id,
-  defaultValue,
-}: CurrencyComboboxProps) {
+export const CurrencyCombobox = forwardRef(function CurrencyCombobox(
+  {
+    groupClassName,
+    label,
+    name,
+    error,
+    id,
+    defaultValue,
+  }: CurrencyComboboxProps,
+  ref: CurrencyComboboxProps["ref"]
+) {
   const [value, setValue] = useState(defaultValue);
   const [query, setQuery] = useState("");
   const filteredCurrencies =
@@ -156,6 +163,7 @@ export function CurrencyCombobox({
           id={id}
           aria-invalid={error ? "true" : undefined}
           aria-describedby={error ? errorId : undefined}
+          ref={ref}
         />
         <Combobox.Button className="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
           <SelectorIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
@@ -222,7 +230,7 @@ export function CurrencyCombobox({
     const currencyName = currenciesByCode[v as keyof typeof currenciesByCode];
     return `${currencyName} (${v})`;
   }
-}
+});
 
 export type CurrencyComboboxProps = {
   groupClassName?: string;
@@ -230,8 +238,13 @@ export type CurrencyComboboxProps = {
   name: string;
   id: string;
   error?: string;
-  defaultValue?: string;
-};
+} & Pick<
+  DetailedHTMLProps<
+    React.InputHTMLAttributes<HTMLInputElement>,
+    HTMLInputElement
+  >,
+  "defaultValue" | "ref"
+>;
 
 export function AccountTypeRadioGroup({
   groupClassName,
