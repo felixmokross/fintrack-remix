@@ -52,14 +52,12 @@ export default function NewStockModal() {
             <Input
               label="Symbol"
               name="id"
-              id="id"
               error={actionData?.errors?.id}
               groupClassName="sm:col-span-2"
               ref={symbolInputRef}
             />
             <CurrencyCombobox
               name="tradingCurrency"
-              id="tradingCurrency"
               label="Trading currency"
               error={actionData?.errors?.tradingCurrency}
               groupClassName="sm:col-span-4"

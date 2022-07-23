@@ -63,7 +63,6 @@ export default function NewAssetClassModal() {
             <Input
               label="Name"
               name="name"
-              id="name"
               error={actionData?.errors?.name}
               groupClassName="sm:col-span-3"
               ref={nameInputRef}
@@ -71,7 +70,6 @@ export default function NewAssetClassModal() {
             <Input
               label="Sort order"
               name="sortOrder"
-              id="sortOrder"
               error={actionData?.errors?.sortOrder}
               groupClassName="sm:col-span-3"
             />

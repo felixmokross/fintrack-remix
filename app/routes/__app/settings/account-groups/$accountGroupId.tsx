@@ -83,7 +83,6 @@ export default function EditPage() {
             <Input
               label="Name"
               name="name"
-              id="name"
               error={actionData?.errors?.name}
               defaultValue={actionData?.values?.name || accountGroup.name}
               groupClassName="sm:col-span-6"

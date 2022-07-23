@@ -52,7 +52,6 @@ export default function NewAccountGroupModal() {
             <Input
               label="Name"
               name="name"
-              id="name"
               error={actionData?.errors?.name}
               groupClassName="sm:col-span-6"
               ref={nameInputRef}

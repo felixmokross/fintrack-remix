@@ -145,7 +145,6 @@ export default function NewPage() {
             <Input
               label="Name"
               name="name"
-              id="name"
               error={actionData?.errors?.name}
               groupClassName="sm:col-span-3"
               defaultValue={actionData?.values?.name}
@@ -154,7 +153,6 @@ export default function NewPage() {
             <Select
               label="Group"
               name="groupId"
-              id="groupId"
               error={actionData?.errors?.groupId}
               groupClassName="sm:col-span-3"
               defaultValue={actionData?.values?.groupId}
@@ -169,7 +167,6 @@ export default function NewPage() {
             <AccountTypeRadioGroup
               label="Type"
               name="type"
-              id="type"
               error={actionData?.errors?.type}
               groupClassName="sm:col-span-3"
               defaultValue={actionData?.values?.type}
@@ -179,7 +176,6 @@ export default function NewPage() {
               <Select
                 label="Asset class"
                 name="assetClassId"
-                id="assetClassId"
                 error={actionData?.errors?.assetClassId}
                 groupClassName="sm:col-span-3"
                 defaultValue={actionData?.values?.assetClassId || undefined}
@@ -195,7 +191,6 @@ export default function NewPage() {
             <AccountUnitRadioGroup
               label="Unit"
               name="unit"
-              id="unit"
               error={actionData?.errors?.unit}
               groupClassName="sm:col-span-2 sm:col-start-1"
               defaultValue={actionData?.values?.unit}
@@ -204,7 +199,6 @@ export default function NewPage() {
             {unit === AccountUnit.CURRENCY && (
               <CurrencyCombobox
                 name="currency"
-                id="currency"
                 label="Currency"
                 error={actionData?.errors?.currency}
                 groupClassName="sm:col-span-4"
@@ -214,7 +208,6 @@ export default function NewPage() {
               <Select
                 label="Stock"
                 name="stockId"
-                id="stockId"
                 error={actionData?.errors?.stockId}
                 groupClassName="sm:col-span-4"
                 defaultValue={actionData?.values?.stockId || undefined}
@@ -232,7 +225,6 @@ export default function NewPage() {
               label="Pre-existing account"
               description="This account has existed since before the accounting start date."
               name="preExisting"
-              id="preExisting"
               defaultValue={actionData?.values?.preExisting || undefined}
               onChange={setPreExisting}
             />
@@ -241,7 +233,6 @@ export default function NewPage() {
                 groupClassName="sm:col-span-3"
                 label="Balance at start"
                 name="balanceAtStart"
-                id="balanceAtStart"
                 defaultValue={actionData?.values?.balanceAtStart || undefined}
               />
             )}

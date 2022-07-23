@@ -87,7 +87,6 @@ export default function EditPage() {
             <Input
               label="Name"
               name="name"
-              id="name"
               error={actionData?.errors?.name}
               defaultValue={actionData?.values?.name || assetClass.name}
               groupClassName="sm:col-span-3"
@@ -96,7 +95,6 @@ export default function EditPage() {
             <Input
               label="Sort order"
               name="sortOrder"
-              id="sortOrder"
               error={actionData?.errors?.sortOrder}
               defaultValue={
                 actionData?.values?.sortOrder || assetClass.sortOrder

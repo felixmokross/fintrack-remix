@@ -6,6 +6,7 @@ import { useState } from "react";
 import { currenciesByCode, currencyItems } from "~/currencies";
 import { CheckIcon, SelectorIcon } from "~/icons";
 import { cn } from "./classnames";
+import { useId } from "react";
 
 const labelClassName = "block text-sm font-medium text-gray-700";
 
@@ -33,18 +34,11 @@ function ErrorMessage({ error, errorId }: ErrorMessageProps) {
 type ErrorMessageProps = { error?: string; errorId: string };
 
 export const Input = forwardRef(function Input(
-  {
-    label,
-    name,
-    id,
-    error,
-    groupClassName,
-    defaultValue,
-    disabled,
-  }: InputProps,
+  { label, name, error, groupClassName, defaultValue, disabled }: InputProps,
   ref: InputProps["ref"]
 ) {
-  const errorId = `${id}-error`;
+  const id = `input-${useId()}`;
+  const errorId = `input-error-${useId()}`;
   return (
     <div className={groupClassName}>
       <Label htmlFor={id}>{label}</Label>
@@ -66,7 +60,6 @@ export const Input = forwardRef(function Input(
 
 export type InputProps = {
   name: string;
-  id: string;
   label: string;
   error?: string;
   groupClassName?: string;
@@ -81,7 +74,6 @@ export type InputProps = {
 export const Select = forwardRef(function Select(
   {
     name,
-    id,
     label,
     error,
     groupClassName,
@@ -91,7 +83,8 @@ export const Select = forwardRef(function Select(
   }: SelectProps,
   ref: SelectProps["ref"]
 ) {
-  const errorId = `${id}-error`;
+  const id = `select-${useId()}`;
+  const errorId = `select-error-${useId()}`;
   return (
     <div className={groupClassName}>
       <Label htmlFor={id}>{label}</Label>
@@ -114,7 +107,6 @@ export const Select = forwardRef(function Select(
 
 export type SelectProps = {
   name: string;
-  id: string;
   label: string;
   error?: string;
   groupClassName?: string;
@@ -127,14 +119,7 @@ export type SelectProps = {
 >;
 
 export const CurrencyCombobox = forwardRef(function CurrencyCombobox(
-  {
-    groupClassName,
-    label,
-    name,
-    error,
-    id,
-    defaultValue,
-  }: CurrencyComboboxProps,
+  { groupClassName, label, name, error, defaultValue }: CurrencyComboboxProps,
   ref: CurrencyComboboxProps["ref"]
 ) {
   const [value, setValue] = useState(defaultValue);
@@ -149,7 +134,7 @@ export const CurrencyCombobox = forwardRef(function CurrencyCombobox(
           );
         });
 
-  const errorId = `${id}-error`;
+  const errorId = `currency-combobox-error-${useId()}`;
   return (
     <Combobox
       as="div"
@@ -158,15 +143,12 @@ export const CurrencyCombobox = forwardRef(function CurrencyCombobox(
       name={name}
       className={groupClassName}
     >
-      <Combobox.Label htmlFor={id} className={labelClassName}>
-        {label}
-      </Combobox.Label>
+      <Combobox.Label className={labelClassName}>{label}</Combobox.Label>
       <div className="relative mt-1">
         <Combobox.Input
           onChange={(event) => setQuery(event.target.value)}
           className="w-full rounded-md border border-gray-300 bg-white py-2 pl-3 pr-10 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm"
           displayValue={getDisplayName}
-          id={id}
           aria-invalid={error ? "true" : undefined}
           aria-describedby={error ? errorId : undefined}
           ref={ref}
@@ -238,7 +220,6 @@ export type CurrencyComboboxProps = {
   groupClassName?: string;
   label: string;
   name: string;
-  id: string;
   error?: string;
 } & Pick<
   DetailedHTMLProps<
@@ -252,13 +233,12 @@ export function AccountTypeRadioGroup({
   groupClassName,
   label,
   name,
-  id,
   error,
   onChange,
   defaultValue = AccountType.ASSET,
 }: AccountTypeRadioGroupProps) {
   const [value, setValue] = useState(defaultValue);
-  const errorId = `${id}-error`;
+  const errorId = `account-type-radio-group-error-${useId()}`;
   return (
     <RadioGroup
       value={value}
@@ -268,7 +248,6 @@ export function AccountTypeRadioGroup({
       }}
       className={groupClassName}
       name={name}
-      id={id}
       aria-invalid={error ? "true" : undefined}
       aria-describedby={error ? errorId : undefined}
     >
@@ -314,7 +293,6 @@ export type AccountTypeRadioGroupProps = {
   groupClassName?: string;
   label: string;
   name: string;
-  id: string;
   error?: string;
   defaultValue?: string;
   onChange?: (accountType: AccountType) => void;
@@ -324,13 +302,12 @@ export function AccountUnitRadioGroup({
   groupClassName,
   label,
   name,
-  id,
   error,
   onChange,
   defaultValue = AccountUnit.CURRENCY,
 }: AccountUnitRadioGroupProps) {
   const [value, setValue] = useState(defaultValue);
-  const errorId = `${id}-error`;
+  const errorId = `account-unit-radio-group-error-${useId()}`;
   return (
     <RadioGroup
       value={value}
@@ -340,7 +317,6 @@ export function AccountUnitRadioGroup({
       }}
       className={groupClassName}
       name={name}
-      id={id}
       aria-invalid={error ? "true" : undefined}
       aria-describedby={error ? errorId : undefined}
     >
@@ -386,7 +362,6 @@ export type AccountUnitRadioGroupProps = {
   groupClassName?: string;
   label: string;
   name: string;
-  id: string;
   error?: string;
   defaultValue?: string;
   onChange?: (accountUnit: AccountUnit) => void;
@@ -397,7 +372,6 @@ export function Toggle({
   label,
   description,
   name,
-  id,
   defaultValue,
   onChange,
 }: ToggleProps) {
@@ -411,7 +385,6 @@ export function Toggle({
           onChange && onChange(enabled);
         }}
         name={name}
-        id={id}
         className={cn(
           enabled ? "bg-indigo-600" : "bg-gray-200",
           "relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
@@ -426,10 +399,7 @@ export function Toggle({
         />
       </Switch>
       <div className="ml-4 flex flex-col">
-        <Switch.Label
-          className="text-sm font-medium text-gray-700"
-          htmlFor={id}
-        >
+        <Switch.Label className="text-sm font-medium text-gray-700">
           {label}
         </Switch.Label>
         <Switch.Description className="mt-1 text-sm text-gray-500">
@@ -445,7 +415,6 @@ export type ToggleProps = {
   label: string;
   description: string;
   name: string;
-  id: string;
   defaultValue?: string;
   onChange?: (enabled: boolean) => void;
 };

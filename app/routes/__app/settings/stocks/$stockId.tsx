@@ -83,7 +83,6 @@ export default function EditPage() {
             <Input
               label="Symbol"
               name="id"
-              id="id"
               defaultValue={actionData?.values?.id || stock.id}
               disabled={true}
               error={actionData?.errors?.id}
@@ -91,7 +90,6 @@ export default function EditPage() {
             />
             <CurrencyCombobox
               name="tradingCurrency"
-              id="tradingCurrency"
               label="Trading currency"
               error={actionData?.errors?.tradingCurrency}
               defaultValue={
