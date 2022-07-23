@@ -1,23 +1,42 @@
 import type { AccountType } from "@prisma/client";
-import { Form, useActionData, useNavigate } from "@remix-run/react";
-import type { ActionFunction } from "@remix-run/server-runtime";
+import {
+  Form,
+  useActionData,
+  useLoaderData,
+  useNavigate,
+} from "@remix-run/react";
+import type { ActionFunction, LoaderFunction } from "@remix-run/server-runtime";
 import { json, redirect } from "@remix-run/server-runtime";
 import { useRef } from "react";
 import { PlusIcon } from "~/icons";
 import { createAccount } from "~/models/account.server";
+import { getAssetClassListItems } from "~/models/asset-class.server";
 import { requireUserId } from "~/session.server";
-import { AccountTypeRadioGroup, Input } from "~/shared/forms";
+import { AccountTypeRadioGroup, Input, Select } from "~/shared/forms";
 import { Modal } from "~/shared/modal";
+
+type LoaderData = {
+  assetClasses: Awaited<ReturnType<typeof getAssetClassListItems>>;
+};
 
 type ActionData = {
   errors?: {
     name?: string;
     accountType?: string;
+    assetClassId?: string;
   };
   values?: {
     name: string;
     accountType: AccountType;
+    assetClassId: string;
   };
+};
+
+export const loader: LoaderFunction = async ({ request }) => {
+  const userId = await requireUserId(request);
+  return json<LoaderData>({
+    assetClasses: await getAssetClassListItems({ userId }),
+  });
 };
 
 export const action: ActionFunction = async ({ request }) => {
@@ -42,6 +61,7 @@ export default function NewPage() {
   const submitButtonRef = useRef(null); // TODO do not focus submit button but first input (for all form modals)
   const actionData = useActionData<ActionData>();
   const navigate = useNavigate();
+  const { assetClasses } = useLoaderData<LoaderData>();
   return (
     <Modal initialFocus={submitButtonRef} onClose={onClose}>
       <Form method="post" replace>
@@ -63,6 +83,20 @@ export default function NewPage() {
               groupClassName="sm:col-span-2"
               defaultValue={actionData?.values?.accountType}
             />
+            <Select
+              label="Asset class"
+              name="assetClassId"
+              id="assetClassId"
+              error={actionData?.errors?.assetClassId}
+              groupClassName="sm:col-span-3"
+              defaultValue={actionData?.values?.assetClassId}
+            >
+              {assetClasses.map((assetClass) => (
+                <option key={assetClass.id} value={assetClass.id}>
+                  {assetClass.name}
+                </option>
+              ))}
+            </Select>
           </div>
         </Modal.Body>
         <Modal.Footer>

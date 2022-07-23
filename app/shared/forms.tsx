@@ -57,6 +57,57 @@ export type InputProps = {
   "defaultValue" | "disabled"
 >;
 
+export function Select({
+  name,
+  id,
+  label,
+  error,
+  groupClassName,
+  defaultValue,
+  disabled,
+  children,
+}: SelectProps) {
+  const errorId = `${id}-error`;
+  return (
+    <div className={groupClassName}>
+      <label htmlFor={id} className="block text-sm font-medium text-gray-700">
+        {label}
+      </label>
+      <select
+        id={id}
+        name={name}
+        className="mt-1 block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 disabled:bg-gray-100 disabled:opacity-50 sm:text-sm"
+        defaultValue={defaultValue}
+        disabled={disabled}
+        aria-invalid={error ? "true" : undefined}
+        aria-describedby={error ? errorId : undefined}
+      >
+        {children}
+      </select>
+
+      {error && (
+        <p className="mt-2 text-sm text-red-600" id={errorId}>
+          {error}
+        </p>
+      )}
+    </div>
+  );
+}
+
+export type SelectProps = {
+  name: string;
+  id: string;
+  label: string;
+  error?: string;
+  groupClassName?: string;
+} & Pick<
+  DetailedHTMLProps<
+    React.SelectHTMLAttributes<HTMLSelectElement>,
+    HTMLSelectElement
+  >,
+  "defaultValue" | "disabled" | "children"
+>;
+
 export function CurrencyCombobox({
   groupClassName,
   label,
