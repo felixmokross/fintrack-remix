@@ -120,6 +120,7 @@ export const action: ActionFunction = async ({ request }) => {
     groupId,
     unit: unit as AccountUnit,
     currency,
+    stockId,
     userId,
     preExisting: preExisting === "on",
     balanceAtStart: balanceAtStart ? parseBalanceAtStart(balanceAtStart) : null,

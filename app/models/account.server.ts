@@ -7,7 +7,19 @@ import { prisma } from "~/db.server";
 export function getAccountListItems({ userId }: { userId: User["id"] }) {
   return prisma.account.findMany({
     where: { userId },
-    select: { id: true, name: true },
+    select: {
+      id: true,
+      name: true,
+      group: true,
+      type: true,
+      assetClass: true,
+      unit: true,
+      currency: true,
+      stockId: true,
+      preExisting: true,
+      balanceAtStart: true,
+      openingDate: true,
+    },
     orderBy: { updatedAt: "desc" },
   });
 }
@@ -19,6 +31,7 @@ export function createAccount({
   groupId,
   unit,
   currency,
+  stockId,
   userId,
   preExisting,
   balanceAtStart,
@@ -30,6 +43,7 @@ export function createAccount({
   | "groupId"
   | "unit"
   | "currency"
+  | "stockId"
   | "preExisting"
   | "balanceAtStart"
 > & {
@@ -43,6 +57,7 @@ export function createAccount({
       group: groupId ? { connect: { id: groupId } } : undefined,
       unit,
       currency,
+      stock: stockId ? { connect: { id: stockId } } : undefined,
       preExisting,
       balanceAtStart,
       user: { connect: { id: userId } },
