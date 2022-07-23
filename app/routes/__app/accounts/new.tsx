@@ -13,6 +13,7 @@ import invariant from "tiny-invariant";
 import { PlusIcon } from "~/icons";
 import { getAccountGroupListItems } from "~/models/account-group.server";
 import type { AccountErrors, AccountValues } from "~/models/account.server";
+import { parseBalanceAtStart } from "~/models/account.server";
 import { validateAccount } from "~/models/account.server";
 import { createAccount } from "~/models/account.server";
 import { getAssetClassListItems } from "~/models/asset-class.server";
@@ -60,6 +61,7 @@ export const action: ActionFunction = async ({ request }) => {
   const currency = formData.get("currency");
   const stockId = formData.get("stockId");
   const preExisting = formData.get("preExisting");
+  const balanceAtStart = formData.get("balanceAtStart");
 
   invariant(typeof name === "string", "name not found");
   invariant(typeof type === "string", "type not found");
@@ -75,6 +77,10 @@ export const action: ActionFunction = async ({ request }) => {
     preExisting === null || preExisting === "on",
     "preExisting not found"
   );
+  invariant(
+    !balanceAtStart || typeof balanceAtStart === "string",
+    "balanceAtStart not found"
+  );
 
   const errors = validateAccount({
     name,
@@ -85,6 +91,7 @@ export const action: ActionFunction = async ({ request }) => {
     currency,
     stockId,
     preExisting,
+    balanceAtStart,
   });
   if (Object.values(errors).length > 0) {
     return json<ActionData>(
@@ -99,6 +106,7 @@ export const action: ActionFunction = async ({ request }) => {
           currency,
           stockId,
           preExisting,
+          balanceAtStart,
         },
       },
       { status: 400 }
@@ -114,6 +122,7 @@ export const action: ActionFunction = async ({ request }) => {
     currency,
     userId,
     preExisting: preExisting === "on",
+    balanceAtStart: balanceAtStart ? parseBalanceAtStart(balanceAtStart) : null,
   });
 
   return redirect(`/accounts`);
@@ -124,8 +133,10 @@ export default function NewPage() {
   const actionData = useActionData<ActionData>();
   const navigate = useNavigate();
   const { assetClasses, accountGroups, stocks } = useLoaderData<LoaderData>();
-  const assetClassSelectRef = useRef<HTMLSelectElement>(null);
+  // TODO handle default values correctly
+  const assetClassSelectRef = useRef<HTMLSelectElement>(null); // TODO use state approach and hiding of field better
   const [unit, setUnit] = useState<AccountUnit>(AccountUnit.CURRENCY);
+  const [preExisting, setPreExisting] = useState(false);
   return (
     <Modal initialFocus={nameInputRef} onClose={onClose} size={ModalSize.LARGE}>
       <Form method="post" replace>
@@ -229,7 +240,17 @@ export default function NewPage() {
               name="preExisting"
               id="preExisting"
               defaultValue={actionData?.values?.preExisting || undefined}
+              onChange={setPreExisting}
             />
+            {preExisting && (
+              <Input
+                groupClassName="sm:col-span-3"
+                label="Balance at start"
+                name="balanceAtStart"
+                id="balanceAtStart"
+                defaultValue={actionData?.values?.balanceAtStart || undefined}
+              />
+            )}
           </div>
         </Modal.Body>
         <Modal.Footer>

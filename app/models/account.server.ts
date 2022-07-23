@@ -1,6 +1,7 @@
 import type { Account, User } from "@prisma/client";
 import { AccountUnit } from "@prisma/client";
 import { AccountType } from "@prisma/client";
+import { Decimal } from "@prisma/client/runtime";
 import { prisma } from "~/db.server";
 
 export function getAccountListItems({ userId }: { userId: User["id"] }) {
@@ -20,6 +21,7 @@ export function createAccount({
   currency,
   userId,
   preExisting,
+  balanceAtStart,
 }: Pick<
   Account,
   | "name"
@@ -29,6 +31,7 @@ export function createAccount({
   | "unit"
   | "currency"
   | "preExisting"
+  | "balanceAtStart"
 > & {
   userId: User["id"];
 }) {
@@ -40,6 +43,8 @@ export function createAccount({
       group: groupId ? { connect: { id: groupId } } : undefined,
       unit,
       currency,
+      preExisting,
+      balanceAtStart,
       user: { connect: { id: userId } },
     },
   });
@@ -54,6 +59,7 @@ export type AccountValues = {
   currency: string | null;
   stockId: string | null;
   preExisting: "on" | null;
+  balanceAtStart: string | null;
 };
 
 export type AccountErrors = {
@@ -65,6 +71,7 @@ export type AccountErrors = {
   currency?: string;
   stockId?: string;
   preExisting?: string;
+  balanceAtStart?: string;
 };
 
 export function validateAccount({
@@ -74,6 +81,8 @@ export function validateAccount({
   unit,
   currency,
   stockId,
+  preExisting,
+  balanceAtStart,
 }: AccountValues) {
   const errors: AccountErrors = {};
 
@@ -101,9 +110,21 @@ export function validateAccount({
     errors.stockId = "Stock is required";
   }
 
+  if (preExisting === "on") {
+    if (!balanceAtStart) {
+      errors.balanceAtStart = "Balance at start is required";
+    } else if (parseBalanceAtStart(balanceAtStart).isNaN()) {
+      errors.balanceAtStart = "Balance at start must be a number";
+    }
+  }
+
   return errors;
 }
 
 export function deleteAccount({ id, userId }: Pick<Account, "id" | "userId">) {
   return prisma.account.deleteMany({ where: { id, userId } });
+}
+
+export function parseBalanceAtStart(balanceAtStart: string) {
+  return new Decimal(balanceAtStart);
 }
