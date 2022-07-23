@@ -2,6 +2,7 @@ import { AccountType, AccountUnit } from "@prisma/client";
 import { Link, Outlet, useFetcher, useLoaderData } from "@remix-run/react";
 import type { LoaderFunction, MetaFunction } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
+import { currenciesByCode } from "~/currencies";
 import { getAccountListItems } from "~/models/account.server";
 import { requireUserId } from "~/session.server";
 import { Button } from "~/shared/button";
@@ -94,9 +95,18 @@ export default function AccountsPage() {
                           : "Liability"}
                       </td>
                       <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
-                        {account.unit === AccountUnit.CURRENCY
-                          ? account.currency
-                          : account.stockId}
+                        {account.unit === AccountUnit.CURRENCY ? (
+                          <>
+                            {
+                              currenciesByCode[
+                                account.currency! as keyof typeof currenciesByCode
+                              ]
+                            }{" "}
+                            ({account.currency})
+                          </>
+                        ) : (
+                          account.stockId
+                        )}
                       </td>
                       <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
                         {account.preExisting
