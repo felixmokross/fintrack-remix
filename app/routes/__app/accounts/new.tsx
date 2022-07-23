@@ -24,6 +24,7 @@ import {
   CurrencyCombobox,
   Input,
   Select,
+  Toggle,
 } from "~/shared/forms";
 import { Modal } from "~/shared/modal";
 
@@ -58,6 +59,7 @@ export const action: ActionFunction = async ({ request }) => {
   const unit = formData.get("unit");
   const currency = formData.get("currency");
   const stockId = formData.get("stockId");
+  const preExisting = formData.get("preExisting");
 
   invariant(typeof name === "string", "name not found");
   invariant(typeof type === "string", "type not found");
@@ -69,6 +71,7 @@ export const action: ActionFunction = async ({ request }) => {
   invariant(typeof unit === "string", "unit not found");
   invariant(!currency || typeof currency === "string", "currency not found");
   invariant(!stockId || typeof stockId === "string", "stockId not found");
+  invariant(typeof preExisting === "string", "preExisting not found");
 
   const errors = validateAccount({
     name,
@@ -78,12 +81,22 @@ export const action: ActionFunction = async ({ request }) => {
     unit,
     currency,
     stockId,
+    preExisting,
   });
   if (Object.values(errors).length > 0) {
     return json<ActionData>(
       {
         errors,
-        values: { name, type, assetClassId, groupId, unit, currency, stockId },
+        values: {
+          name,
+          type,
+          assetClassId,
+          groupId,
+          unit,
+          currency,
+          stockId,
+          preExisting,
+        },
       },
       { status: 400 }
     );
@@ -97,6 +110,7 @@ export const action: ActionFunction = async ({ request }) => {
     unit: unit as AccountUnit,
     currency,
     userId,
+    preExisting: preExisting === "true",
   });
 
   return redirect(`/accounts`);
@@ -205,6 +219,14 @@ export default function NewPage() {
                 ))}
               </Select>
             )}
+            <Toggle
+              groupClassName="sm:col-span-6"
+              label="Pre-existing account"
+              description="Account has existed since before the accounting start date."
+              name="preExisting"
+              id="preExisting"
+              defaultValue={actionData?.values?.preExisting}
+            />
           </div>
         </Modal.Body>
         <Modal.Footer>

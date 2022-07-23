@@ -46,9 +46,12 @@ model Account {
   stock   Stock?  @relation(fields: [stockId], references: [id], onDelete: Restrict)
   stockId String?
 
-  openingBalance Decimal?
-  openingDate    DateTime? @db.Date
-  closingDate    DateTime? @db.Date
+  preExisting Boolean @default(false)
+
+  balanceAtStart Decimal?
+
+  openingDate DateTime? @db.Date
+  closingDate DateTime? @db.Date
 
   isActive Boolean @default(true)
 

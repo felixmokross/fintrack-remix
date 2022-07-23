@@ -1,4 +1,4 @@
-import { Combobox, RadioGroup } from "@headlessui/react";
+import { Combobox, RadioGroup, Switch } from "@headlessui/react";
 import { AccountType, AccountUnit } from "@prisma/client";
 import type { DetailedHTMLProps } from "react";
 import { forwardRef } from "react";
@@ -262,7 +262,7 @@ export function AccountTypeRadioGroup({
       value={value}
       onChange={(accountType) => {
         setValue(accountType);
-        onChange(accountType as AccountType);
+        onChange && onChange(accountType as AccountType);
       }}
       className={groupClassName}
       name={name}
@@ -321,7 +321,7 @@ export type AccountTypeRadioGroupProps = {
   id: string;
   error?: string;
   defaultValue?: string;
-  onChange: (accountType: AccountType) => void;
+  onChange?: (accountType: AccountType) => void;
 };
 
 export function AccountUnitRadioGroup({
@@ -340,7 +340,7 @@ export function AccountUnitRadioGroup({
       value={value}
       onChange={(accountUnit) => {
         setValue(accountUnit);
-        onChange(accountUnit as AccountUnit);
+        onChange && onChange(accountUnit as AccountUnit);
       }}
       className={groupClassName}
       name={name}
@@ -399,5 +399,63 @@ export type AccountUnitRadioGroupProps = {
   id: string;
   error?: string;
   defaultValue?: string;
-  onChange: (accountUnit: AccountUnit) => void;
+  onChange?: (accountUnit: AccountUnit) => void;
+};
+
+export function Toggle({
+  groupClassName,
+  label,
+  description,
+  name,
+  id,
+  defaultValue,
+  onChange,
+}: ToggleProps) {
+  const [enabled, setEnabled] = useState(defaultValue === "true");
+  return (
+    <Switch.Group as="div" className={cn("flex items-center", groupClassName)}>
+      <Switch
+        checked={enabled}
+        onChange={(enabled) => {
+          setEnabled(enabled);
+          onChange && onChange(enabled);
+        }}
+        name={name}
+        id={id}
+        className={cn(
+          enabled ? "bg-indigo-600" : "bg-gray-200",
+          "relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+        )}
+      >
+        <span
+          aria-hidden="true"
+          className={cn(
+            enabled ? "translate-x-5" : "translate-x-0",
+            "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+          )}
+        />
+      </Switch>
+      <div className="ml-4 flex flex-col">
+        <Switch.Label
+          className="text-sm font-medium text-gray-700"
+          htmlFor={id}
+        >
+          {label}
+        </Switch.Label>
+        <Switch.Description className="mt-1 text-sm text-gray-500">
+          {description}
+        </Switch.Description>
+      </div>
+    </Switch.Group>
+  );
+}
+
+export type ToggleProps = {
+  groupClassName?: string;
+  label: string;
+  description: string;
+  name: string;
+  id: string;
+  defaultValue?: string;
+  onChange?: (enabled: boolean) => void;
 };

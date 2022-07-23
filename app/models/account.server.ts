@@ -19,9 +19,16 @@ export function createAccount({
   unit,
   currency,
   userId,
+  preExisting,
 }: Pick<
   Account,
-  "name" | "type" | "assetClassId" | "groupId" | "unit" | "currency"
+  | "name"
+  | "type"
+  | "assetClassId"
+  | "groupId"
+  | "unit"
+  | "currency"
+  | "preExisting"
 > & {
   userId: User["id"];
 }) {
@@ -46,6 +53,7 @@ export type AccountValues = {
   unit: string;
   currency: string | null;
   stockId: string | null;
+  preExisting: string;
 };
 
 export type AccountErrors = {
@@ -56,6 +64,7 @@ export type AccountErrors = {
   unit?: string;
   currency?: string;
   stockId?: string;
+  preExisting?: string;
 };
 
 export function validateAccount({
