@@ -12,7 +12,17 @@ import type { ButtonProps } from "./button";
 import { Button as StandardButton } from "./button";
 import { cn } from "./classnames";
 
-function ModalRoot({ onClose, initialFocus, children }: ModalProps) {
+export enum ModalSize {
+  SMALL = "SMALL",
+  LARGE = "LARGE",
+}
+
+function ModalRoot({
+  onClose,
+  initialFocus,
+  children,
+  size = ModalSize.SMALL,
+}: ModalProps) {
   return (
     <Transition.Root show={true} appear={true} as={Fragment}>
       <Dialog
@@ -44,7 +54,15 @@ function ModalRoot({ onClose, initialFocus, children }: ModalProps) {
               leaveFrom="opacity-100 translate-y-0 sm:scale-100"
               leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
-              <Dialog.Panel className="relative w-full transform text-left shadow-xl transition-all sm:my-8 sm:max-w-lg">
+              <Dialog.Panel
+                className={cn(
+                  "relative w-full transform text-left shadow-xl transition-all sm:my-8 sm:max-w-lg",
+                  {
+                    "sm:max-w-lg": size === ModalSize.SMALL,
+                    "sm:max-w-xl": size === ModalSize.LARGE,
+                  }
+                )}
+              >
                 {children}
               </Dialog.Panel>
             </Transition.Child>
@@ -58,6 +76,7 @@ function ModalRoot({ onClose, initialFocus, children }: ModalProps) {
 export type ModalProps = PropsWithChildren<{
   onClose: () => void;
   initialFocus?: React.MutableRefObject<HTMLElement | null>;
+  size?: ModalSize;
 }>;
 
 const Button = forwardRef(function ModalButton<T extends ElementType>(

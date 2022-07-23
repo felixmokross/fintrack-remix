@@ -26,7 +26,7 @@ import {
   Select,
   Toggle,
 } from "~/shared/forms";
-import { Modal } from "~/shared/modal";
+import { Modal, ModalSize } from "~/shared/modal";
 
 type LoaderData = {
   assetClasses: Awaited<ReturnType<typeof getAssetClassListItems>>;
@@ -124,7 +124,7 @@ export default function NewPage() {
   const assetClassSelectRef = useRef<HTMLSelectElement>(null);
   const [unit, setUnit] = useState<AccountUnit>(AccountUnit.CURRENCY);
   return (
-    <Modal initialFocus={nameInputRef} onClose={onClose}>
+    <Modal initialFocus={nameInputRef} onClose={onClose} size={ModalSize.LARGE}>
       <Form method="post" replace>
         <Modal.Body title="New Account" icon={PlusIcon}>
           <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
@@ -189,7 +189,7 @@ export default function NewPage() {
               name="unit"
               id="unit"
               error={actionData?.errors?.unit}
-              groupClassName="sm:col-span-3"
+              groupClassName="sm:col-span-2"
               defaultValue={actionData?.values?.unit}
               onChange={setUnit}
             />
@@ -199,7 +199,7 @@ export default function NewPage() {
                 id="currency"
                 label="Currency"
                 error={actionData?.errors?.currency}
-                groupClassName="sm:col-span-3"
+                groupClassName="sm:col-span-4"
               />
             )}
             {unit === AccountUnit.STOCK && (
@@ -208,7 +208,7 @@ export default function NewPage() {
                 name="stockId"
                 id="stockId"
                 error={actionData?.errors?.stockId}
-                groupClassName="sm:col-span-3"
+                groupClassName="sm:col-span-4"
                 defaultValue={actionData?.values?.stockId || undefined}
               >
                 <option value=""></option>
@@ -222,7 +222,7 @@ export default function NewPage() {
             <Toggle
               groupClassName="sm:col-span-6"
               label="Pre-existing account"
-              description="Account has existed since before the accounting start date."
+              description="This account has existed since before the accounting start date."
               name="preExisting"
               id="preExisting"
               defaultValue={actionData?.values?.preExisting}
