@@ -1,6 +1,7 @@
 import { Combobox, RadioGroup } from "@headlessui/react";
 import { AccountType } from "@prisma/client";
 import type { DetailedHTMLProps } from "react";
+import { forwardRef } from "react";
 import { useState } from "react";
 import { currenciesByCode, currencyItems } from "~/currencies";
 import { CheckIcon, SelectorIcon } from "~/icons";
@@ -57,16 +58,19 @@ export type InputProps = {
   "defaultValue" | "disabled"
 >;
 
-export function Select({
-  name,
-  id,
-  label,
-  error,
-  groupClassName,
-  defaultValue,
-  disabled,
-  children,
-}: SelectProps) {
+export const Select = forwardRef(function Select(
+  {
+    name,
+    id,
+    label,
+    error,
+    groupClassName,
+    defaultValue,
+    disabled,
+    children,
+  }: SelectProps,
+  ref: SelectProps["ref"]
+) {
   const errorId = `${id}-error`;
   return (
     <div className={groupClassName}>
@@ -76,11 +80,12 @@ export function Select({
       <select
         id={id}
         name={name}
-        className="mt-1 block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 disabled:bg-gray-100 disabled:opacity-50 sm:text-sm"
+        className="mt-1 block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:opacity-50 sm:text-sm"
         defaultValue={defaultValue}
         disabled={disabled}
         aria-invalid={error ? "true" : undefined}
         aria-describedby={error ? errorId : undefined}
+        ref={ref}
       >
         {children}
       </select>
@@ -92,7 +97,7 @@ export function Select({
       )}
     </div>
   );
-}
+});
 
 export type SelectProps = {
   name: string;
@@ -105,7 +110,7 @@ export type SelectProps = {
     React.SelectHTMLAttributes<HTMLSelectElement>,
     HTMLSelectElement
   >,
-  "defaultValue" | "disabled" | "children"
+  "defaultValue" | "disabled" | "children" | "ref"
 >;
 
 export function CurrencyCombobox({
@@ -234,14 +239,18 @@ export function AccountTypeRadioGroup({
   name,
   id,
   error,
+  onChange,
   defaultValue = AccountType.ASSET,
 }: AccountTypeRadioGroupProps) {
-  const [value, setValue] = useState<AccountType>(defaultValue);
+  const [value, setValue] = useState(defaultValue);
   const errorId = `${id}-error`;
   return (
     <RadioGroup
       value={value}
-      onChange={setValue}
+      onChange={(accountType) => {
+        setValue(accountType);
+        onChange(accountType as AccountType);
+      }}
       className={groupClassName}
       name={name}
       id={id}
@@ -298,5 +307,6 @@ export type AccountTypeRadioGroupProps = {
   name: string;
   id: string;
   error?: string;
-  defaultValue?: AccountType;
+  defaultValue?: string;
+  onChange: (accountType: AccountType) => void;
 };
