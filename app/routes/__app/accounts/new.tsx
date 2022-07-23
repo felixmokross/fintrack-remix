@@ -1,4 +1,4 @@
-import { AccountType } from "@prisma/client";
+import { AccountType, AccountUnit } from "@prisma/client";
 import {
   Form,
   useActionData,
@@ -16,7 +16,12 @@ import { validateAccount } from "~/models/account.server";
 import { createAccount } from "~/models/account.server";
 import { getAssetClassListItems } from "~/models/asset-class.server";
 import { requireUserId } from "~/session.server";
-import { AccountTypeRadioGroup, Input, Select } from "~/shared/forms";
+import {
+  AccountTypeRadioGroup,
+  AccountUnitRadioGroup,
+  Input,
+  Select,
+} from "~/shared/forms";
 import { Modal } from "~/shared/modal";
 
 type LoaderData = {
@@ -45,6 +50,7 @@ export const action: ActionFunction = async ({ request }) => {
   const type = formData.get("type");
   const assetClassId = formData.get("assetClassId");
   const groupId = formData.get("groupId");
+  const unit = formData.get("unit");
 
   invariant(typeof name === "string", "name not found");
   invariant(typeof type === "string", "type not found");
@@ -53,11 +59,12 @@ export const action: ActionFunction = async ({ request }) => {
     "assetClassId not found"
   );
   invariant(typeof groupId === "string", "groupId not found");
+  invariant(typeof unit === "string", "unit not found");
 
-  const errors = validateAccount({ name, type, assetClassId, groupId });
+  const errors = validateAccount({ name, type, assetClassId, groupId, unit });
   if (Object.values(errors).length > 0) {
     return json<ActionData>(
-      { errors, values: { name, type, assetClassId, groupId } },
+      { errors, values: { name, type, assetClassId, groupId, unit } },
       { status: 400 }
     );
   }
@@ -67,6 +74,7 @@ export const action: ActionFunction = async ({ request }) => {
     type: type as AccountType,
     assetClassId,
     groupId,
+    unit: unit as AccountUnit,
     userId,
   });
 
@@ -140,6 +148,22 @@ export default function NewPage() {
                 </option>
               ))}
             </Select>
+            <AccountUnitRadioGroup
+              label="Unit"
+              name="unit"
+              id="unit"
+              error={actionData?.errors?.unit}
+              groupClassName="sm:col-span-3"
+              defaultValue={actionData?.values?.unit}
+              onChange={(unit) => {
+                // if (type === AccountType.ASSET) {
+                //   assetClassSelectRef.current!.disabled = false;
+                // } else {
+                //   assetClassSelectRef.current!.value = "";
+                //   assetClassSelectRef.current!.disabled = true;
+                // }
+              }}
+            />
           </div>
         </Modal.Body>
         <Modal.Footer>

@@ -39,7 +39,7 @@ model Account {
   group   AccountGroup? @relation(fields: [groupId], references: [id], onDelete: Restrict)
   groupId String?
 
-  accountUnit AccountUnit @default(CURRENCY)
+  unit AccountUnit @default(CURRENCY)
 
   currency String?
 

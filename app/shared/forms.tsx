@@ -1,5 +1,5 @@
 import { Combobox, RadioGroup } from "@headlessui/react";
-import { AccountType } from "@prisma/client";
+import { AccountType, AccountUnit } from "@prisma/client";
 import type { DetailedHTMLProps } from "react";
 import { forwardRef } from "react";
 import { useState } from "react";
@@ -322,4 +322,82 @@ export type AccountTypeRadioGroupProps = {
   error?: string;
   defaultValue?: string;
   onChange: (accountType: AccountType) => void;
+};
+
+export function AccountUnitRadioGroup({
+  groupClassName,
+  label,
+  name,
+  id,
+  error,
+  onChange,
+  defaultValue = AccountUnit.CURRENCY,
+}: AccountUnitRadioGroupProps) {
+  const [value, setValue] = useState(defaultValue);
+  const errorId = `${id}-error`;
+  return (
+    <RadioGroup
+      value={value}
+      onChange={(accountUnit) => {
+        setValue(accountUnit);
+        onChange(accountUnit as AccountUnit);
+      }}
+      className={groupClassName}
+      name={name}
+      id={id}
+      aria-invalid={error ? "true" : undefined}
+      aria-describedby={error ? errorId : undefined}
+    >
+      <RadioGroup.Label className="block text-sm font-medium text-gray-700">
+        {label}
+      </RadioGroup.Label>
+      <div className="mt-1 grid grid-cols-2 gap-x-3">
+        <RadioGroup.Option
+          value={AccountUnit.CURRENCY}
+          className={({ active, checked }) =>
+            cn(
+              "cursor-pointer focus:outline-none",
+              active ? "ring-2 ring-indigo-500 ring-offset-2" : "",
+              checked
+                ? "border-transparent bg-indigo-600 text-white hover:bg-indigo-700"
+                : "border-gray-200 bg-white text-gray-900 hover:bg-gray-50",
+              "flex items-center justify-center rounded-md border py-2 px-3 text-sm font-medium sm:flex-1"
+            )
+          }
+        >
+          <RadioGroup.Label as="span">Currency</RadioGroup.Label>
+        </RadioGroup.Option>
+        <RadioGroup.Option
+          value={AccountUnit.STOCK}
+          className={({ active, checked }) =>
+            cn(
+              "cursor-pointer focus:outline-none",
+              active ? "ring-2 ring-indigo-500 ring-offset-2" : "",
+              checked
+                ? "border-transparent bg-indigo-600 text-white hover:bg-indigo-700"
+                : "border-gray-200 bg-white text-gray-900 hover:bg-gray-50",
+              "flex items-center justify-center rounded-md border py-2 px-3 text-sm font-medium sm:flex-1"
+            )
+          }
+        >
+          <RadioGroup.Label as="span">Stock</RadioGroup.Label>
+        </RadioGroup.Option>
+        {error && (
+          <p className="mt-2 text-sm text-red-600" id={errorId}>
+            {error}
+          </p>
+        )}
+      </div>
+    </RadioGroup>
+  );
+}
+
+export type AccountUnitRadioGroupProps = {
+  groupClassName?: string;
+  label: string;
+  name: string;
+  id: string;
+  error?: string;
+  defaultValue?: string;
+  onChange: (accountUnit: AccountUnit) => void;
 };
