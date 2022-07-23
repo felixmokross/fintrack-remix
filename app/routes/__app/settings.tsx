@@ -1,12 +1,16 @@
 import { Outlet } from "@remix-run/react";
+import type { MetaFunction } from "@remix-run/server-runtime";
 import { NavLink } from "react-router-dom";
 import { cn } from "~/shared/classnames";
+import { getTitle } from "~/shared/util";
 
 const navigation = [
   { name: "Asset Classes", to: "asset-classes" },
   { name: "Account Groups", to: "account-groups" },
   { name: "Stocks", to: "stocks" },
 ];
+
+export const meta: MetaFunction = () => ({ title: getTitle("Settings") });
 
 export default function SettingsPage() {
   return (

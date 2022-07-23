@@ -1,10 +1,11 @@
 import { Link, Outlet, useFetcher, useLoaderData } from "@remix-run/react";
-import type { LoaderFunction } from "@remix-run/server-runtime";
+import type { LoaderFunction, MetaFunction } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import { TrashIcon } from "~/icons";
 import { getAccountListItems } from "~/models/account.server";
 import { requireUserId } from "~/session.server";
 import { Button } from "~/shared/button";
+import { getTitle } from "~/shared/util";
 
 type LoaderData = {
   accounts: Awaited<ReturnType<typeof getAccountListItems>>;
@@ -15,6 +16,8 @@ export const loader: LoaderFunction = async ({ request }) => {
   const accounts = await getAccountListItems({ userId });
   return json<LoaderData>({ accounts });
 };
+
+export const meta: MetaFunction = () => ({ title: getTitle("Accounts") });
 
 export default function AccountsPage() {
   const fetcher = useFetcher();

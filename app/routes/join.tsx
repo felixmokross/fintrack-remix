@@ -11,6 +11,7 @@ import { getUserId, createUserSession } from "~/session.server";
 
 import { createUser, getUserByEmail } from "~/models/user.server";
 import { safeRedirect, validateEmail } from "~/utils";
+import { getTitle } from "~/shared/util";
 
 export const loader: LoaderFunction = async ({ request }) => {
   const userId = await getUserId(request);
@@ -70,11 +71,7 @@ export const action: ActionFunction = async ({ request }) => {
   });
 };
 
-export const meta: MetaFunction = () => {
-  return {
-    title: "Sign Up",
-  };
-};
+export const meta: MetaFunction = () => ({ title: getTitle("Sign Up") });
 
 export default function Join() {
   const [searchParams] = useSearchParams();

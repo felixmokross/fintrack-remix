@@ -10,6 +10,7 @@ import * as React from "react";
 import { createUserSession, getUserId } from "~/session.server";
 import { verifyLogin } from "~/models/user.server";
 import { safeRedirect, validateEmail } from "~/utils";
+import { getTitle } from "~/shared/util";
 
 export const loader: LoaderFunction = async ({ request }) => {
   const userId = await getUserId(request);
@@ -69,11 +70,7 @@ export const action: ActionFunction = async ({ request }) => {
   });
 };
 
-export const meta: MetaFunction = () => {
-  return {
-    title: "Login",
-  };
-};
+export const meta: MetaFunction = () => ({ title: getTitle("Login") });
 
 export default function LoginPage() {
   const [searchParams] = useSearchParams();
