@@ -10,9 +10,9 @@ export function getAccountListItems({ userId }: { userId: User["id"] }) {
     select: {
       id: true,
       name: true,
-      group: true,
+      group: { select: { name: true } },
       type: true,
-      assetClass: true,
+      assetClass: { select: { name: true } },
       unit: true,
       currency: true,
       stockId: true,
@@ -35,6 +35,7 @@ export function createAccount({
   userId,
   preExisting,
   balanceAtStart,
+  openingDate,
 }: Pick<
   Account,
   | "name"
@@ -46,6 +47,7 @@ export function createAccount({
   | "stockId"
   | "preExisting"
   | "balanceAtStart"
+  | "openingDate"
 > & {
   userId: User["id"];
 }) {
@@ -60,6 +62,7 @@ export function createAccount({
       stock: stockId ? { connect: { id: stockId } } : undefined,
       preExisting,
       balanceAtStart,
+      openingDate,
       user: { connect: { id: userId } },
     },
   });
@@ -75,6 +78,7 @@ export type AccountValues = {
   stockId: string | null;
   preExisting: "on" | null;
   balanceAtStart: string | null;
+  openingDate: string | null;
 };
 
 export type AccountErrors = {
@@ -87,6 +91,7 @@ export type AccountErrors = {
   stockId?: string;
   preExisting?: string;
   balanceAtStart?: string;
+  openingDate?: string;
 };
 
 export function validateAccount({
@@ -98,6 +103,7 @@ export function validateAccount({
   stockId,
   preExisting,
   balanceAtStart,
+  openingDate,
 }: AccountValues) {
   const errors: AccountErrors = {};
 
@@ -131,6 +137,12 @@ export function validateAccount({
     } else if (parseBalanceAtStart(balanceAtStart).isNaN()) {
       errors.balanceAtStart = "Balance at start must be a number";
     }
+  } else {
+    if (!openingDate) {
+      errors.openingDate = "Opening date is required";
+    } else if (isNaN(parseDate(openingDate).valueOf())) {
+      errors.openingDate = "Opening date must be a date";
+    }
   }
 
   return errors;
@@ -142,4 +154,8 @@ export function deleteAccount({ id, userId }: Pick<Account, "id" | "userId">) {
 
 export function parseBalanceAtStart(balanceAtStart: string) {
   return new Decimal(balanceAtStart);
+}
+
+export function parseDate(date: string) {
+  return new Date(date);
 }

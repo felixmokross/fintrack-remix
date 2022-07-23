@@ -13,6 +13,7 @@ import invariant from "tiny-invariant";
 import { PlusIcon } from "~/icons";
 import { getAccountGroupListItems } from "~/models/account-group.server";
 import type { AccountErrors, AccountValues } from "~/models/account.server";
+import { parseDate } from "~/models/account.server";
 import { parseBalanceAtStart } from "~/models/account.server";
 import { validateAccount } from "~/models/account.server";
 import { createAccount } from "~/models/account.server";
@@ -62,6 +63,7 @@ export const action: ActionFunction = async ({ request }) => {
   const stockId = formData.get("stockId");
   const preExisting = formData.get("preExisting");
   const balanceAtStart = formData.get("balanceAtStart");
+  const openingDate = formData.get("openingDate");
 
   invariant(typeof name === "string", "name not found");
   invariant(typeof type === "string", "type not found");
@@ -81,6 +83,10 @@ export const action: ActionFunction = async ({ request }) => {
     !balanceAtStart || typeof balanceAtStart === "string",
     "balanceAtStart not found"
   );
+  invariant(
+    !openingDate || typeof openingDate === "string",
+    "openingDate not found"
+  );
 
   const errors = validateAccount({
     name,
@@ -92,6 +98,7 @@ export const action: ActionFunction = async ({ request }) => {
     stockId,
     preExisting,
     balanceAtStart,
+    openingDate,
   });
   if (Object.values(errors).length > 0) {
     return json<ActionData>(
@@ -107,6 +114,7 @@ export const action: ActionFunction = async ({ request }) => {
           stockId,
           preExisting,
           balanceAtStart,
+          openingDate,
         },
       },
       { status: 400 }
@@ -124,6 +132,7 @@ export const action: ActionFunction = async ({ request }) => {
     userId,
     preExisting: preExisting === "on",
     balanceAtStart: balanceAtStart ? parseBalanceAtStart(balanceAtStart) : null,
+    openingDate: openingDate ? parseDate(openingDate) : null,
   });
 
   return redirect(`/accounts`);
@@ -228,12 +237,22 @@ export default function NewPage() {
               defaultValue={actionData?.values?.preExisting || undefined}
               onChange={setPreExisting}
             />
-            {preExisting && (
+            {preExisting ? (
               <Input
                 groupClassName="sm:col-span-3"
                 label="Balance at start"
                 name="balanceAtStart"
                 defaultValue={actionData?.values?.balanceAtStart || undefined}
+                error={actionData?.errors?.balanceAtStart}
+              />
+            ) : (
+              <Input
+                groupClassName="sm:col-span-3"
+                label="Opening date"
+                name="openingDate"
+                type="date"
+                defaultValue={actionData?.values?.openingDate || undefined}
+                error={actionData?.errors?.openingDate}
               />
             )}
           </div>

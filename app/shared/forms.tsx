@@ -38,7 +38,15 @@ function ErrorMessage({ error, errorId }: ErrorMessageProps) {
 type ErrorMessageProps = { error?: string; errorId: string };
 
 export const Input = forwardRef(function Input(
-  { label, name, error, groupClassName, defaultValue, disabled }: InputProps,
+  {
+    label,
+    name,
+    error,
+    groupClassName,
+    defaultValue,
+    disabled,
+    type,
+  }: InputProps,
   ref: InputProps["ref"]
 ) {
   const id = `input-${useId()}`;
@@ -47,7 +55,7 @@ export const Input = forwardRef(function Input(
     <div className={groupClassName}>
       <Label htmlFor={id}>{label}</Label>
       <input
-        type="text"
+        type={type || "text"}
         name={name}
         id={id}
         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:opacity-50 sm:text-sm"
@@ -72,7 +80,7 @@ export type InputProps = {
     React.InputHTMLAttributes<HTMLInputElement>,
     HTMLInputElement
   >,
-  "defaultValue" | "disabled" | "ref"
+  "defaultValue" | "disabled" | "ref" | "type"
 >;
 
 export const Select = forwardRef(function Select(
