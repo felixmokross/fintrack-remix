@@ -12,50 +12,50 @@ export function getAccountListItems({ userId }: { userId: User["id"] }) {
 
 export function createAccount({
   name,
+  type,
+  assetClassId,
+  groupId,
   userId,
-}: Pick<Account, "name"> & {
+}: Pick<Account, "name" | "type" | "assetClassId" | "groupId"> & {
   userId: User["id"];
 }) {
   return prisma.account.create({
     data: {
       name,
-      user: {
-        connect: {
-          id: userId,
-        },
-      },
+      type,
+      assetClass: assetClassId ? { connect: { id: assetClassId } } : undefined,
+      group: groupId ? { connect: { id: groupId } } : undefined,
+      user: { connect: { id: userId } },
     },
   });
 }
 
 export type AccountValues = {
   name: string;
-  accountType: string;
+  type: string;
   assetClassId: string | null;
+  groupId: string;
 };
 
 export type AccountErrors = {
   name?: string;
-  accountType?: string;
+  type?: string;
   assetClassId?: string;
+  groupId?: string;
 };
 
-export function validateAccount({
-  name,
-  accountType,
-  assetClassId,
-}: AccountValues) {
+export function validateAccount({ name, type, assetClassId }: AccountValues) {
   const errors: AccountErrors = {};
 
   if (name.length === 0) {
     errors.name = "Name is required";
   }
 
-  if (accountType.length === 0) {
-    errors.accountType = "Account type is required";
+  if (type.length === 0) {
+    errors.type = "Type is required";
   }
 
-  if (accountType === AccountType.ASSET && !assetClassId) {
+  if (type === AccountType.ASSET && !assetClassId) {
     errors.assetClassId = "Asset class is required";
   }
 

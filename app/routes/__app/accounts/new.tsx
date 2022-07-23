@@ -10,6 +10,7 @@ import { json, redirect } from "@remix-run/server-runtime";
 import { useRef } from "react";
 import invariant from "tiny-invariant";
 import { PlusIcon } from "~/icons";
+import { getAccountGroupListItems } from "~/models/account-group.server";
 import type { AccountErrors, AccountValues } from "~/models/account.server";
 import { validateAccount } from "~/models/account.server";
 import { createAccount } from "~/models/account.server";
@@ -20,6 +21,7 @@ import { Modal } from "~/shared/modal";
 
 type LoaderData = {
   assetClasses: Awaited<ReturnType<typeof getAssetClassListItems>>;
+  accountGroups: Awaited<ReturnType<typeof getAccountGroupListItems>>;
 };
 
 type ActionData = {
@@ -31,6 +33,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   const userId = await requireUserId(request);
   return json<LoaderData>({
     assetClasses: await getAssetClassListItems({ userId }),
+    accountGroups: await getAccountGroupListItems({ userId }),
   });
 };
 
@@ -39,25 +42,33 @@ export const action: ActionFunction = async ({ request }) => {
 
   const formData = await request.formData();
   const name = formData.get("name");
-  const accountType = formData.get("accountType");
+  const type = formData.get("type");
   const assetClassId = formData.get("assetClassId");
+  const groupId = formData.get("groupId");
 
   invariant(typeof name === "string", "name not found");
-  invariant(typeof accountType === "string", "accountType not found");
+  invariant(typeof type === "string", "type not found");
   invariant(
     !assetClassId || typeof assetClassId === "string",
     "assetClassId not found"
   );
+  invariant(typeof groupId === "string", "groupId not found");
 
-  const errors = validateAccount({ name, accountType, assetClassId });
+  const errors = validateAccount({ name, type, assetClassId, groupId });
   if (Object.values(errors).length > 0) {
     return json<ActionData>(
-      { errors, values: { name, accountType, assetClassId } },
+      { errors, values: { name, type, assetClassId, groupId } },
       { status: 400 }
     );
   }
 
-  await createAccount({ name, userId });
+  await createAccount({
+    name,
+    type: type as AccountType,
+    assetClassId,
+    groupId,
+    userId,
+  });
 
   return redirect(`/accounts`);
 };
@@ -66,7 +77,7 @@ export default function NewPage() {
   const nameInputRef = useRef(null);
   const actionData = useActionData<ActionData>();
   const navigate = useNavigate();
-  const { assetClasses } = useLoaderData<LoaderData>();
+  const { assetClasses, accountGroups } = useLoaderData<LoaderData>();
   const assetClassSelectRef = useRef<HTMLSelectElement>(null);
   return (
     <Modal initialFocus={nameInputRef} onClose={onClose}>
@@ -83,14 +94,14 @@ export default function NewPage() {
               ref={nameInputRef}
             />
             <AccountTypeRadioGroup
-              label="Account type"
-              name="accountType"
-              id="accountType"
-              error={actionData?.errors?.accountType}
+              label="Type"
+              name="type"
+              id="type"
+              error={actionData?.errors?.type}
               groupClassName="sm:col-span-2"
-              defaultValue={actionData?.values?.accountType}
-              onChange={(accountType) => {
-                if (accountType === AccountType.ASSET) {
+              defaultValue={actionData?.values?.type}
+              onChange={(type) => {
+                if (type === AccountType.ASSET) {
                   assetClassSelectRef.current!.disabled = false;
                 } else {
                   assetClassSelectRef.current!.value = "";
@@ -111,6 +122,21 @@ export default function NewPage() {
               {assetClasses.map((assetClass) => (
                 <option key={assetClass.id} value={assetClass.id}>
                   {assetClass.name}
+                </option>
+              ))}
+            </Select>
+            <Select
+              label="Group"
+              name="groupId"
+              id="groupId"
+              error={actionData?.errors?.groupId}
+              groupClassName="sm:col-span-3"
+              defaultValue={actionData?.values?.groupId}
+            >
+              <option value=""></option>
+              {accountGroups.map((accountGroup) => (
+                <option key={accountGroup.id} value={accountGroup.id}>
+                  {accountGroup.name}
                 </option>
               ))}
             </Select>
