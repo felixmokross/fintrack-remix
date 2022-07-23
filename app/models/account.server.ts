@@ -45,6 +45,7 @@ export type AccountValues = {
   groupId: string;
   unit: string;
   currency: string | null;
+  stockId: string | null;
 };
 
 export type AccountErrors = {
@@ -54,6 +55,7 @@ export type AccountErrors = {
   groupId?: string;
   unit?: string;
   currency?: string;
+  stockId?: string;
 };
 
 export function validateAccount({
@@ -62,6 +64,7 @@ export function validateAccount({
   assetClassId,
   unit,
   currency,
+  stockId,
 }: AccountValues) {
   const errors: AccountErrors = {};
 
@@ -83,6 +86,10 @@ export function validateAccount({
 
   if (unit === AccountUnit.CURRENCY && !currency) {
     errors.currency = "Currency is required";
+  }
+
+  if (unit === AccountUnit.STOCK && !stockId) {
+    errors.stockId = "Stock is required";
   }
 
   return errors;

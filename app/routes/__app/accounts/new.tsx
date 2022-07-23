@@ -16,6 +16,7 @@ import type { AccountErrors, AccountValues } from "~/models/account.server";
 import { validateAccount } from "~/models/account.server";
 import { createAccount } from "~/models/account.server";
 import { getAssetClassListItems } from "~/models/asset-class.server";
+import { getStockListItems } from "~/models/stock.server";
 import { requireUserId } from "~/session.server";
 import {
   AccountTypeRadioGroup,
@@ -29,6 +30,7 @@ import { Modal } from "~/shared/modal";
 type LoaderData = {
   assetClasses: Awaited<ReturnType<typeof getAssetClassListItems>>;
   accountGroups: Awaited<ReturnType<typeof getAccountGroupListItems>>;
+  stocks: Awaited<ReturnType<typeof getStockListItems>>;
 };
 
 type ActionData = {
@@ -41,6 +43,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   return json<LoaderData>({
     assetClasses: await getAssetClassListItems({ userId }),
     accountGroups: await getAccountGroupListItems({ userId }),
+    stocks: await getStockListItems({ userId }),
   });
 };
 
@@ -54,6 +57,7 @@ export const action: ActionFunction = async ({ request }) => {
   const groupId = formData.get("groupId");
   const unit = formData.get("unit");
   const currency = formData.get("currency");
+  const stockId = formData.get("stockId");
 
   invariant(typeof name === "string", "name not found");
   invariant(typeof type === "string", "type not found");
@@ -64,6 +68,7 @@ export const action: ActionFunction = async ({ request }) => {
   invariant(typeof groupId === "string", "groupId not found");
   invariant(typeof unit === "string", "unit not found");
   invariant(!currency || typeof currency === "string", "currency not found");
+  invariant(!stockId || typeof stockId === "string", "stockId not found");
 
   const errors = validateAccount({
     name,
@@ -72,10 +77,14 @@ export const action: ActionFunction = async ({ request }) => {
     groupId,
     unit,
     currency,
+    stockId,
   });
   if (Object.values(errors).length > 0) {
     return json<ActionData>(
-      { errors, values: { name, type, assetClassId, groupId, unit, currency } },
+      {
+        errors,
+        values: { name, type, assetClassId, groupId, unit, currency, stockId },
+      },
       { status: 400 }
     );
   }
@@ -97,7 +106,7 @@ export default function NewPage() {
   const nameInputRef = useRef(null);
   const actionData = useActionData<ActionData>();
   const navigate = useNavigate();
-  const { assetClasses, accountGroups } = useLoaderData<LoaderData>();
+  const { assetClasses, accountGroups, stocks } = useLoaderData<LoaderData>();
   const assetClassSelectRef = useRef<HTMLSelectElement>(null);
   const [unit, setUnit] = useState<AccountUnit>(AccountUnit.CURRENCY);
   return (
@@ -178,6 +187,23 @@ export default function NewPage() {
                 error={actionData?.errors?.currency}
                 groupClassName="sm:col-span-3"
               />
+            )}
+            {unit === AccountUnit.STOCK && (
+              <Select
+                label="Stock"
+                name="stockId"
+                id="stockId"
+                error={actionData?.errors?.stockId}
+                groupClassName="sm:col-span-3"
+                defaultValue={actionData?.values?.stockId || undefined}
+              >
+                <option value=""></option>
+                {stocks.map((stock) => (
+                  <option key={stock.id} value={stock.id}>
+                    {stock.id}
+                  </option>
+                ))}
+              </Select>
             )}
           </div>
         </Modal.Body>
