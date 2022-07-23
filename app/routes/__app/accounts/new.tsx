@@ -133,8 +133,7 @@ export default function NewPage() {
   const actionData = useActionData<ActionData>();
   const navigate = useNavigate();
   const { assetClasses, accountGroups, stocks } = useLoaderData<LoaderData>();
-  // TODO handle default values correctly
-  const assetClassSelectRef = useRef<HTMLSelectElement>(null); // TODO use state approach and hiding of field better
+  const [type, setType] = useState<AccountType>(AccountType.ASSET);
   const [unit, setUnit] = useState<AccountUnit>(AccountUnit.CURRENCY);
   const [preExisting, setPreExisting] = useState(false);
   return (
@@ -147,42 +146,10 @@ export default function NewPage() {
               name="name"
               id="name"
               error={actionData?.errors?.name}
-              groupClassName="sm:col-span-4"
+              groupClassName="sm:col-span-3"
               defaultValue={actionData?.values?.name}
               ref={nameInputRef}
             />
-            <AccountTypeRadioGroup
-              label="Type"
-              name="type"
-              id="type"
-              error={actionData?.errors?.type}
-              groupClassName="sm:col-span-2"
-              defaultValue={actionData?.values?.type}
-              onChange={(type) => {
-                if (type === AccountType.ASSET) {
-                  assetClassSelectRef.current!.disabled = false;
-                } else {
-                  assetClassSelectRef.current!.value = "";
-                  assetClassSelectRef.current!.disabled = true;
-                }
-              }}
-            />
-            <Select
-              label="Asset class"
-              name="assetClassId"
-              id="assetClassId"
-              error={actionData?.errors?.assetClassId}
-              groupClassName="sm:col-span-3"
-              defaultValue={actionData?.values?.assetClassId || undefined}
-              ref={assetClassSelectRef}
-            >
-              <option value=""></option>
-              {assetClasses.map((assetClass) => (
-                <option key={assetClass.id} value={assetClass.id}>
-                  {assetClass.name}
-                </option>
-              ))}
-            </Select>
             <Select
               label="Group"
               name="groupId"
@@ -198,12 +165,38 @@ export default function NewPage() {
                 </option>
               ))}
             </Select>
+            <AccountTypeRadioGroup
+              label="Type"
+              name="type"
+              id="type"
+              error={actionData?.errors?.type}
+              groupClassName="sm:col-span-3"
+              defaultValue={actionData?.values?.type}
+              onChange={setType}
+            />
+            {type === AccountType.ASSET && (
+              <Select
+                label="Asset class"
+                name="assetClassId"
+                id="assetClassId"
+                error={actionData?.errors?.assetClassId}
+                groupClassName="sm:col-span-3"
+                defaultValue={actionData?.values?.assetClassId || undefined}
+              >
+                <option value=""></option>
+                {assetClasses.map((assetClass) => (
+                  <option key={assetClass.id} value={assetClass.id}>
+                    {assetClass.name}
+                  </option>
+                ))}
+              </Select>
+            )}
             <AccountUnitRadioGroup
               label="Unit"
               name="unit"
               id="unit"
               error={actionData?.errors?.unit}
-              groupClassName="sm:col-span-2"
+              groupClassName="sm:col-span-2 sm:col-start-1"
               defaultValue={actionData?.values?.unit}
               onChange={setUnit}
             />
