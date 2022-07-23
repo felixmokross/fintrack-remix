@@ -215,12 +215,12 @@ export const CurrencyCombobox = forwardRef(function CurrencyCombobox(
             ))}
           </Combobox.Options>
         )}
-        {error && (
-          <p className="mt-2 text-sm text-red-600" id={errorId}>
-            {error}
-          </p>
-        )}
       </div>
+      {error && (
+        <p className="mt-2 text-sm text-red-600" id={errorId}>
+          {error}
+        </p>
+      )}
     </Combobox>
   );
 

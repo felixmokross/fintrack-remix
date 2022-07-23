@@ -1,4 +1,5 @@
-import { AccountType, AccountUnit } from "@prisma/client";
+import { AccountUnit } from "@prisma/client";
+import { AccountType } from "@prisma/client";
 import {
   Form,
   useActionData,
@@ -7,7 +8,7 @@ import {
 } from "@remix-run/react";
 import type { ActionFunction, LoaderFunction } from "@remix-run/server-runtime";
 import { json, redirect } from "@remix-run/server-runtime";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import invariant from "tiny-invariant";
 import { PlusIcon } from "~/icons";
 import { getAccountGroupListItems } from "~/models/account-group.server";
@@ -19,6 +20,7 @@ import { requireUserId } from "~/session.server";
 import {
   AccountTypeRadioGroup,
   AccountUnitRadioGroup,
+  CurrencyCombobox,
   Input,
   Select,
 } from "~/shared/forms";
@@ -51,6 +53,7 @@ export const action: ActionFunction = async ({ request }) => {
   const assetClassId = formData.get("assetClassId");
   const groupId = formData.get("groupId");
   const unit = formData.get("unit");
+  const currency = formData.get("currency");
 
   invariant(typeof name === "string", "name not found");
   invariant(typeof type === "string", "type not found");
@@ -60,11 +63,19 @@ export const action: ActionFunction = async ({ request }) => {
   );
   invariant(typeof groupId === "string", "groupId not found");
   invariant(typeof unit === "string", "unit not found");
+  invariant(!currency || typeof currency === "string", "currency not found");
 
-  const errors = validateAccount({ name, type, assetClassId, groupId, unit });
+  const errors = validateAccount({
+    name,
+    type,
+    assetClassId,
+    groupId,
+    unit,
+    currency,
+  });
   if (Object.values(errors).length > 0) {
     return json<ActionData>(
-      { errors, values: { name, type, assetClassId, groupId, unit } },
+      { errors, values: { name, type, assetClassId, groupId, unit, currency } },
       { status: 400 }
     );
   }
@@ -75,6 +86,7 @@ export const action: ActionFunction = async ({ request }) => {
     assetClassId,
     groupId,
     unit: unit as AccountUnit,
+    currency,
     userId,
   });
 
@@ -87,6 +99,7 @@ export default function NewPage() {
   const navigate = useNavigate();
   const { assetClasses, accountGroups } = useLoaderData<LoaderData>();
   const assetClassSelectRef = useRef<HTMLSelectElement>(null);
+  const [unit, setUnit] = useState<AccountUnit>(AccountUnit.CURRENCY);
   return (
     <Modal initialFocus={nameInputRef} onClose={onClose}>
       <Form method="post" replace>
@@ -155,15 +168,17 @@ export default function NewPage() {
               error={actionData?.errors?.unit}
               groupClassName="sm:col-span-3"
               defaultValue={actionData?.values?.unit}
-              onChange={(unit) => {
-                // if (type === AccountType.ASSET) {
-                //   assetClassSelectRef.current!.disabled = false;
-                // } else {
-                //   assetClassSelectRef.current!.value = "";
-                //   assetClassSelectRef.current!.disabled = true;
-                // }
-              }}
+              onChange={setUnit}
             />
+            {unit === AccountUnit.CURRENCY && (
+              <CurrencyCombobox
+                name="currency"
+                id="currency"
+                label="Currency"
+                error={actionData?.errors?.currency}
+                groupClassName="sm:col-span-3"
+              />
+            )}
           </div>
         </Modal.Body>
         <Modal.Footer>

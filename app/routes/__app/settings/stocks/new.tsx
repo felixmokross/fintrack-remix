@@ -21,7 +21,7 @@ export const action: ActionFunction = async ({ request }) => {
 
   const formData = await request.formData();
   const id = formData.get("id");
-  const tradingCurrency = formData.get("tradingCurrency");
+  const tradingCurrency = formData.get("tradingCurrency") || "";
 
   invariant(typeof id === "string", "id not found");
   invariant(typeof tradingCurrency === "string", "tradingCurrency not found");

@@ -1,4 +1,5 @@
 import type { Account, User } from "@prisma/client";
+import { AccountUnit } from "@prisma/client";
 import { AccountType } from "@prisma/client";
 import { prisma } from "~/db.server";
 
@@ -16,8 +17,12 @@ export function createAccount({
   assetClassId,
   groupId,
   unit,
+  currency,
   userId,
-}: Pick<Account, "name" | "type" | "assetClassId" | "groupId" | "unit"> & {
+}: Pick<
+  Account,
+  "name" | "type" | "assetClassId" | "groupId" | "unit" | "currency"
+> & {
   userId: User["id"];
 }) {
   return prisma.account.create({
@@ -27,6 +32,7 @@ export function createAccount({
       assetClass: assetClassId ? { connect: { id: assetClassId } } : undefined,
       group: groupId ? { connect: { id: groupId } } : undefined,
       unit,
+      currency,
       user: { connect: { id: userId } },
     },
   });
@@ -38,6 +44,7 @@ export type AccountValues = {
   assetClassId: string | null;
   groupId: string;
   unit: string;
+  currency: string | null;
 };
 
 export type AccountErrors = {
@@ -46,6 +53,7 @@ export type AccountErrors = {
   assetClassId?: string;
   groupId?: string;
   unit?: string;
+  currency?: string;
 };
 
 export function validateAccount({
@@ -53,6 +61,7 @@ export function validateAccount({
   type,
   assetClassId,
   unit,
+  currency,
 }: AccountValues) {
   const errors: AccountErrors = {};
 
@@ -70,6 +79,10 @@ export function validateAccount({
 
   if (unit.length === 0) {
     errors.type = "Unit is required";
+  }
+
+  if (unit === AccountUnit.CURRENCY && !currency) {
+    errors.currency = "Currency is required";
   }
 
   return errors;
