@@ -5,7 +5,7 @@ import { prisma } from "~/db.server";
 export function getStockListItems({ userId }: { userId: User["id"] }) {
   return prisma.stock.findMany({
     where: { userId },
-    select: { id: true, tradingCurrency: true },
+    select: { id: true, symbol: true, tradingCurrency: true },
     orderBy: { id: "asc" },
   });
 }
@@ -17,21 +17,21 @@ export function getStock({
   userId: User["id"];
 }) {
   return prisma.stock.findFirst({
-    select: { id: true, tradingCurrency: true },
+    select: { id: true, symbol: true, tradingCurrency: true },
     where: { id, userId },
   });
 }
 
 export function createStock({
-  id,
+  symbol,
   tradingCurrency,
   userId,
-}: Pick<Stock, "id" | "tradingCurrency"> & {
+}: Pick<Stock, "symbol" | "tradingCurrency"> & {
   userId: User["id"];
 }) {
   return prisma.stock.create({
     data: {
-      id: id.toUpperCase(),
+      symbol: symbol.toUpperCase(),
       tradingCurrency,
       user: {
         connect: {
@@ -51,16 +51,17 @@ export async function stockExists({
 
 export async function updateStock({
   id,
+  symbol,
   tradingCurrency,
   userId,
-}: Pick<Stock, "id" | "tradingCurrency"> & {
+}: Pick<Stock, "id" | "symbol" | "tradingCurrency"> & {
   userId: User["id"];
 }) {
   if (!(await stockExists({ id, userId }))) throw new Error("Stock not found");
 
   return await prisma.stock.update({
     where: { id },
-    data: { tradingCurrency },
+    data: { symbol, tradingCurrency },
   });
 }
 
@@ -68,22 +69,11 @@ export function deleteStock({ id, userId }: Pick<Stock, "id" | "userId">) {
   return prisma.stock.deleteMany({ where: { id, userId } });
 }
 
-export async function validateStock(
-  { id, tradingCurrency }: StockValues,
-  userId: User["id"],
-  isNew: boolean
-) {
+export function validateStock({ symbol, tradingCurrency }: StockValues) {
   const errors: StockErrors = {};
 
-  if (id.length === 0) {
-    errors.id = "Symbol is required";
-  } else if (
-    isNew &&
-    (await prisma.stock.findFirst({
-      where: { id: id.toUpperCase(), userId },
-    })) !== null
-  ) {
-    errors.id = "Stock already exists";
+  if (symbol.length === 0) {
+    errors.symbol = "Symbol is required";
   }
 
   if (tradingCurrency.length === 0) {
@@ -96,11 +86,11 @@ export async function validateStock(
 }
 
 export type StockValues = {
-  id: string;
+  symbol: string;
   tradingCurrency: string;
 };
 
 export type StockErrors = {
-  id?: string;
+  symbol?: string;
   tradingCurrency?: string;
 };

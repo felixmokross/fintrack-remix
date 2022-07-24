@@ -65,7 +65,7 @@ export default function StocksPage() {
                   {stocks.map((stock) => (
                     <tr key={stock.id}>
                       <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
-                        {stock.id}
+                        {stock.symbol}
                       </td>
                       <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
                         {stock.tradingCurrency}
@@ -76,7 +76,7 @@ export default function StocksPage() {
                           className="text-indigo-600 hover:text-indigo-900"
                         >
                           Edit
-                          <span className="sr-only">, {stock.id}</span>
+                          <span className="sr-only">, {stock.symbol}</span>
                         </Link>{" "}
                         &middot;{" "}
                         <fetcher.Form

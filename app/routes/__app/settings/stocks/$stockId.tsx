@@ -31,25 +31,24 @@ export const action: ActionFunction = async ({ request, params }) => {
   invariant(params.stockId, "stockId not found");
 
   const formData = await request.formData();
+  const symbol = formData.get("symbol");
   const tradingCurrency = formData.get("tradingCurrency");
 
+  invariant(typeof symbol === "string", "symbol not found");
   invariant(typeof tradingCurrency === "string", "tradingCurrency not found");
 
-  const errors = await validateStock(
-    { id: params.stockId, tradingCurrency },
-    userId,
-    false
-  );
+  const errors = validateStock({ symbol, tradingCurrency });
 
   if (Object.values(errors).length > 0) {
     return json<ActionData>(
-      { errors, values: { id: params.stockId, tradingCurrency } },
+      { errors, values: { symbol, tradingCurrency } },
       { status: 400 }
     );
   }
 
   await updateStock({
     id: params.stockId,
+    symbol,
     tradingCurrency,
     userId,
   });
@@ -84,10 +83,9 @@ export default function EditPage() {
             <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
               <Input
                 label="Symbol"
-                name="id"
-                defaultValue={actionData?.values?.id || stock.id}
-                disabled={true}
-                error={actionData?.errors?.id}
+                name="symbol"
+                defaultValue={actionData?.values?.symbol || stock.symbol}
+                error={actionData?.errors?.symbol}
                 groupClassName="sm:col-span-2"
               />
               <CurrencyCombobox

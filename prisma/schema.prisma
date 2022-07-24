@@ -103,7 +103,8 @@ model AccountGroup {
 }
 
 model Stock {
-  id              String    @id // TODO revise this: should be composite key with userId, otherwise ids can conflict across users
+  id              String    @id @default(cuid())
+  symbol          String
   tradingCurrency String
   account         Account[]
 
