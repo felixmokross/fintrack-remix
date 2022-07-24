@@ -1,4 +1,9 @@
-import { Form, useActionData, useNavigate } from "@remix-run/react";
+import {
+  Form,
+  useActionData,
+  useNavigate,
+  useTransition,
+} from "@remix-run/react";
 import type { ActionFunction } from "@remix-run/server-runtime";
 import { json, redirect } from "@remix-run/server-runtime";
 import { useRef } from "react";
@@ -44,38 +49,42 @@ export default function NewStockModal() {
   const symbolInputRef = useRef(null);
   const navigate = useNavigate();
   const actionData = useActionData<ActionData>();
+  const { state } = useTransition();
+  const disabled = state !== "idle";
   return (
     <Modal initialFocus={symbolInputRef} onClose={onClose}>
       <Form method="post" replace>
-        <Modal.Body title="New Stock" icon={PlusIcon}>
-          <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
-            <Input
-              label="Symbol"
-              name="id"
-              error={actionData?.errors?.id}
-              groupClassName="sm:col-span-2"
-              ref={symbolInputRef}
-            />
-            <CurrencyCombobox
-              name="tradingCurrency"
-              label="Trading currency"
-              error={actionData?.errors?.tradingCurrency}
-              groupClassName="sm:col-span-4"
-            />
-          </div>
-        </Modal.Body>
-        <Modal.Footer>
-          <Modal.Button type="submit" variant="primary">
-            Save
-          </Modal.Button>
-          <Modal.Button
-            type="button"
-            onClick={onClose}
-            className="mt-3 sm:mt-0"
-          >
-            Cancel
-          </Modal.Button>
-        </Modal.Footer>
+        <fieldset disabled={disabled}>
+          <Modal.Body title="New Stock" icon={PlusIcon}>
+            <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+              <Input
+                label="Symbol"
+                name="id"
+                error={actionData?.errors?.id}
+                groupClassName="sm:col-span-2"
+                ref={symbolInputRef}
+              />
+              <CurrencyCombobox
+                name="tradingCurrency"
+                label="Trading currency"
+                error={actionData?.errors?.tradingCurrency}
+                groupClassName="sm:col-span-4"
+              />
+            </div>
+          </Modal.Body>
+          <Modal.Footer>
+            <Modal.Button type="submit" variant="primary">
+              Save
+            </Modal.Button>
+            <Modal.Button
+              type="button"
+              onClick={onClose}
+              className="mt-3 sm:mt-0"
+            >
+              Cancel
+            </Modal.Button>
+          </Modal.Footer>
+        </fieldset>
       </Form>
     </Modal>
   );

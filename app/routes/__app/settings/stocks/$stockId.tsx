@@ -3,6 +3,7 @@ import {
   useActionData,
   useLoaderData,
   useNavigate,
+  useTransition,
 } from "@remix-run/react";
 import type { ActionFunction, LoaderFunction } from "@remix-run/server-runtime";
 import { redirect } from "@remix-run/server-runtime";
@@ -75,43 +76,47 @@ export default function EditPage() {
   const actionData = useActionData<ActionData>();
   const tradingCurrencyRef = useRef(null);
   const navigate = useNavigate();
+  const { state } = useTransition();
+  const disabled = state !== "idle";
   return (
     <Modal initialFocus={tradingCurrencyRef} onClose={onClose}>
       <Form method="post" replace>
-        <Modal.Body title="Edit Stock" icon={PencilIcon}>
-          <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
-            <Input
-              label="Symbol"
-              name="id"
-              defaultValue={actionData?.values?.id || stock.id}
-              disabled={true}
-              error={actionData?.errors?.id}
-              groupClassName="sm:col-span-2"
-            />
-            <CurrencyCombobox
-              name="tradingCurrency"
-              label="Trading currency"
-              error={actionData?.errors?.tradingCurrency}
-              defaultValue={
-                actionData?.values?.tradingCurrency || stock.tradingCurrency
-              }
-              groupClassName="sm:col-span-4"
-              ref={tradingCurrencyRef}
-            />
-          </div>
-        </Modal.Body>
-        <Modal.Footer>
-          <Modal.Button type="submit" variant="primary">
-            Save
-          </Modal.Button>
-          <Modal.Button
-            type="button"
-            onClick={onClose}
-            className="mt-3 sm:mt-0"
-          >
-            Cancel
-          </Modal.Button>
-        </Modal.Footer>
+        <fieldset disabled={disabled}>
+          <Modal.Body title="Edit Stock" icon={PencilIcon}>
+            <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+              <Input
+                label="Symbol"
+                name="id"
+                defaultValue={actionData?.values?.id || stock.id}
+                disabled={true}
+                error={actionData?.errors?.id}
+                groupClassName="sm:col-span-2"
+              />
+              <CurrencyCombobox
+                name="tradingCurrency"
+                label="Trading currency"
+                error={actionData?.errors?.tradingCurrency}
+                defaultValue={
+                  actionData?.values?.tradingCurrency || stock.tradingCurrency
+                }
+                groupClassName="sm:col-span-4"
+                ref={tradingCurrencyRef}
+              />
+            </div>
+          </Modal.Body>
+          <Modal.Footer>
+            <Modal.Button type="submit" variant="primary">
+              {state !== "idle" ? "Saving…" : "Save"}
+            </Modal.Button>
+            <Modal.Button
+              type="button"
+              onClick={onClose}
+              className="mt-3 sm:mt-0"
+            >
+              Cancel
+            </Modal.Button>
+          </Modal.Footer>
+        </fieldset>
       </Form>
     </Modal>
   );

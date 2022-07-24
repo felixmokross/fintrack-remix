@@ -1,4 +1,9 @@
-import { Form, useActionData, useNavigate } from "@remix-run/react";
+import {
+  Form,
+  useActionData,
+  useNavigate,
+  useTransition,
+} from "@remix-run/react";
 import type { ActionFunction } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import { redirect } from "@remix-run/server-runtime";
@@ -55,38 +60,42 @@ export default function NewAssetClassModal() {
   const nameInputRef = useRef(null);
   const navigate = useNavigate();
   const actionData = useActionData<ActionData>();
+  const { state } = useTransition();
+  const disabled = state !== "idle";
   return (
     <Modal initialFocus={nameInputRef} onClose={onClose}>
       <Form method="post" replace>
-        <Modal.Body title="New Asset Class" icon={PlusIcon}>
-          <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
-            <Input
-              label="Name"
-              name="name"
-              error={actionData?.errors?.name}
-              groupClassName="sm:col-span-3"
-              ref={nameInputRef}
-            />
-            <Input
-              label="Sort order"
-              name="sortOrder"
-              error={actionData?.errors?.sortOrder}
-              groupClassName="sm:col-span-3"
-            />
-          </div>
-        </Modal.Body>
-        <Modal.Footer>
-          <Modal.Button type="submit" variant="primary">
-            Save
-          </Modal.Button>
-          <Modal.Button
-            type="button"
-            onClick={onClose}
-            className="mt-3 sm:mt-0"
-          >
-            Cancel
-          </Modal.Button>
-        </Modal.Footer>
+        <fieldset disabled={disabled}>
+          <Modal.Body title="New Asset Class" icon={PlusIcon}>
+            <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+              <Input
+                label="Name"
+                name="name"
+                error={actionData?.errors?.name}
+                groupClassName="sm:col-span-3"
+                ref={nameInputRef}
+              />
+              <Input
+                label="Sort order"
+                name="sortOrder"
+                error={actionData?.errors?.sortOrder}
+                groupClassName="sm:col-span-3"
+              />
+            </div>
+          </Modal.Body>
+          <Modal.Footer>
+            <Modal.Button type="submit" variant="primary">
+              {state !== "idle" ? "Saving…" : "Save"}
+            </Modal.Button>
+            <Modal.Button
+              type="button"
+              onClick={onClose}
+              className="mt-3 sm:mt-0"
+            >
+              Cancel
+            </Modal.Button>
+          </Modal.Footer>
+        </fieldset>
       </Form>
     </Modal>
   );
