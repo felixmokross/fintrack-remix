@@ -1,40 +1,35 @@
 import { Link, Outlet, useFetcher, useLoaderData } from "@remix-run/react";
-import type { LoaderFunction } from "@remix-run/server-runtime";
+import type { LoaderFunction, MetaFunction } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
-import { getExpenseCategoryListItems } from "~/models/income-expense-category.server";
+import { getTransactionListItems } from "~/models/transaction.server";
 import { requireUserId } from "~/session.server";
 import { Button } from "~/shared/button";
+import { getTitle } from "~/shared/util";
 
 type LoaderData = {
-  categories: Awaited<ReturnType<typeof getExpenseCategoryListItems>>;
+  transactions: Awaited<ReturnType<typeof getTransactionListItems>>;
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
   const userId = await requireUserId(request);
-  const categories = await getExpenseCategoryListItems({
-    userId,
-  });
-  return json<LoaderData>({ categories });
+  const transactions = await getTransactionListItems({ userId });
+  return json<LoaderData>({ transactions });
 };
 
-export default function ExpenseCategoriesPage() {
-  const { categories } = useLoaderData<LoaderData>();
+export const meta: MetaFunction = () => ({ title: getTitle("Transactions") });
+
+export default function TransactionsPage() {
   const fetcher = useFetcher();
+  const { transactions } = useLoaderData<LoaderData>();
   return (
-    <div className="px-4 sm:px-6 lg:px-8">
+    <div className="px-4 py-2 sm:px-6 md:py-4 lg:px-8">
       <div className="sm:flex">
         <div className="sm:flex-auto">
-          <h1 className="text-xl font-semibold text-gray-900">
-            Expense Categories
-          </h1>
-          <p className="mt-2 text-sm text-gray-700">
-            By categorizing expense bookings into categories, you get an
-            overview of where you spend your money.
-          </p>
+          <h1 className="text-xl font-semibold text-gray-900">Transactions</h1>
         </div>
         <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
           <Button as={Link} to="new" variant="primary">
-            Add expense category
+            Add transaction
           </Button>
         </div>
       </div>
@@ -49,7 +44,13 @@ export default function ExpenseCategoriesPage() {
                       scope="col"
                       className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6"
                     >
-                      Name
+                      Date
+                    </th>
+                    <th
+                      scope="col"
+                      className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6"
+                    >
+                      Note
                     </th>
                     <th
                       scope="col"
@@ -60,18 +61,23 @@ export default function ExpenseCategoriesPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white">
-                  {categories.map((category) => (
-                    <tr key={category.id}>
+                  {transactions.map((transaction) => (
+                    <tr key={transaction.id}>
                       <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
-                        {category.name}
+                        {transaction.date}
+                      </td>
+                      <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
+                        {transaction.note}
                       </td>
                       <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                         <Link
-                          to={category.id}
+                          to={transaction.id}
                           className="text-indigo-600 hover:text-indigo-900"
                         >
                           Edit
-                          <span className="sr-only">, {category.name}</span>
+                          <span className="sr-only">
+                            , {transaction.date}, {transaction.note}
+                          </span>
                         </Link>{" "}
                         &middot;{" "}
                         <fetcher.Form
@@ -79,13 +85,19 @@ export default function ExpenseCategoriesPage() {
                           action="delete"
                           method="post"
                         >
-                          <input type="hidden" name="id" value={category.id} />
+                          <input
+                            type="hidden"
+                            name="id"
+                            value={transaction.id}
+                          />
                           <button
                             type="submit"
                             className="text-indigo-600 hover:text-indigo-900"
                           >
                             Delete
-                            <span className="sr-only">, {category.name}</span>
+                            <span className="sr-only">
+                              ,{transaction.date}, {transaction.note}
+                            </span>
                           </button>
                         </fetcher.Form>
                       </td>

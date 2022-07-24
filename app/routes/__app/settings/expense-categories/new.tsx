@@ -12,9 +12,9 @@ import { PlusIcon } from "~/icons";
 import type {
   IncomeExpenseCategoryErrors,
   IncomeExpenseCategoryValues,
-} from "~/models/income-expense-categories.server";
-import { createExpenseCategory } from "~/models/income-expense-categories.server";
-import { validateIncomeExpenseCategory } from "~/models/income-expense-categories.server";
+} from "~/models/income-expense-category.server";
+import { createExpenseCategory } from "~/models/income-expense-category.server";
+import { validateIncomeExpenseCategory } from "~/models/income-expense-category.server";
 import { requireUserId } from "~/session.server";
 import { Input } from "~/shared/forms";
 import { Modal } from "~/shared/modal";

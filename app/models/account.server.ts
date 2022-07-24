@@ -3,6 +3,7 @@ import { AccountUnit } from "@prisma/client";
 import { AccountType } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime";
 import { prisma } from "~/db.server";
+import { isValidDate } from "~/shared/util";
 
 export function getAccountListItems({ userId }: { userId: User["id"] }) {
   return prisma.account.findMany({
@@ -220,7 +221,7 @@ export function validateAccount({
   } else {
     if (!openingDate) {
       errors.openingDate = "Opening date is required";
-    } else if (isNaN(parseDate(openingDate).valueOf())) {
+    } else if (!isValidDate(openingDate)) {
       errors.openingDate = "Opening date must be a date";
     }
   }
@@ -234,8 +235,4 @@ export function deleteAccount({ id, userId }: Pick<Account, "id" | "userId">) {
 
 export function parseBalanceAtStart(balanceAtStart: string) {
   return new Decimal(balanceAtStart);
-}
-
-export function parseDate(date: string) {
-  return new Date(date);
 }

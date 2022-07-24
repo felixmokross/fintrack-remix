@@ -16,11 +16,7 @@ import { getAccountGroupListItems } from "~/models/account-group.server";
 import type { AccountErrors, AccountValues } from "~/models/account.server";
 import { getAccount } from "~/models/account.server";
 import { updateAccount } from "~/models/account.server";
-import {
-  validateAccount,
-  parseBalanceAtStart,
-  parseDate,
-} from "~/models/account.server";
+import { validateAccount, parseBalanceAtStart } from "~/models/account.server";
 import { getAssetClassListItems } from "~/models/asset-class.server";
 import { getStockListItems } from "~/models/stock.server";
 import { requireUserId } from "~/session.server";
@@ -35,6 +31,7 @@ import {
   Input,
 } from "~/shared/forms";
 import { Modal, ModalSize } from "~/shared/modal";
+import { parseDate } from "~/shared/util";
 
 type LoaderData = {
   assetClasses: Awaited<ReturnType<typeof getAssetClassListItems>>;

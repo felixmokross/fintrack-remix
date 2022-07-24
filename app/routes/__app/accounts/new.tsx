@@ -14,7 +14,6 @@ import invariant from "tiny-invariant";
 import { PlusIcon } from "~/icons";
 import { getAccountGroupListItems } from "~/models/account-group.server";
 import type { AccountErrors, AccountValues } from "~/models/account.server";
-import { parseDate } from "~/models/account.server";
 import { parseBalanceAtStart } from "~/models/account.server";
 import { validateAccount } from "~/models/account.server";
 import { createAccount } from "~/models/account.server";
@@ -32,6 +31,7 @@ import {
   Select,
 } from "~/shared/forms";
 import { Modal, ModalSize } from "~/shared/modal";
+import { parseDate } from "~/shared/util";
 
 type LoaderData = {
   assetClasses: Awaited<ReturnType<typeof getAssetClassListItems>>;

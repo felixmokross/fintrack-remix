@@ -1,7 +1,7 @@
 import type { ActionFunction } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import { redirect } from "@remix-run/server-runtime";
-import { deleteIncomeExpenseCategory } from "~/models/income-expense-categories.server";
+import { deleteIncomeExpenseCategory } from "~/models/income-expense-category.server";
 import { requireUserId } from "~/session.server";
 
 type ActionData = {

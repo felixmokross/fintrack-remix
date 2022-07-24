@@ -10,59 +10,72 @@ import { useRef } from "react";
 import invariant from "tiny-invariant";
 import { PlusIcon } from "~/icons";
 import type {
-  IncomeExpenseCategoryErrors,
-  IncomeExpenseCategoryValues,
-} from "~/models/income-expense-category.server";
+  TransactionErrors,
+  TransactionValues,
+} from "~/models/transaction.server";
 import {
-  createIncomeCategory,
-  validateIncomeExpenseCategory,
-} from "~/models/income-expense-category.server";
+  createTransaction,
+  validateTransaction,
+} from "~/models/transaction.server";
 import { requireUserId } from "~/session.server";
 import { Input } from "~/shared/forms";
 import { Modal } from "~/shared/modal";
+import { parseDate } from "~/shared/util";
 
 type ActionData = {
-  errors?: IncomeExpenseCategoryErrors;
-  values?: IncomeExpenseCategoryValues;
+  errors?: TransactionErrors;
+  values?: TransactionValues;
 };
 
 export const action: ActionFunction = async ({ request }) => {
   const userId = await requireUserId(request);
 
   const formData = await request.formData();
-  const name = formData.get("name");
+  const date = formData.get("date");
+  const note = formData.get("note");
 
-  invariant(typeof name === "string", "name not found");
+  invariant(typeof date === "string", "date not found");
+  invariant(typeof note === "string", "note not found");
 
-  const errors = validateIncomeExpenseCategory({ name });
+  const errors = validateTransaction({ date, note });
 
   if (Object.values(errors).length > 0) {
-    return json<ActionData>({ errors, values: { name } }, { status: 400 });
+    return json<ActionData>(
+      { errors, values: { date, note } },
+      { status: 400 }
+    );
   }
 
-  await createIncomeCategory({ name, userId });
+  await createTransaction({ date: parseDate(date), note, userId });
 
-  return redirect(`/settings/income-categories`);
+  return redirect(`/transactions`);
 };
 
-export default function NewIncomeCategoryModal() {
-  const nameInputRef = useRef(null);
+export default function NewTransactionModal() {
+  const dateInputRef = useRef(null);
   const navigate = useNavigate();
   const actionData = useActionData<ActionData>();
   const { state } = useTransition();
   const disabled = state !== "idle";
   return (
-    <Modal initialFocus={nameInputRef} onClose={onClose}>
+    <Modal initialFocus={dateInputRef} onClose={onClose}>
       <Form method="post" replace>
         <fieldset disabled={disabled}>
-          <Modal.Body title="New Income Category" icon={PlusIcon}>
+          <Modal.Body title="New Transaction" icon={PlusIcon}>
             <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
               <Input
-                label="Name"
-                name="name"
-                error={actionData?.errors?.name}
-                groupClassName="sm:col-span-6"
-                ref={nameInputRef}
+                label="Date"
+                name="date"
+                type="date"
+                error={actionData?.errors?.date}
+                groupClassName="sm:col-span-2"
+                ref={dateInputRef}
+              />
+              <Input
+                label="Note (optional)"
+                name="note"
+                error={actionData?.errors?.note}
+                groupClassName="sm:col-span-4"
               />
             </div>
           </Modal.Body>

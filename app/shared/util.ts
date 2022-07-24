@@ -7,3 +7,11 @@ export type PolymorphicComponentProps<T extends ElementType> = {
 export function getTitle(pageTitle?: string) {
   return pageTitle ? `${pageTitle} · Fintrack` : "Fintrack";
 }
+
+export function parseDate(date: string) {
+  return new Date(date);
+}
+
+export function isValidDate(date: string) {
+  return !isNaN(parseDate(date).valueOf());
+}

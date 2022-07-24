@@ -1,7 +1,7 @@
 import type { ActionFunction } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import { redirect } from "@remix-run/server-runtime";
-import { deleteIncomeExpenseCategory } from "~/models/income-expense-category.server";
+import { deleteTransaction } from "~/models/transaction.server";
 import { requireUserId } from "~/session.server";
 
 type ActionData = {
@@ -23,7 +23,7 @@ export const action: ActionFunction = async ({ request }) => {
     );
   }
 
-  await deleteIncomeExpenseCategory({ id, userId });
+  await deleteTransaction({ id, userId });
 
-  return redirect(`/settings/expense-categories`);
+  return redirect(`/transactions`);
 };
