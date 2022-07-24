@@ -141,7 +141,6 @@ export const action: ActionFunction = async ({ request }) => {
 };
 
 export default function NewPage() {
-  // TODO do we need the defaultValues?
   const nameInputRef = useRef(null);
   const actionData = useActionData<ActionData>();
   const navigate = useNavigate();
