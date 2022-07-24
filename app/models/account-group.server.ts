@@ -46,7 +46,7 @@ export function updateAccountGroup({
 }: Pick<AccountGroup, "id" | "name"> & {
   userId: User["id"];
 }) {
-  return prisma.assetClass.updateMany({
+  return prisma.accountGroup.updateMany({
     where: { id, userId },
     data: { name },
   });
