@@ -10,6 +10,18 @@ export function getIncomeCategoryListItems({ userId }: { userId: User["id"] }) {
   });
 }
 
+export function getExpenseCategoryListItems({
+  userId,
+}: {
+  userId: User["id"];
+}) {
+  return prisma.incomeExpenseCategory.findMany({
+    where: { userId, type: IncomeExpenseCategoryType.EXPENSE },
+    select: { id: true, name: true },
+    orderBy: { name: "asc" },
+  });
+}
+
 export function getIncomeExpenseCategory({
   id,
   userId,
@@ -32,6 +44,25 @@ export function createIncomeCategory({
     data: {
       name,
       type: IncomeExpenseCategoryType.INCOME,
+      user: {
+        connect: {
+          id: userId,
+        },
+      },
+    },
+  });
+}
+
+export function createExpenseCategory({
+  name,
+  userId,
+}: Pick<IncomeExpenseCategory, "name"> & {
+  userId: User["id"];
+}) {
+  return prisma.incomeExpenseCategory.create({
+    data: {
+      name,
+      type: IncomeExpenseCategoryType.EXPENSE,
       user: {
         connect: {
           id: userId,
