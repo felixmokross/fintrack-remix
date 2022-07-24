@@ -50,7 +50,7 @@ export default function NewStockModal() {
   const { state } = useTransition();
   const disabled = state !== "idle";
   return (
-    <Modal initialFocus={symbolInputRef} onClose={onClose}>
+    <Modal onClose={onClose}>
       <Form method="post" replace>
         <fieldset disabled={disabled}>
           <Modal.Body title="New Stock" icon={PlusIcon}>
