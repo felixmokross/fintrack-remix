@@ -14,11 +14,14 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  password     Password?
-  accounts     Account[]
-  AssetClass   AssetClass[]
-  AccountGroup AccountGroup[]
-  Stock        Stock[]
+  password              Password?
+  accounts              Account[]
+  AssetClass            AssetClass[]
+  AccountGroup          AccountGroup[]
+  Stock                 Stock[]
+  // Transaction  Transaction[]
+  // Booking      Booking[]
+  IncomeExpenseCategory IncomeExpenseCategory[]
 }
 
 model Password {
@@ -60,6 +63,7 @@ model Account {
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Restrict)
   userId String
+  // Booking Booking[]
 }
 
 enum AccountUnit {
@@ -98,7 +102,7 @@ model AccountGroup {
 }
 
 model Stock {
-  id              String    @id
+  id              String    @id // TODO revise this: should be composite key with userId, otherwise ids can conflict across users
   tradingCurrency String
   Account         Account[]
 
@@ -108,3 +112,59 @@ model Stock {
   user   User   @relation(fields: [userId], references: [id], onDelete: Restrict)
   userId String
 }
+
+model IncomeExpenseCategory {
+  id   String                    @id @default(cuid())
+  name String
+  type IncomeExpenseCategoryType
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Restrict)
+  userId String
+}
+
+enum IncomeExpenseCategoryType {
+  INCOME
+  EXPENSE
+}
+
+// model Transaction {
+//   id   String   @id @default(cuid())
+//   date DateTime @db.Date
+//   note String?
+
+//   bookings Booking[]
+
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+
+//   user   User   @relation(fields: [userId], references: [id], onDelete: Restrict)
+//   userId String
+// }
+
+// model Booking {
+//   id   String      @id @default(cuid())
+//   type BookingType
+
+//   note String?
+
+//   account   Account? @relation(fields: [accountId], references: [id], onDelete: Restrict)
+//   accountId String?
+
+//   transaction   Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+//   transactionId String
+
+//   user   User   @relation(fields: [userId], references: [id], onDelete: Restrict)
+//   userId String
+// }
+
+// enum BookingType {
+//   CHARGE
+//   DEPOSIT
+//   INCOME
+//   EXPENSE
+//   APPRECIATION
+//   DEPRECIATION
+// }

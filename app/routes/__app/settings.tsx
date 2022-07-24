@@ -8,6 +8,8 @@ const navigation = [
   { name: "Asset Classes", to: "asset-classes" },
   { name: "Account Groups", to: "account-groups" },
   { name: "Stocks", to: "stocks" },
+  { name: "Income Categories", to: "income-categories" },
+  { name: "Expense Categories", to: "expense-categories" },
 ];
 
 export const meta: MetaFunction = () => ({ title: getTitle("Settings") });
