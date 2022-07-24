@@ -288,6 +288,7 @@ export default function EditPage() {
             />
             {preExisting ? (
               <Input
+                key="balanceAtStart"
                 groupClassName="sm:col-span-3"
                 label="Balance at start"
                 name="balanceAtStart"
@@ -300,6 +301,7 @@ export default function EditPage() {
               />
             ) : (
               <Input
+                key="openingDate"
                 groupClassName="sm:col-span-3"
                 label="Opening date"
                 name="openingDate"
