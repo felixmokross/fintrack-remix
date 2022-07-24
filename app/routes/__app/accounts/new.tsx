@@ -169,13 +169,14 @@ export default function NewPage() {
               ref={nameInputRef}
             />
             <Select
-              label="Group (optional)"
+              label="Group"
               name="groupId"
               error={actionData?.errors?.groupId}
               groupClassName="sm:col-span-3"
               defaultValue={actionData?.values?.groupId}
             >
-              <option value=""></option>
+              <option value="">[None]</option>
+              <option disabled>───────────────</option>
               {accountGroups.map((accountGroup) => (
                 <option key={accountGroup.id} value={accountGroup.id}>
                   {accountGroup.name}
@@ -198,7 +199,6 @@ export default function NewPage() {
                 groupClassName="sm:col-span-3"
                 defaultValue={actionData?.values?.assetClassId || undefined}
               >
-                <option value=""></option>
                 {assetClasses.map((assetClass) => (
                   <option key={assetClass.id} value={assetClass.id}>
                     {assetClass.name}
@@ -219,6 +219,7 @@ export default function NewPage() {
                 name="currency"
                 label="Currency"
                 error={actionData?.errors?.currency}
+                defaultValue={actionData?.values?.currency || undefined} // TODO add reference currency as default
                 groupClassName="sm:col-span-3"
               />
             )}
@@ -230,7 +231,6 @@ export default function NewPage() {
                 groupClassName="sm:col-span-3"
                 defaultValue={actionData?.values?.stockId || undefined}
               >
-                <option value=""></option>
                 {stocks.map((stock) => (
                   <option key={stock.id} value={stock.id}>
                     {stock.id}

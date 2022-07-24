@@ -181,7 +181,7 @@ export default function EditPage() {
               ref={nameInputRef}
             />
             <Select
-              label="Group (optional)"
+              label="Group"
               name="groupId"
               error={actionData?.errors?.groupId}
               groupClassName="sm:col-span-3"
@@ -189,7 +189,8 @@ export default function EditPage() {
                 actionData?.values?.groupId || account.groupId || undefined
               }
             >
-              <option value=""></option>
+              <option value="">[None]</option>
+              <option disabled>───────────────</option>
               {accountGroups.map((accountGroup) => (
                 <option key={accountGroup.id} value={accountGroup.id}>
                   {accountGroup.name}
