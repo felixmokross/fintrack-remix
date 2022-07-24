@@ -6,7 +6,6 @@ import {
 } from "@remix-run/react";
 import type { ActionFunction } from "@remix-run/server-runtime";
 import { json, redirect } from "@remix-run/server-runtime";
-import { useRef } from "react";
 import invariant from "tiny-invariant";
 import { PlusIcon } from "~/icons";
 import type {
@@ -46,13 +45,12 @@ export const action: ActionFunction = async ({ request }) => {
 };
 
 export default function NewAccountGroupModal() {
-  const nameInputRef = useRef(null);
   const navigate = useNavigate();
   const actionData = useActionData<ActionData>();
   const { state } = useTransition();
   const disabled = state !== "idle";
   return (
-    <Modal initialFocus={nameInputRef} onClose={onClose}>
+    <Modal onClose={onClose}>
       <Form method="post" replace>
         <fieldset disabled={disabled}>
           <Modal.Body title="New Account Group" icon={PlusIcon}>
@@ -62,7 +60,6 @@ export default function NewAccountGroupModal() {
                 name="name"
                 error={actionData?.errors?.name}
                 groupClassName="sm:col-span-6"
-                ref={nameInputRef}
               />
             </div>
           </Modal.Body>

@@ -6,7 +6,6 @@ import {
 } from "@remix-run/react";
 import type { ActionFunction } from "@remix-run/server-runtime";
 import { json, redirect } from "@remix-run/server-runtime";
-import { useRef } from "react";
 import invariant from "tiny-invariant";
 import { PlusIcon } from "~/icons";
 import type { StockErrors, StockValues } from "~/models/stock.server";
@@ -46,7 +45,6 @@ export const action: ActionFunction = async ({ request }) => {
 };
 
 export default function NewStockModal() {
-  const symbolInputRef = useRef(null);
   const navigate = useNavigate();
   const actionData = useActionData<ActionData>();
   const { state } = useTransition();
@@ -62,7 +60,6 @@ export default function NewStockModal() {
                 name="id"
                 error={actionData?.errors?.id}
                 groupClassName="sm:col-span-2"
-                ref={symbolInputRef}
               />
               <CurrencyCombobox
                 name="tradingCurrency"

@@ -5,7 +5,6 @@ import type {
   ElementType,
   PropsWithChildren,
 } from "react";
-import { forwardRef } from "react";
 import { Fragment } from "react";
 import type { IconProps } from "~/icons";
 import type { ButtonProps } from "./button";
@@ -15,6 +14,7 @@ import { cn } from "./classnames";
 export enum ModalSize {
   SMALL = "SMALL",
   LARGE = "LARGE",
+  EXTRA_LARGE = "EXTRA_LARGE",
 }
 
 function ModalRoot({
@@ -60,6 +60,7 @@ function ModalRoot({
                   {
                     "sm:max-w-lg": size === ModalSize.SMALL,
                     "sm:max-w-xl": size === ModalSize.LARGE,
+                    "sm:max-w-4xl": size === ModalSize.EXTRA_LARGE,
                   }
                 )}
               >
@@ -79,18 +80,17 @@ export type ModalProps = PropsWithChildren<{
   size?: ModalSize;
 }>;
 
-const Button = forwardRef(function ModalButton<T extends ElementType>(
-  { className, ...props }: ButtonProps<T>,
-  ref?: ComponentPropsWithRef<T>["ref"]
-) {
+function Button<T extends ElementType>({
+  className,
+  ...props
+}: ButtonProps<T>) {
   return (
     <StandardButton
       className={cn(className, "w-full text-base sm:ml-3 sm:text-sm")}
       {...props}
-      ref={ref}
     />
   );
-});
+}
 
 function Footer({ children }: PropsWithChildren<{}>) {
   return (

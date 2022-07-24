@@ -8,7 +8,6 @@ import {
 import type { ActionFunction, LoaderFunction } from "@remix-run/server-runtime";
 import { redirect } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
-import { useRef } from "react";
 import invariant from "tiny-invariant";
 import { PencilIcon } from "~/icons";
 import type { StockErrors, StockValues } from "~/models/stock.server";
@@ -74,12 +73,11 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 export default function EditPage() {
   const { stock } = useLoaderData<LoaderData>();
   const actionData = useActionData<ActionData>();
-  const tradingCurrencyRef = useRef(null);
   const navigate = useNavigate();
   const { state } = useTransition();
   const disabled = state !== "idle";
   return (
-    <Modal initialFocus={tradingCurrencyRef} onClose={onClose}>
+    <Modal onClose={onClose}>
       <Form method="post" replace>
         <fieldset disabled={disabled}>
           <Modal.Body title="Edit Stock" icon={PencilIcon}>
@@ -100,7 +98,6 @@ export default function EditPage() {
                   actionData?.values?.tradingCurrency || stock.tradingCurrency
                 }
                 groupClassName="sm:col-span-4"
-                ref={tradingCurrencyRef}
               />
             </div>
           </Modal.Body>

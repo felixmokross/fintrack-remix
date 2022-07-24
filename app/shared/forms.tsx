@@ -1,15 +1,15 @@
 import {
-  Combobox,
+  Combobox as HeadlessCombobox,
   RadioGroup as HeadlessRadioGroup,
   Switch,
 } from "@headlessui/react";
-import { forwardRef } from "react";
 import type { DetailedHTMLProps, PropsWithChildren } from "react";
 import { useState } from "react";
-import { currenciesByCode, currencyItems } from "~/currencies";
+import { currencyItems } from "~/currencies";
 import { CheckCircleIcon, CheckIcon, SelectorIcon } from "~/icons";
 import { cn } from "./classnames";
 import { useId } from "react";
+import { useFetcher } from "@remix-run/react";
 
 const labelClassName = "block text-sm font-medium text-gray-700";
 
@@ -36,18 +36,15 @@ function ErrorMessage({ error, errorId }: ErrorMessageProps) {
 
 type ErrorMessageProps = { error?: string; errorId: string };
 
-export const Input = forwardRef(function Input(
-  {
-    label,
-    name,
-    error,
-    groupClassName,
-    defaultValue,
-    disabled,
-    type,
-  }: InputProps,
-  ref: InputProps["ref"]
-) {
+export const Input = function Input({
+  label,
+  name,
+  error,
+  groupClassName,
+  defaultValue,
+  disabled,
+  type,
+}: InputProps) {
   const id = `input-${useId()}`;
   const errorId = `input-error-${useId()}`;
   return (
@@ -62,12 +59,11 @@ export const Input = forwardRef(function Input(
         aria-describedby={error ? errorId : undefined}
         defaultValue={defaultValue}
         disabled={disabled}
-        ref={ref}
       />
       <ErrorMessage error={error} errorId={errorId} />
     </div>
   );
-});
+};
 
 export type InputProps = {
   name: string;
@@ -82,18 +78,15 @@ export type InputProps = {
   "defaultValue" | "disabled" | "ref" | "type"
 >;
 
-export const Select = forwardRef(function Select(
-  {
-    name,
-    label,
-    error,
-    groupClassName,
-    defaultValue,
-    disabled,
-    children,
-  }: SelectProps,
-  ref: SelectProps["ref"]
-) {
+export function Select({
+  name,
+  label,
+  error,
+  groupClassName,
+  defaultValue,
+  disabled,
+  children,
+}: SelectProps) {
   const id = `select-${useId()}`;
   const errorId = `select-error-${useId()}`;
   return (
@@ -107,14 +100,13 @@ export const Select = forwardRef(function Select(
         disabled={disabled}
         aria-invalid={error ? "true" : undefined}
         aria-describedby={error ? errorId : undefined}
-        ref={ref}
       >
         {children}
       </select>
       <ErrorMessage error={error} errorId={errorId} />
     </div>
   );
-});
+}
 
 export type SelectProps = {
   name: string;
@@ -129,50 +121,56 @@ export type SelectProps = {
   "defaultValue" | "disabled" | "children" | "ref"
 >;
 
-export const CurrencyCombobox = forwardRef(function CurrencyCombobox(
-  { groupClassName, label, name, error, defaultValue }: CurrencyComboboxProps,
-  ref: CurrencyComboboxProps["ref"]
-) {
+export function Combobox({
+  groupClassName,
+  label,
+  name,
+  error,
+  defaultValue,
+  options,
+}: ComboboxProps) {
   const [value, setValue] = useState(defaultValue);
   const [query, setQuery] = useState("");
-  const filteredCurrencies =
+  const filteredOptions =
     query === ""
-      ? currencyItems
-      : currencyItems.filter((currencyItem) => {
+      ? options
+      : options.filter((option) => {
           return (
-            currencyItem.code.toLowerCase().includes(query.toLowerCase()) ||
-            currencyItem.name.toLowerCase().includes(query.toLowerCase())
+            option.primaryText.toLowerCase().includes(query.toLowerCase()) ||
+            (option.secondaryText &&
+              option.secondaryText.toLowerCase().includes(query.toLowerCase()))
           );
         });
 
-  const errorId = `currency-combobox-error-${useId()}`;
+  const errorId = `combobox-error-${useId()}`;
   return (
-    <Combobox
+    <HeadlessCombobox
       as="div"
       value={value}
       onChange={setValue}
       name={name}
       className={groupClassName}
     >
-      <Combobox.Label className={labelClassName}>{label}</Combobox.Label>
+      <HeadlessCombobox.Label className={labelClassName}>
+        {label}
+      </HeadlessCombobox.Label>
       <div className="relative mt-1">
-        <Combobox.Input
+        <HeadlessCombobox.Input
           onChange={(event) => setQuery(event.target.value)}
           className="w-full rounded-md border border-gray-300 bg-white py-2 pl-3 pr-10 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:opacity-50 sm:text-sm"
           displayValue={getDisplayName}
           aria-invalid={error ? "true" : undefined}
           aria-describedby={error ? errorId : undefined}
-          ref={ref}
         />
-        <Combobox.Button className="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50">
+        <HeadlessCombobox.Button className="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50">
           <SelectorIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
-        </Combobox.Button>
-        {filteredCurrencies.length > 0 && (
-          <Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-            {filteredCurrencies.map((currencyItem) => (
-              <Combobox.Option
-                key={currencyItem.code}
-                value={currencyItem.code}
+        </HeadlessCombobox.Button>
+        {filteredOptions.length > 0 && (
+          <HeadlessCombobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+            {filteredOptions.map((option) => (
+              <HeadlessCombobox.Option
+                key={option.value}
+                value={option.value}
                 className={({ active }) =>
                   cn(
                     "relative cursor-default select-none py-2 pl-3 pr-9",
@@ -186,16 +184,18 @@ export const CurrencyCombobox = forwardRef(function CurrencyCombobox(
                       <span
                         className={cn("truncate", selected && "font-semibold")}
                       >
-                        {currencyItem.name}
+                        {option.primaryText}
                       </span>
-                      <span
-                        className={cn(
-                          "ml-2 truncate text-gray-500",
-                          active ? "text-indigo-200" : "text-gray-500"
-                        )}
-                      >
-                        {currencyItem.code}
-                      </span>
+                      {option.secondaryText && (
+                        <span
+                          className={cn(
+                            "ml-2 truncate text-gray-500",
+                            active ? "text-indigo-200" : "text-gray-500"
+                          )}
+                        >
+                          {option.secondaryText}
+                        </span>
+                      )}
                     </div>
 
                     {selected && (
@@ -210,28 +210,31 @@ export const CurrencyCombobox = forwardRef(function CurrencyCombobox(
                     )}
                   </>
                 )}
-              </Combobox.Option>
+              </HeadlessCombobox.Option>
             ))}
-          </Combobox.Options>
+          </HeadlessCombobox.Options>
         )}
       </div>
       <ErrorMessage error={error} errorId={errorId} />
-    </Combobox>
+    </HeadlessCombobox>
   );
 
   function getDisplayName(v: string) {
     if (!v) return "";
 
-    const currencyName = currenciesByCode[v as keyof typeof currenciesByCode];
-    return `${currencyName} (${v})`;
-  }
-});
+    const option = options.find((o) => o.value === v)!;
+    if (!option.secondaryText) return option.primaryText;
 
-export type CurrencyComboboxProps = {
+    return `${option.primaryText} (${option.secondaryText})`;
+  }
+}
+
+export type ComboboxProps = {
   groupClassName?: string;
   label: string;
   name: string;
   error?: string;
+  options: ComboboxOption[];
 } & Pick<
   DetailedHTMLProps<
     React.InputHTMLAttributes<HTMLInputElement>,
@@ -239,6 +242,37 @@ export type CurrencyComboboxProps = {
   >,
   "defaultValue" | "ref"
 >;
+
+export type ComboboxOption = {
+  primaryText: string;
+  secondaryText?: string;
+  value: string;
+};
+
+export function CurrencyCombobox({
+  groupClassName,
+  label,
+  name,
+  error,
+  defaultValue,
+}: CurrencyComboboxProps) {
+  return (
+    <Combobox
+      label={label}
+      name={name}
+      error={error}
+      defaultValue={defaultValue}
+      groupClassName={groupClassName}
+      options={currencyItems.map((c) => ({
+        primaryText: c.name,
+        secondaryText: c.code,
+        value: c.code,
+      }))}
+    />
+  );
+}
+
+export type CurrencyComboboxProps = Omit<ComboboxProps, "options">;
 
 export function RadioGroup<TValue extends string | undefined>({
   groupClassName,

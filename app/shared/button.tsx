@@ -1,16 +1,14 @@
-import type {
-  ComponentPropsWithRef,
-  ElementType,
-  PropsWithChildren,
-} from "react";
-import { forwardRef } from "react";
+import type { ElementType, PropsWithChildren } from "react";
 import { cn } from "./classnames";
 import type { PolymorphicComponentProps } from "./util";
 
-export const Button = forwardRef(function Button<T extends ElementType>(
-  { as, variant = "secondary", children, className, ...props }: ButtonProps<T>,
-  ref?: ComponentPropsWithRef<T>["ref"]
-) {
+export const Button = function Button<T extends ElementType>({
+  as,
+  variant = "secondary",
+  children,
+  className,
+  ...props
+}: ButtonProps<T>) {
   const Component = as || "button";
   return (
     <Component
@@ -24,13 +22,13 @@ export const Button = forwardRef(function Button<T extends ElementType>(
         },
         className
       )}
+      {...(Component === "button" ? { type: "button" } : {})}
       {...props}
-      ref={ref}
     >
       {children}
     </Component>
   );
-});
+};
 
 export type ButtonProps<T extends ElementType> = PropsWithChildren<
   PolymorphicComponentProps<T> & {

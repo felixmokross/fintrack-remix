@@ -9,7 +9,7 @@ import {
 import type { LoaderFunction, ActionFunction } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import { redirect } from "@remix-run/server-runtime";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import invariant from "tiny-invariant";
 import { PencilIcon } from "~/icons";
 import { getAccountGroupListItems } from "~/models/account-group.server";
@@ -151,7 +151,6 @@ export const action: ActionFunction = async ({ request, params }) => {
 };
 
 export default function EditPage() {
-  const nameInputRef = useRef(null);
   const actionData = useActionData<ActionData>();
   const navigate = useNavigate();
   const { assetClasses, accountGroups, stocks, account } =
@@ -169,7 +168,7 @@ export default function EditPage() {
   const { state } = useTransition();
   const disabled = state !== "idle";
   return (
-    <Modal initialFocus={nameInputRef} onClose={onClose} size={ModalSize.LARGE}>
+    <Modal onClose={onClose} size={ModalSize.LARGE}>
       <Form method="post" replace>
         <fieldset disabled={disabled}>
           <Modal.Body title="Edit Account" icon={PencilIcon}>
@@ -180,7 +179,6 @@ export default function EditPage() {
                 error={actionData?.errors?.name}
                 groupClassName="sm:col-span-3"
                 defaultValue={actionData?.values?.name || account.name}
-                ref={nameInputRef}
               />
               <Select
                 label="Group"

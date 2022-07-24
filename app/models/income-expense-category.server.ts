@@ -22,6 +22,18 @@ export function getExpenseCategoryListItems({
   });
 }
 
+export function getIncomeExpenseCategoryListItems({
+  userId,
+}: {
+  userId: User["id"];
+}) {
+  return prisma.incomeExpenseCategory.findMany({
+    where: { userId },
+    select: { id: true, name: true, type: true },
+    orderBy: { name: "asc" },
+  });
+}
+
 export function getIncomeExpenseCategory({
   id,
   userId,

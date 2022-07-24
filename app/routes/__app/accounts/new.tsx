@@ -9,7 +9,7 @@ import {
 } from "@remix-run/react";
 import type { ActionFunction, LoaderFunction } from "@remix-run/server-runtime";
 import { json, redirect } from "@remix-run/server-runtime";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import invariant from "tiny-invariant";
 import { PlusIcon } from "~/icons";
 import { getAccountGroupListItems } from "~/models/account-group.server";
@@ -142,7 +142,6 @@ export const action: ActionFunction = async ({ request }) => {
 };
 
 export default function NewPage() {
-  const nameInputRef = useRef(null);
   const actionData = useActionData<ActionData>();
   const navigate = useNavigate();
   const { assetClasses, accountGroups, stocks } = useLoaderData<LoaderData>();
@@ -158,7 +157,7 @@ export default function NewPage() {
   const { state } = useTransition();
   const disabled = state !== "idle";
   return (
-    <Modal initialFocus={nameInputRef} onClose={onClose} size={ModalSize.LARGE}>
+    <Modal onClose={onClose} size={ModalSize.LARGE}>
       <Form method="post" replace>
         <fieldset disabled={disabled}>
           <Modal.Body title="New Account" icon={PlusIcon}>
@@ -169,7 +168,6 @@ export default function NewPage() {
                 error={actionData?.errors?.name}
                 groupClassName="sm:col-span-3"
                 defaultValue={actionData?.values?.name}
-                ref={nameInputRef}
               />
               <Select
                 label="Group"

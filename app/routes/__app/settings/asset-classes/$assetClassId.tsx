@@ -8,7 +8,6 @@ import {
 import type { ActionFunction, LoaderFunction } from "@remix-run/server-runtime";
 import { redirect } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
-import { useRef } from "react";
 import invariant from "tiny-invariant";
 import { PencilIcon } from "~/icons";
 import type {
@@ -78,12 +77,11 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 export default function EditPage() {
   const { assetClass } = useLoaderData<LoaderData>();
   const actionData = useActionData<ActionData>();
-  const nameInputRef = useRef(null);
   const navigate = useNavigate();
   const { state } = useTransition();
   const disabled = state !== "idle";
   return (
-    <Modal initialFocus={nameInputRef} onClose={onClose}>
+    <Modal onClose={onClose}>
       <Form method="post" replace>
         <fieldset disabled={disabled}>
           <Modal.Body title="Edit Asset Class" icon={PencilIcon}>
@@ -94,7 +92,6 @@ export default function EditPage() {
                 error={actionData?.errors?.name}
                 defaultValue={actionData?.values?.name || assetClass.name}
                 groupClassName="sm:col-span-3"
-                ref={nameInputRef}
               />
               <Input
                 label="Sort order"
