@@ -9,7 +9,6 @@ import { currencyItems } from "~/currencies";
 import { CheckCircleIcon, CheckIcon, SelectorIcon } from "~/icons";
 import { cn } from "./classnames";
 import { useId } from "react";
-import { useFetcher } from "@remix-run/react";
 
 const labelClassName = "block text-sm font-medium text-gray-700";
 

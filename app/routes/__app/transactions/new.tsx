@@ -23,9 +23,9 @@ import {
   validateTransaction,
 } from "~/models/transaction.server";
 import { requireUserId } from "~/session.server";
-import { Button } from "~/shared/button";
+import { buttonClassName } from "~/shared/button";
 import { cn } from "~/shared/classnames";
-import { Combobox, CurrencyCombobox, Input, Select } from "~/shared/forms";
+import { Combobox, CurrencyCombobox, Input } from "~/shared/forms";
 import { Modal, ModalSize } from "~/shared/modal";
 import { parseDate } from "~/shared/util";
 
@@ -57,6 +57,9 @@ export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
   const date = formData.get("date");
   const note = formData.get("note");
+  console.log(
+    Array.from(formData.entries()).map(([key, value]) => `${key}=${value}`)
+  );
 
   invariant(typeof date === "string", "date not found");
   invariant(typeof note === "string", "note not found");
@@ -126,7 +129,7 @@ export default function NewTransactionModal() {
               <div className="flex items-end sm:col-span-3">
                 <Menu as="div" className="relative inline-block">
                   <div>
-                    <Menu.Button as={Button}>
+                    <Menu.Button className={buttonClassName()} type="button">
                       Add booking
                       <ChevronDownIcon
                         className="-mr-1 ml-2 h-5 w-5"
@@ -144,7 +147,7 @@ export default function NewTransactionModal() {
                     leaveFrom="transform opacity-100 scale-100"
                     leaveTo="transform opacity-0 scale-95"
                   >
-                    <Menu.Items className="absolute left-0 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                    <Menu.Items className="absolute right-0 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                       <div className="py-1">
                         <Menu.Item>
                           {({ active }) => (
@@ -277,8 +280,14 @@ export default function NewTransactionModal() {
                   </Transition>
                 </Menu>
               </div>
-              {bookings.map(({ type, id }) => (
+              <input
+                type="hidden"
+                value={bookings.length}
+                name="bookingsCount"
+              />
+              {bookings.map(({ type, id }, index) => (
                 <Fragment key={id}>
+                  <input type="hidden" name={`${index}.type`} value={type} />
                   <div className="flex items-center sm:col-span-1 sm:col-start-1">
                     {type === BookingType.DEPOSIT && "DPT"}
                     {type === BookingType.CHARGE && "CHG"}
@@ -291,7 +300,7 @@ export default function NewTransactionModal() {
                     type === BookingType.CHARGE) && (
                     <Combobox
                       label="Account"
-                      name="account"
+                      name={`${index}.accountId`}
                       groupClassName="sm:col-span-6"
                       options={accounts.map((a) => ({
                         primaryText: a.name,
@@ -304,7 +313,7 @@ export default function NewTransactionModal() {
                     <>
                       <Combobox
                         label="Category"
-                        name="categoryId"
+                        name={`${index}.categoryId`}
                         groupClassName="sm:col-span-2"
                         options={incomeExpenseCategories
                           .filter((c) => c.type === type)
@@ -315,19 +324,19 @@ export default function NewTransactionModal() {
                       />
                       <CurrencyCombobox
                         label="Currency"
-                        name="currency"
+                        name={`${index}.currency`}
                         groupClassName="sm:col-span-4"
                       />
                     </>
                   )}
                   <Input
                     label="Note"
-                    name="note"
+                    name={`${index}.note`}
                     groupClassName="sm:col-span-2 sm:col-start-8"
                   />
                   <Input
                     label="Amount"
-                    name="amount"
+                    name={`${index}.amount`}
                     groupClassName="sm:col-span-2"
                   />
                   <div className="flex items-center justify-end sm:col-span-1">
