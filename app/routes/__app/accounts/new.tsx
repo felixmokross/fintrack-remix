@@ -21,12 +21,11 @@ import { getAssetClassListItems } from "~/models/asset-class.server";
 import { getStockListItems } from "~/models/stock.server";
 import { requireUserId } from "~/session.server";
 import {
-  AccountTypeRadioGroup,
-  AccountUnitRadioGroup,
   CurrencyCombobox,
+  DetailedRadioGroup,
   Input,
+  RadioGroup,
   Select,
-  Toggle,
 } from "~/shared/forms";
 import { Modal, ModalSize } from "~/shared/modal";
 
@@ -160,7 +159,7 @@ export default function NewPage() {
               ref={nameInputRef}
             />
             <Select
-              label="Group"
+              label="Group (optional)"
               name="groupId"
               error={actionData?.errors?.groupId}
               groupClassName="sm:col-span-3"
@@ -201,7 +200,7 @@ export default function NewPage() {
               label="Unit"
               name="unit"
               error={actionData?.errors?.unit}
-              groupClassName="sm:col-span-2 sm:col-start-1"
+              groupClassName="sm:col-span-3 sm:col-start-1"
               defaultValue={actionData?.values?.unit}
               onChange={setUnit}
             />
@@ -210,7 +209,7 @@ export default function NewPage() {
                 name="currency"
                 label="Currency"
                 error={actionData?.errors?.currency}
-                groupClassName="sm:col-span-4"
+                groupClassName="sm:col-span-3"
               />
             )}
             {unit === AccountUnit.STOCK && (
@@ -218,7 +217,7 @@ export default function NewPage() {
                 label="Stock"
                 name="stockId"
                 error={actionData?.errors?.stockId}
-                groupClassName="sm:col-span-4"
+                groupClassName="sm:col-span-3"
                 defaultValue={actionData?.values?.stockId || undefined}
               >
                 <option value=""></option>
@@ -229,13 +228,26 @@ export default function NewPage() {
                 ))}
               </Select>
             )}
-            <Toggle
+            <DetailedRadioGroup
               groupClassName="sm:col-span-6"
-              label="Pre-existing account"
-              description="This account has existed since before the accounting start date."
+              label="When was the account opened?"
               name="preExisting"
               defaultValue={actionData?.values?.preExisting || undefined}
-              onChange={setPreExisting}
+              onChange={(value) => setPreExisting(value === "on")}
+              options={[
+                {
+                  label: "Before accounting start",
+                  value: "on",
+                  description:
+                    "This is a pre-existing account. It has a balance on the day before the accounting start date.",
+                },
+                {
+                  label: "After accounting start",
+                  value: undefined,
+                  description:
+                    "The account was opened on or after the accounting start date.",
+                },
+              ]}
             />
             {preExisting ? (
               <Input
@@ -277,3 +289,69 @@ export default function NewPage() {
     navigate(-1);
   }
 }
+
+function AccountTypeRadioGroup({
+  groupClassName,
+  label,
+  name,
+  error,
+  onChange,
+  defaultValue = AccountType.ASSET,
+}: AccountTypeRadioGroupProps) {
+  return (
+    <RadioGroup
+      label={label}
+      name={name}
+      error={error}
+      onChange={onChange}
+      defaultValue={defaultValue}
+      groupClassName={groupClassName}
+      options={[
+        { value: AccountType.ASSET, label: "Asset" },
+        { value: AccountType.LIABILITY, label: "Liability" },
+      ]}
+    />
+  );
+}
+
+type AccountTypeRadioGroupProps = {
+  groupClassName?: string;
+  label: string;
+  name: string;
+  error?: string;
+  defaultValue?: string;
+  onChange?: (accountType: AccountType) => void;
+};
+
+function AccountUnitRadioGroup({
+  groupClassName,
+  label,
+  name,
+  error,
+  onChange,
+  defaultValue = AccountUnit.CURRENCY,
+}: AccountUnitRadioGroupProps) {
+  return (
+    <RadioGroup
+      groupClassName={groupClassName}
+      label={label}
+      name={name}
+      error={error}
+      onChange={onChange}
+      defaultValue={defaultValue}
+      options={[
+        { value: AccountUnit.CURRENCY, label: "Currency" },
+        { value: AccountUnit.STOCK, label: "Stock" },
+      ]}
+    />
+  );
+}
+
+type AccountUnitRadioGroupProps = {
+  groupClassName?: string;
+  label: string;
+  name: string;
+  error?: string;
+  defaultValue?: string;
+  onChange?: (accountUnit: AccountUnit) => void;
+};
