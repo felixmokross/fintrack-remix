@@ -8,6 +8,7 @@ export function AccountTypeRadioGroup({
   error,
   onChange,
   defaultValue = AccountType.ASSET,
+  disabled = false,
 }: AccountTypeRadioGroupProps) {
   return (
     <RadioGroup
@@ -17,6 +18,7 @@ export function AccountTypeRadioGroup({
       onChange={onChange}
       defaultValue={defaultValue}
       groupClassName={groupClassName}
+      disabled={disabled}
       options={[
         { value: AccountType.ASSET, label: "Asset" },
         { value: AccountType.LIABILITY, label: "Liability" },
@@ -32,6 +34,7 @@ type AccountTypeRadioGroupProps = {
   error?: string;
   defaultValue?: string;
   onChange?: (accountType: AccountType) => void;
+  disabled?: boolean;
 };
 
 export function AccountUnitRadioGroup({
@@ -41,6 +44,7 @@ export function AccountUnitRadioGroup({
   error,
   onChange,
   defaultValue = AccountUnit.CURRENCY,
+  disabled,
 }: AccountUnitRadioGroupProps) {
   return (
     <RadioGroup
@@ -50,6 +54,7 @@ export function AccountUnitRadioGroup({
       error={error}
       onChange={onChange}
       defaultValue={defaultValue}
+      disabled={disabled}
       options={[
         { value: AccountUnit.CURRENCY, label: "Currency" },
         { value: AccountUnit.STOCK, label: "Stock" },
@@ -65,4 +70,5 @@ type AccountUnitRadioGroupProps = {
   error?: string;
   defaultValue?: string;
   onChange?: (accountUnit: AccountUnit) => void;
+  disabled?: boolean;
 };

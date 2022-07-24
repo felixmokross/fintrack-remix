@@ -5,6 +5,7 @@ import {
   useActionData,
   useLoaderData,
   useNavigate,
+  useTransition,
 } from "@remix-run/react";
 import type { ActionFunction, LoaderFunction } from "@remix-run/server-runtime";
 import { json, redirect } from "@remix-run/server-runtime";
@@ -154,144 +155,151 @@ export default function NewPage() {
   const [preExisting, setPreExisting] = useState(
     actionData?.values?.preExisting === "on" || false
   );
+  const { state } = useTransition();
+  const disabled = state !== "idle";
   return (
     <Modal initialFocus={nameInputRef} onClose={onClose} size={ModalSize.LARGE}>
       <Form method="post" replace>
-        <Modal.Body title="New Account" icon={PlusIcon}>
-          <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
-            <Input
-              label="Name"
-              name="name"
-              error={actionData?.errors?.name}
-              groupClassName="sm:col-span-3"
-              defaultValue={actionData?.values?.name}
-              ref={nameInputRef}
-            />
-            <Select
-              label="Group"
-              name="groupId"
-              error={actionData?.errors?.groupId}
-              groupClassName="sm:col-span-3"
-              defaultValue={actionData?.values?.groupId}
+        <fieldset disabled={disabled}>
+          <Modal.Body title="New Account" icon={PlusIcon}>
+            <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+              <Input
+                label="Name"
+                name="name"
+                error={actionData?.errors?.name}
+                groupClassName="sm:col-span-3"
+                defaultValue={actionData?.values?.name}
+                ref={nameInputRef}
+              />
+              <Select
+                label="Group"
+                name="groupId"
+                error={actionData?.errors?.groupId}
+                groupClassName="sm:col-span-3"
+                defaultValue={actionData?.values?.groupId}
+              >
+                <option value="">[None]</option>
+                <option disabled>───────────────</option>
+                {accountGroups.map((accountGroup) => (
+                  <option key={accountGroup.id} value={accountGroup.id}>
+                    {accountGroup.name}
+                  </option>
+                ))}
+              </Select>
+              <AccountTypeRadioGroup
+                label="Type"
+                name="type"
+                error={actionData?.errors?.type}
+                groupClassName="sm:col-span-3"
+                defaultValue={actionData?.values?.type}
+                onChange={setType}
+                disabled={disabled}
+              />
+              {type === AccountType.ASSET && (
+                <Select
+                  label="Asset class"
+                  name="assetClassId"
+                  error={actionData?.errors?.assetClassId}
+                  groupClassName="sm:col-span-3"
+                  defaultValue={actionData?.values?.assetClassId || undefined}
+                >
+                  {assetClasses.map((assetClass) => (
+                    <option key={assetClass.id} value={assetClass.id}>
+                      {assetClass.name}
+                    </option>
+                  ))}
+                </Select>
+              )}
+              <AccountUnitRadioGroup
+                label="Unit"
+                name="unit"
+                error={actionData?.errors?.unit}
+                groupClassName="sm:col-span-3 sm:col-start-1"
+                defaultValue={actionData?.values?.unit}
+                onChange={setUnit}
+                disabled={disabled}
+              />
+              {unit === AccountUnit.CURRENCY && (
+                <CurrencyCombobox
+                  name="currency"
+                  label="Currency"
+                  error={actionData?.errors?.currency}
+                  defaultValue={actionData?.values?.currency || undefined} // TODO add reference currency as default
+                  groupClassName="sm:col-span-3"
+                />
+              )}
+              {unit === AccountUnit.STOCK && (
+                <Select
+                  label="Stock"
+                  name="stockId"
+                  error={actionData?.errors?.stockId}
+                  groupClassName="sm:col-span-3"
+                  defaultValue={actionData?.values?.stockId || undefined}
+                >
+                  {stocks.map((stock) => (
+                    <option key={stock.id} value={stock.id}>
+                      {stock.id}
+                    </option>
+                  ))}
+                </Select>
+              )}
+              <DetailedRadioGroup
+                groupClassName="sm:col-span-6"
+                label="When was the account opened?"
+                name="preExisting"
+                defaultValue={actionData?.values?.preExisting || "off"}
+                onChange={(value) => setPreExisting(value === "on")}
+                disabled={disabled}
+                options={[
+                  {
+                    label: "Before accounting start",
+                    value: "on",
+                    description:
+                      "This is a pre-existing account. It has a balance on the day before the accounting start date.",
+                  },
+                  {
+                    label: "After accounting start",
+                    value: "off",
+                    description:
+                      "The account was opened on or after the accounting start date.",
+                  },
+                ]}
+              />
+              {preExisting ? (
+                <Input
+                  key="balanceAtStart"
+                  groupClassName="sm:col-span-3"
+                  label="Balance at start"
+                  name="balanceAtStart"
+                  defaultValue={actionData?.values?.balanceAtStart || undefined}
+                  error={actionData?.errors?.balanceAtStart}
+                />
+              ) : (
+                <Input
+                  key="openingDate"
+                  groupClassName="sm:col-span-3"
+                  label="Opening date"
+                  name="openingDate"
+                  type="date"
+                  defaultValue={actionData?.values?.openingDate || undefined}
+                  error={actionData?.errors?.openingDate}
+                />
+              )}
+            </div>
+          </Modal.Body>
+          <Modal.Footer>
+            <Modal.Button type="submit" variant="primary">
+              {state !== "idle" ? "Saving…" : "Save"}
+            </Modal.Button>
+            <Modal.Button
+              type="button"
+              onClick={onClose}
+              className="mt-3 sm:mt-0"
             >
-              <option value="">[None]</option>
-              <option disabled>───────────────</option>
-              {accountGroups.map((accountGroup) => (
-                <option key={accountGroup.id} value={accountGroup.id}>
-                  {accountGroup.name}
-                </option>
-              ))}
-            </Select>
-            <AccountTypeRadioGroup
-              label="Type"
-              name="type"
-              error={actionData?.errors?.type}
-              groupClassName="sm:col-span-3"
-              defaultValue={actionData?.values?.type}
-              onChange={setType}
-            />
-            {type === AccountType.ASSET && (
-              <Select
-                label="Asset class"
-                name="assetClassId"
-                error={actionData?.errors?.assetClassId}
-                groupClassName="sm:col-span-3"
-                defaultValue={actionData?.values?.assetClassId || undefined}
-              >
-                {assetClasses.map((assetClass) => (
-                  <option key={assetClass.id} value={assetClass.id}>
-                    {assetClass.name}
-                  </option>
-                ))}
-              </Select>
-            )}
-            <AccountUnitRadioGroup
-              label="Unit"
-              name="unit"
-              error={actionData?.errors?.unit}
-              groupClassName="sm:col-span-3 sm:col-start-1"
-              defaultValue={actionData?.values?.unit}
-              onChange={setUnit}
-            />
-            {unit === AccountUnit.CURRENCY && (
-              <CurrencyCombobox
-                name="currency"
-                label="Currency"
-                error={actionData?.errors?.currency}
-                defaultValue={actionData?.values?.currency || undefined} // TODO add reference currency as default
-                groupClassName="sm:col-span-3"
-              />
-            )}
-            {unit === AccountUnit.STOCK && (
-              <Select
-                label="Stock"
-                name="stockId"
-                error={actionData?.errors?.stockId}
-                groupClassName="sm:col-span-3"
-                defaultValue={actionData?.values?.stockId || undefined}
-              >
-                {stocks.map((stock) => (
-                  <option key={stock.id} value={stock.id}>
-                    {stock.id}
-                  </option>
-                ))}
-              </Select>
-            )}
-            <DetailedRadioGroup
-              groupClassName="sm:col-span-6"
-              label="When was the account opened?"
-              name="preExisting"
-              defaultValue={actionData?.values?.preExisting || "off"}
-              onChange={(value) => setPreExisting(value === "on")}
-              options={[
-                {
-                  label: "Before accounting start",
-                  value: "on",
-                  description:
-                    "This is a pre-existing account. It has a balance on the day before the accounting start date.",
-                },
-                {
-                  label: "After accounting start",
-                  value: "off",
-                  description:
-                    "The account was opened on or after the accounting start date.",
-                },
-              ]}
-            />
-            {preExisting ? (
-              <Input
-                key="balanceAtStart"
-                groupClassName="sm:col-span-3"
-                label="Balance at start"
-                name="balanceAtStart"
-                defaultValue={actionData?.values?.balanceAtStart || undefined}
-                error={actionData?.errors?.balanceAtStart}
-              />
-            ) : (
-              <Input
-                key="openingDate"
-                groupClassName="sm:col-span-3"
-                label="Opening date"
-                name="openingDate"
-                type="date"
-                defaultValue={actionData?.values?.openingDate || undefined}
-                error={actionData?.errors?.openingDate}
-              />
-            )}
-          </div>
-        </Modal.Body>
-        <Modal.Footer>
-          <Modal.Button type="submit" variant="primary">
-            Save
-          </Modal.Button>
-          <Modal.Button
-            type="button"
-            onClick={onClose}
-            className="mt-3 sm:mt-0"
-          >
-            Cancel
-          </Modal.Button>
-        </Modal.Footer>
+              Cancel
+            </Modal.Button>
+          </Modal.Footer>
+        </fieldset>
       </Form>
     </Modal>
   );

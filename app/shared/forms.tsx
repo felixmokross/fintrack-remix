@@ -158,13 +158,13 @@ export const CurrencyCombobox = forwardRef(function CurrencyCombobox(
       <div className="relative mt-1">
         <Combobox.Input
           onChange={(event) => setQuery(event.target.value)}
-          className="w-full rounded-md border border-gray-300 bg-white py-2 pl-3 pr-10 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm"
+          className="w-full rounded-md border border-gray-300 bg-white py-2 pl-3 pr-10 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:opacity-50 sm:text-sm"
           displayValue={getDisplayName}
           aria-invalid={error ? "true" : undefined}
           aria-describedby={error ? errorId : undefined}
           ref={ref}
         />
-        <Combobox.Button className="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
+        <Combobox.Button className="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50">
           <SelectorIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
         </Combobox.Button>
         {filteredCurrencies.length > 0 && (
@@ -248,6 +248,7 @@ export function RadioGroup<TValue extends string | undefined>({
   onChange,
   defaultValue,
   options,
+  disabled = false,
 }: RadioGroupProps<TValue>) {
   const [value, setValue] = useState(defaultValue);
   const errorId = `radio-group-error-${useId()}`;
@@ -262,6 +263,7 @@ export function RadioGroup<TValue extends string | undefined>({
       name={name}
       aria-invalid={error ? "true" : undefined}
       aria-describedby={error ? errorId : undefined}
+      disabled={disabled}
     >
       <HeadlessRadioGroup.Label className={labelClassName}>
         {label}
@@ -273,12 +275,15 @@ export function RadioGroup<TValue extends string | undefined>({
             value={option.value}
             className={({ active, checked }) =>
               cn(
-                "cursor-pointer focus:outline-none",
+                "focus:outline-none",
                 active ? "ring-2 ring-indigo-500 ring-offset-2" : "",
                 checked
-                  ? "border-transparent bg-indigo-600 text-white hover:bg-indigo-700"
-                  : "border-gray-200 bg-white text-gray-900 hover:bg-gray-50",
-                "flex items-center justify-center rounded-md border py-2 px-3 text-sm font-medium sm:flex-1"
+                  ? "border-transparent bg-indigo-600 text-white"
+                  : "border-gray-200 bg-white text-gray-900",
+                "flex items-center justify-center rounded-md border py-2 px-3 text-sm font-medium sm:flex-1",
+                disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer",
+                !disabled && checked && "hover:bg-indigo-700",
+                !disabled && !checked && "hover:bg-gray-50"
               )
             }
           >
@@ -301,6 +306,7 @@ export type RadioGroupProps<TValue extends string | undefined> = {
   defaultValue?: string;
   onChange?: (value: TValue) => void;
   options: { label: string; value: TValue }[];
+  disabled?: boolean;
 };
 
 export function DetailedRadioGroup<TValue extends string | undefined>({
@@ -311,6 +317,7 @@ export function DetailedRadioGroup<TValue extends string | undefined>({
   options,
   error,
   name,
+  disabled = false,
 }: DetailedRadioGroupProps<TValue>) {
   const [value, setValue] = useState(defaultValue);
   const errorId = `detailed-radio-group-error-${useId()}`;
@@ -323,6 +330,7 @@ export function DetailedRadioGroup<TValue extends string | undefined>({
       }}
       className={groupClassName}
       name={name}
+      disabled={disabled}
     >
       <HeadlessRadioGroup.Label className={labelClassName}>
         {label}
@@ -336,7 +344,8 @@ export function DetailedRadioGroup<TValue extends string | undefined>({
               cn(
                 checked ? "border-transparent" : "border-gray-300",
                 active ? "border-indigo-500 ring-2 ring-indigo-500" : "",
-                "relative flex cursor-pointer rounded-lg border bg-white p-4 shadow-sm focus:outline-none"
+                "relative flex rounded-lg border bg-white p-4 shadow-sm focus:outline-none",
+                disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"
               )
             }
           >
@@ -391,6 +400,7 @@ export type DetailedRadioGroupProps<TValue extends string | undefined> = {
   defaultValue?: string;
   onChange?: (value: TValue) => void;
   options: { label: string; description: string; value: TValue }[];
+  disabled?: boolean;
 };
 
 // currently not used, but maybe useful later -- if not, should be removed at some point
