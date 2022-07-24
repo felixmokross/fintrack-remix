@@ -42,15 +42,24 @@ export function createStock({
   });
 }
 
-export function updateStock({
+export async function stockExists({
+  id,
+  userId,
+}: Pick<Stock, "id" | "userId">) {
+  return (await prisma.stock.count({ where: { id, userId } })) > 0;
+}
+
+export async function updateStock({
   id,
   tradingCurrency,
   userId,
 }: Pick<Stock, "id" | "tradingCurrency"> & {
   userId: User["id"];
 }) {
-  return prisma.stock.updateMany({
-    where: { id, userId },
+  if (!(await stockExists({ id, userId }))) throw new Error("Stock not found");
+
+  return await prisma.stock.update({
+    where: { id },
     data: { tradingCurrency },
   });
 }

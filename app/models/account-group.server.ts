@@ -39,15 +39,25 @@ export function createAccountGroup({
   });
 }
 
-export function updateAccountGroup({
+export async function accountGroupExists({
+  id,
+  userId,
+}: Pick<AccountGroup, "id" | "userId">) {
+  return (await prisma.accountGroup.count({ where: { id, userId } })) > 0;
+}
+
+export async function updateAccountGroup({
   id,
   name,
   userId,
 }: Pick<AccountGroup, "id" | "name"> & {
   userId: User["id"];
 }) {
-  return prisma.accountGroup.updateMany({
-    where: { id, userId },
+  if (!(await accountGroupExists({ id, userId })))
+    throw new Error("Account group not found");
+
+  return await prisma.accountGroup.update({
+    where: { id },
     data: { name },
   });
 }

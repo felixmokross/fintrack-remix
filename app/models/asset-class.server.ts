@@ -41,7 +41,14 @@ export function createAssetClass({
   });
 }
 
-export function updateAssetClass({
+export async function assetClassExists({
+  id,
+  userId,
+}: Pick<AssetClass, "id" | "userId">) {
+  return (await prisma.assetClass.count({ where: { id, userId } })) > 0;
+}
+
+export async function updateAssetClass({
   id,
   name,
   sortOrder,
@@ -49,8 +56,11 @@ export function updateAssetClass({
 }: Pick<AssetClass, "id" | "name" | "sortOrder"> & {
   userId: User["id"];
 }) {
-  return prisma.assetClass.updateMany({
-    where: { id, userId },
+  if (!(await assetClassExists({ id, userId })))
+    throw new Error("Asset class not found");
+
+  return await prisma.assetClass.update({
+    where: { id },
     data: { name, sortOrder },
   });
 }

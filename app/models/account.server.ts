@@ -92,7 +92,14 @@ export function createAccount({
   });
 }
 
-export function updateAccount({
+export async function accountExists({
+  id,
+  userId,
+}: Pick<Account, "id" | "userId">) {
+  return (await prisma.account.count({ where: { id, userId } })) > 0;
+}
+
+export async function updateAccount({
   id,
   name,
   type,
@@ -121,8 +128,11 @@ export function updateAccount({
 > & {
   userId: User["id"];
 }) {
-  return prisma.account.update({
-    where: { id }, // TODO not using the userId here anymore since relations cannot be updated with updateMany as it seems -- better user isolation concept needed?
+  if (!(await accountExists({ id, userId })))
+    throw new Error("Account not found");
+
+  return await prisma.account.update({
+    where: { id },
     data: {
       name,
       type,
