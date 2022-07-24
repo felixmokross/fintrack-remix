@@ -15,6 +15,7 @@ import { ChevronDownIcon, PlusIcon, TrashIcon } from "~/icons";
 import { getAccountListItems } from "~/models/account.server";
 import { getIncomeExpenseCategoryListItems } from "~/models/income-expense-category.server";
 import type {
+  BookingValues,
   TransactionErrors,
   TransactionValues,
 } from "~/models/transaction.server";
@@ -27,7 +28,7 @@ import { buttonClassName } from "~/shared/button";
 import { cn } from "~/shared/classnames";
 import { Combobox, CurrencyCombobox, Input } from "~/shared/forms";
 import { Modal, ModalSize } from "~/shared/modal";
-import { parseDate } from "~/shared/util";
+import { parseDate, parseDecimal } from "~/shared/util";
 
 type LoaderData = {
   accounts: Awaited<ReturnType<typeof getAccountListItems>>;
@@ -57,23 +58,62 @@ export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
   const date = formData.get("date");
   const note = formData.get("note");
-  console.log(
-    Array.from(formData.entries()).map(([key, value]) => `${key}=${value}`)
-  );
 
   invariant(typeof date === "string", "date not found");
   invariant(typeof note === "string", "note not found");
 
-  const errors = validateTransaction({ date, note });
+  const bookings = new Array<BookingValues>(
+    Number(formData.get("bookingsCount"))
+  );
+
+  for (let i = 0; i < bookings.length; i++) {
+    const type = formData.get(`bookings.${i}.type`);
+    const accountId = formData.get(`bookings.${i}.accountId`);
+    const categoryId = formData.get(`bookings.${i}.categoryId`);
+    const currency = formData.get(`bookings.${i}.currency`);
+    const note = formData.get(`bookings.${i}.note`);
+    const amount = formData.get(`bookings.${i}.amount`);
+
+    invariant(typeof type === "string", "type not found");
+    invariant(
+      !accountId || typeof accountId === "string",
+      "accountId not found"
+    );
+    invariant(
+      !categoryId || typeof categoryId === "string",
+      "categoryId not found"
+    );
+    invariant(!currency || typeof currency === "string", "currency not found");
+    invariant(!note || typeof note === "string", "note not found");
+    invariant(typeof amount === "string", "amount not found");
+
+    bookings[i] = { type, accountId, categoryId, currency, note, amount };
+  }
+
+  const errors = validateTransaction({ date, note, bookings });
 
   if (Object.values(errors).length > 0) {
     return json<ActionData>(
-      { errors, values: { date, note } },
+      { errors, values: { date, note, bookings } },
       { status: 400 }
     );
   }
 
-  await createTransaction({ date: parseDate(date), note, userId });
+  await createTransaction({
+    date: parseDate(date),
+    note,
+    bookings: bookings.map(
+      ({ type, accountId, categoryId, currency, note, amount }) => ({
+        type: type as BookingType,
+        accountId: accountId,
+        incomeExpenseCategoryId: categoryId,
+        currency: currency,
+        note: note,
+        amount: parseDecimal(amount),
+      })
+    ),
+    userId,
+  });
 
   return redirect(`/transactions`);
 };
@@ -287,7 +327,11 @@ export default function NewTransactionModal() {
               />
               {bookings.map(({ type, id }, index) => (
                 <Fragment key={id}>
-                  <input type="hidden" name={`${index}.type`} value={type} />
+                  <input
+                    type="hidden"
+                    name={`bookings.${index}.type`}
+                    value={type}
+                  />
                   <div className="flex items-center sm:col-span-1 sm:col-start-1">
                     {type === BookingType.DEPOSIT && "DPT"}
                     {type === BookingType.CHARGE && "CHG"}
@@ -313,7 +357,7 @@ export default function NewTransactionModal() {
                     <>
                       <Combobox
                         label="Category"
-                        name={`${index}.categoryId`}
+                        name={`bookings.${index}.categoryId`}
                         groupClassName="sm:col-span-2"
                         options={incomeExpenseCategories
                           .filter((c) => c.type === type)
@@ -324,19 +368,19 @@ export default function NewTransactionModal() {
                       />
                       <CurrencyCombobox
                         label="Currency"
-                        name={`${index}.currency`}
+                        name={`bookings.${index}.currency`}
                         groupClassName="sm:col-span-4"
                       />
                     </>
                   )}
                   <Input
                     label="Note"
-                    name={`${index}.note`}
+                    name={`bookings.${index}.note`}
                     groupClassName="sm:col-span-2 sm:col-start-8"
                   />
                   <Input
                     label="Amount"
-                    name={`${index}.amount`}
+                    name={`bookings.${index}.amount`}
                     groupClassName="sm:col-span-2"
                   />
                   <div className="flex items-center justify-end sm:col-span-1">

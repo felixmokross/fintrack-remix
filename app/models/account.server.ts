@@ -1,9 +1,8 @@
 import type { Account, User } from "@prisma/client";
 import { AccountUnit } from "@prisma/client";
 import { AccountType } from "@prisma/client";
-import { Decimal } from "@prisma/client/runtime";
 import { prisma } from "~/db.server";
-import { isValidDate } from "~/shared/util";
+import { isValidDate, parseDecimal } from "~/shared/util";
 
 export function getAccountListItems({ userId }: { userId: User["id"] }) {
   return prisma.account.findMany({
@@ -215,7 +214,7 @@ export function validateAccount({
   if (preExisting === "on") {
     if (!balanceAtStart) {
       errors.balanceAtStart = "Balance at start is required";
-    } else if (parseBalanceAtStart(balanceAtStart).isNaN()) {
+    } else if (parseDecimal(balanceAtStart).isNaN()) {
       errors.balanceAtStart = "Balance at start must be a number";
     }
   } else {
@@ -231,8 +230,4 @@ export function validateAccount({
 
 export function deleteAccount({ id, userId }: Pick<Account, "id" | "userId">) {
   return prisma.account.deleteMany({ where: { id, userId } });
-}
-
-export function parseBalanceAtStart(balanceAtStart: string) {
-  return new Decimal(balanceAtStart);
 }

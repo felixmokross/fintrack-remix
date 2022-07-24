@@ -14,7 +14,6 @@ import invariant from "tiny-invariant";
 import { PlusIcon } from "~/icons";
 import { getAccountGroupListItems } from "~/models/account-group.server";
 import type { AccountErrors, AccountValues } from "~/models/account.server";
-import { parseBalanceAtStart } from "~/models/account.server";
 import { validateAccount } from "~/models/account.server";
 import { createAccount } from "~/models/account.server";
 import { getAssetClassListItems } from "~/models/asset-class.server";
@@ -31,7 +30,7 @@ import {
   Select,
 } from "~/shared/forms";
 import { Modal, ModalSize } from "~/shared/modal";
-import { parseDate } from "~/shared/util";
+import { parseDate, parseDecimal } from "~/shared/util";
 
 type LoaderData = {
   assetClasses: Awaited<ReturnType<typeof getAssetClassListItems>>;
@@ -134,7 +133,7 @@ export const action: ActionFunction = async ({ request }) => {
     stockId,
     userId,
     preExisting: preExisting === "on",
-    balanceAtStart: balanceAtStart ? parseBalanceAtStart(balanceAtStart) : null,
+    balanceAtStart: balanceAtStart ? parseDecimal(balanceAtStart) : null,
     openingDate: openingDate ? parseDate(openingDate) : null,
   });
 

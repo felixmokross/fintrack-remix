@@ -1,3 +1,4 @@
+import { Decimal } from "@prisma/client/runtime";
 import type { ComponentPropsWithoutRef, ElementType } from "react";
 
 export type PolymorphicComponentProps<T extends ElementType> = {
@@ -14,4 +15,8 @@ export function parseDate(date: string) {
 
 export function isValidDate(date: string) {
   return !isNaN(parseDate(date).valueOf());
+}
+
+export function parseDecimal(balanceAtStart: string) {
+  return new Decimal(balanceAtStart);
 }

@@ -159,7 +159,7 @@ model Booking {
   transactionId String
 
   incomeExpenseCategory   IncomeExpenseCategory? @relation(fields: [incomeExpenseCategoryId], references: [id], onDelete: Restrict)
-  incomeExpenseCategoryId String
+  incomeExpenseCategoryId String?
 
   currency String?
 
