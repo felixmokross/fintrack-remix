@@ -1,22 +1,25 @@
-import { AccountUnit } from "@prisma/client";
-import { AccountType } from "@prisma/client";
+import { AccountType, AccountUnit } from "@prisma/client";
 import {
-  Form,
   useActionData,
-  useLoaderData,
   useNavigate,
+  useLoaderData,
+  Form,
 } from "@remix-run/react";
-import type { ActionFunction, LoaderFunction } from "@remix-run/server-runtime";
-import { json, redirect } from "@remix-run/server-runtime";
+import type { LoaderFunction, ActionFunction } from "@remix-run/server-runtime";
+import { json } from "@remix-run/server-runtime";
+import { redirect } from "@remix-run/server-runtime";
 import { useRef, useState } from "react";
 import invariant from "tiny-invariant";
-import { PlusIcon } from "~/icons";
+import { PencilIcon } from "~/icons";
 import { getAccountGroupListItems } from "~/models/account-group.server";
 import type { AccountErrors, AccountValues } from "~/models/account.server";
-import { parseDate } from "~/models/account.server";
-import { parseBalanceAtStart } from "~/models/account.server";
-import { validateAccount } from "~/models/account.server";
-import { createAccount } from "~/models/account.server";
+import { getAccount } from "~/models/account.server";
+import { updateAccount } from "~/models/account.server";
+import {
+  validateAccount,
+  parseBalanceAtStart,
+  parseDate,
+} from "~/models/account.server";
 import { getAssetClassListItems } from "~/models/asset-class.server";
 import { getStockListItems } from "~/models/stock.server";
 import { requireUserId } from "~/session.server";
@@ -25,10 +28,10 @@ import {
   AccountUnitRadioGroup,
 } from "~/shared/accounts";
 import {
+  Select,
   CurrencyCombobox,
   DetailedRadioGroup,
   Input,
-  Select,
 } from "~/shared/forms";
 import { Modal, ModalSize } from "~/shared/modal";
 
@@ -36,6 +39,7 @@ type LoaderData = {
   assetClasses: Awaited<ReturnType<typeof getAssetClassListItems>>;
   accountGroups: Awaited<ReturnType<typeof getAccountGroupListItems>>;
   stocks: Awaited<ReturnType<typeof getStockListItems>>;
+  account: NonNullable<Awaited<ReturnType<typeof getAccount>>>;
 };
 
 type ActionData = {
@@ -43,16 +47,22 @@ type ActionData = {
   values?: AccountValues;
 };
 
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader: LoaderFunction = async ({ request, params }) => {
   const userId = await requireUserId(request);
+  invariant(params.accountId, "accountId not found");
+
+  const account = await getAccount({ userId, id: params.accountId });
+  if (!account) throw new Response("Not Found", { status: 404 });
+
   return json<LoaderData>({
     assetClasses: await getAssetClassListItems({ userId }),
     accountGroups: await getAccountGroupListItems({ userId }),
     stocks: await getStockListItems({ userId }),
+    account,
   });
 };
 
-export const action: ActionFunction = async ({ request }) => {
+export const action: ActionFunction = async ({ request, params }) => {
   const userId = await requireUserId(request);
 
   const formData = await request.formData();
@@ -67,6 +77,7 @@ export const action: ActionFunction = async ({ request }) => {
   const balanceAtStart = formData.get("balanceAtStart");
   const openingDate = formData.get("openingDate");
 
+  invariant(typeof params.accountId === "string", "accountId not found");
   invariant(typeof name === "string", "name not found");
   invariant(typeof type === "string", "type not found");
   invariant(
@@ -123,7 +134,8 @@ export const action: ActionFunction = async ({ request }) => {
     );
   }
 
-  await createAccount({
+  await updateAccount({
+    id: params.accountId,
     name,
     type: type as AccountType,
     assetClassId,
@@ -140,32 +152,32 @@ export const action: ActionFunction = async ({ request }) => {
   return redirect(`/accounts`);
 };
 
-export default function NewPage() {
-  // TODO do we need the defaultValues?
+export default function EditPage() {
   const nameInputRef = useRef(null);
   const actionData = useActionData<ActionData>();
   const navigate = useNavigate();
-  const { assetClasses, accountGroups, stocks } = useLoaderData<LoaderData>();
+  const { assetClasses, accountGroups, stocks, account } =
+    useLoaderData<LoaderData>();
   const [type, setType] = useState<AccountType>(
-    (actionData?.values?.type as AccountType) || AccountType.ASSET
+    (actionData?.values?.type as AccountType) || account.type
   );
   const [unit, setUnit] = useState<AccountUnit>(
-    (actionData?.values?.unit as AccountUnit) || AccountUnit.CURRENCY
+    (actionData?.values?.unit as AccountUnit) || account.unit
   );
   const [preExisting, setPreExisting] = useState(
-    actionData?.values?.preExisting === "on" || false
+    actionData?.values?.preExisting === "on" || account.preExisting
   );
   return (
     <Modal initialFocus={nameInputRef} onClose={onClose} size={ModalSize.LARGE}>
       <Form method="post" replace>
-        <Modal.Body title="New Account" icon={PlusIcon}>
+        <Modal.Body title="Edit Account" icon={PencilIcon}>
           <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
             <Input
               label="Name"
               name="name"
               error={actionData?.errors?.name}
               groupClassName="sm:col-span-3"
-              defaultValue={actionData?.values?.name}
+              defaultValue={actionData?.values?.name || account.name}
               ref={nameInputRef}
             />
             <Select
@@ -173,7 +185,9 @@ export default function NewPage() {
               name="groupId"
               error={actionData?.errors?.groupId}
               groupClassName="sm:col-span-3"
-              defaultValue={actionData?.values?.groupId}
+              defaultValue={
+                actionData?.values?.groupId || account.groupId || undefined
+              }
             >
               <option value=""></option>
               {accountGroups.map((accountGroup) => (
@@ -187,7 +201,7 @@ export default function NewPage() {
               name="type"
               error={actionData?.errors?.type}
               groupClassName="sm:col-span-3"
-              defaultValue={actionData?.values?.type}
+              defaultValue={actionData?.values?.type || account.type}
               onChange={setType}
             />
             {type === AccountType.ASSET && (
@@ -196,7 +210,11 @@ export default function NewPage() {
                 name="assetClassId"
                 error={actionData?.errors?.assetClassId}
                 groupClassName="sm:col-span-3"
-                defaultValue={actionData?.values?.assetClassId || undefined}
+                defaultValue={
+                  actionData?.values?.assetClassId ||
+                  account.assetClassId ||
+                  undefined
+                }
               >
                 <option value=""></option>
                 {assetClasses.map((assetClass) => (
@@ -211,7 +229,7 @@ export default function NewPage() {
               name="unit"
               error={actionData?.errors?.unit}
               groupClassName="sm:col-span-3 sm:col-start-1"
-              defaultValue={actionData?.values?.unit}
+              defaultValue={actionData?.values?.unit || account.unit}
               onChange={setUnit}
             />
             {unit === AccountUnit.CURRENCY && (
@@ -219,6 +237,9 @@ export default function NewPage() {
                 name="currency"
                 label="Currency"
                 error={actionData?.errors?.currency}
+                defaultValue={
+                  actionData?.values?.currency || account.currency || undefined
+                }
                 groupClassName="sm:col-span-3"
               />
             )}
@@ -228,7 +249,9 @@ export default function NewPage() {
                 name="stockId"
                 error={actionData?.errors?.stockId}
                 groupClassName="sm:col-span-3"
-                defaultValue={actionData?.values?.stockId || undefined}
+                defaultValue={
+                  actionData?.values?.stockId || account.stockId || undefined
+                }
               >
                 <option value=""></option>
                 {stocks.map((stock) => (
@@ -242,7 +265,10 @@ export default function NewPage() {
               groupClassName="sm:col-span-6"
               label="When was the account opened?"
               name="preExisting"
-              defaultValue={actionData?.values?.preExisting || "off"}
+              defaultValue={
+                actionData?.values?.preExisting ||
+                (account.preExisting ? "on" : "off")
+              }
               onChange={(value) => setPreExisting(value === "on")}
               options={[
                 {
@@ -264,7 +290,11 @@ export default function NewPage() {
                 groupClassName="sm:col-span-3"
                 label="Balance at start"
                 name="balanceAtStart"
-                defaultValue={actionData?.values?.balanceAtStart || undefined}
+                defaultValue={
+                  actionData?.values?.balanceAtStart ||
+                  account.balanceAtStart ||
+                  undefined
+                }
                 error={actionData?.errors?.balanceAtStart}
               />
             ) : (
@@ -273,7 +303,11 @@ export default function NewPage() {
                 label="Opening date"
                 name="openingDate"
                 type="date"
-                defaultValue={actionData?.values?.openingDate || undefined}
+                defaultValue={
+                  actionData?.values?.openingDate ||
+                  account.openingDate?.split("T")[0] ||
+                  undefined
+                }
                 error={actionData?.errors?.openingDate}
               />
             )}

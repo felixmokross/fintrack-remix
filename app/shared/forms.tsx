@@ -393,7 +393,7 @@ export type DetailedRadioGroupProps<TValue extends string | undefined> = {
   options: { label: string; description: string; value: TValue }[];
 };
 
-// currently not used, check if really needed
+// currently not used, but maybe useful later -- if not, should be removed at some point
 export function Toggle({
   groupClassName,
   label,

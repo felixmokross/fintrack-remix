@@ -24,6 +24,30 @@ export function getAccountListItems({ userId }: { userId: User["id"] }) {
   });
 }
 
+export function getAccount({
+  id,
+  userId,
+}: Pick<Account, "id"> & {
+  userId: User["id"];
+}) {
+  return prisma.account.findFirst({
+    where: { id, userId },
+    select: {
+      id: true,
+      name: true,
+      groupId: true,
+      type: true,
+      assetClassId: true,
+      unit: true,
+      currency: true,
+      stockId: true,
+      preExisting: true,
+      balanceAtStart: true,
+      openingDate: true,
+    },
+  });
+}
+
 export function createAccount({
   name,
   type,
@@ -32,10 +56,10 @@ export function createAccount({
   unit,
   currency,
   stockId,
-  userId,
   preExisting,
   balanceAtStart,
   openingDate,
+  userId,
 }: Pick<
   Account,
   | "name"
@@ -68,6 +92,52 @@ export function createAccount({
   });
 }
 
+export function updateAccount({
+  id,
+  name,
+  type,
+  assetClassId,
+  groupId,
+  unit,
+  currency,
+  stockId,
+  preExisting,
+  balanceAtStart,
+  openingDate,
+  userId,
+}: Pick<
+  Account,
+  | "id"
+  | "name"
+  | "type"
+  | "assetClassId"
+  | "groupId"
+  | "unit"
+  | "currency"
+  | "stockId"
+  | "preExisting"
+  | "balanceAtStart"
+  | "openingDate"
+> & {
+  userId: User["id"];
+}) {
+  return prisma.account.update({
+    where: { id }, // TODO not using the userId here anymore since relations cannot be updated with updateMany as it seems -- better user isolation concept needed?
+    data: {
+      name,
+      type,
+      assetClass: assetClassId ? { connect: { id: assetClassId } } : undefined,
+      group: groupId ? { connect: { id: groupId } } : undefined,
+      unit,
+      currency,
+      stock: stockId ? { connect: { id: stockId } } : undefined,
+      preExisting,
+      balanceAtStart,
+      openingDate,
+    },
+  });
+}
+
 export type AccountValues = {
   name: string;
   type: string;
@@ -76,7 +146,7 @@ export type AccountValues = {
   unit: string;
   currency: string | null;
   stockId: string | null;
-  preExisting: "on" | null;
+  preExisting: "on" | "off";
   balanceAtStart: string | null;
   openingDate: string | null;
 };
