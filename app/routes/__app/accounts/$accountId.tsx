@@ -2,25 +2,22 @@ import { AccountUnit, BookingType } from "@prisma/client";
 import { Link, useLoaderData } from "@remix-run/react";
 import type { LoaderFunction } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
+import { format, isThisYear, isToday, isYesterday } from "date-fns";
 import { Fragment } from "react";
 import invariant from "tiny-invariant";
 import { currenciesByCode } from "~/currencies";
 import { getAccount } from "~/models/account.server";
-import { getLedgerLines } from "~/models/ledger-lines.server";
+import { getReverseLedgerDateGroups } from "~/models/ledger-lines.server";
 import { requireUserId } from "~/session.server";
 import { Button } from "~/shared/button";
 import { cn } from "~/shared/classnames";
 
 type LoaderData = {
   account: NonNullable<Awaited<ReturnType<typeof getAccount>>>;
-  ledgerLines: NonNullable<Awaited<ReturnType<typeof getLedgerLines>>>;
+  ledgerDateGroups: NonNullable<
+    Awaited<ReturnType<typeof getReverseLedgerDateGroups>>
+  >;
 };
-
-const groups = [
-  {
-    name: "Default",
-  },
-];
 
 export const loader: LoaderFunction = async ({ request, params }) => {
   const userId = await requireUserId(request);
@@ -29,14 +26,16 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const account = await getAccount({ id: params.accountId, userId });
   if (!account) return new Response("Not found", { status: 404 });
 
-  const ledgerLines = await getLedgerLines({ accountId: account.id, userId });
-  ledgerLines.reverse();
+  const ledgerDateGroups = await getReverseLedgerDateGroups({
+    account,
+    userId,
+  });
 
-  return json({ account, ledgerLines });
+  return json({ account, ledgerDateGroups });
 };
 
 export default function AccountDetailPage() {
-  const { account, ledgerLines } = useLoaderData<LoaderData>();
+  const { account, ledgerDateGroups } = useLoaderData<LoaderData>();
   return (
     <div className="mt-8">
       <div className="sm:flex sm:items-center">
@@ -77,13 +76,7 @@ export default function AccountDetailPage() {
                       scope="col"
                       className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6"
                     >
-                      Date
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
-                    >
-                      Type
+                      Date/Type
                     </th>
                     <th
                       scope="col"
@@ -101,12 +94,6 @@ export default function AccountDetailPage() {
                       scope="col"
                       className="px-3 py-3.5 text-right text-sm font-semibold text-gray-900"
                     >
-                      Amount
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-3 py-3.5 text-right text-sm font-semibold text-gray-900"
-                    >
                       Balance
                     </th>
                     <th
@@ -118,36 +105,35 @@ export default function AccountDetailPage() {
                   </tr>
                 </thead>
                 <tbody className="bg-white">
-                  {groups.map((location) => (
-                    <Fragment key={location.name}>
+                  {ledgerDateGroups.map((group) => (
+                    <Fragment key={group.date}>
                       <tr className="border-t border-gray-200">
                         <th
-                          colSpan={7}
+                          colSpan={3}
                           scope="colgroup"
                           className="bg-gray-50 px-4 py-2 text-left text-sm font-semibold text-gray-900 sm:px-6"
                         >
-                          {location.name}
+                          {formatDate(group.date)}
                         </th>
+                        <td className="bg-gray-50 px-3 py-2 text-right text-sm text-gray-500">
+                          {formatValue(group.balance)}
+                        </td>
+                        <td className="bg-gray-50"></td>
                       </tr>
-                      {ledgerLines.map((ledgerLine) => (
+                      {group.lines.map((line, index) => (
                         <tr
-                          key={ledgerLine.id}
+                          key={line.id}
                           className={cn(
-                            // personIdx === 0
-                            //   ? "border-gray-300"
-                            "border-gray-200",
+                            index === 0 ? "border-gray-300" : "border-gray-200",
                             "border-t"
                           )}
                         >
-                          <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
-                            {ledgerLine.transaction.date}
+                          <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm text-gray-500 sm:pl-6">
+                            {line.type}
                           </td>
                           <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                            {ledgerLine.type}
-                          </td>
-                          <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                            {ledgerLine.transaction.bookings
-                              .filter((b) => b.id !== ledgerLine.id)
+                            {line.transaction.bookings
+                              .filter((b) => b.id !== line.id)
                               .map((b) => {
                                 switch (b.type) {
                                   case BookingType.CHARGE:
@@ -169,13 +155,10 @@ export default function AccountDetailPage() {
                               .join(", ")}
                           </td>
                           <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                            {ledgerLine.transaction.note}
+                            {line.transaction.note}
                           </td>
                           <td className="whitespace-nowrap px-3 py-4 text-right text-sm text-gray-500">
-                            {ledgerLine.amount}
-                          </td>
-                          <td className="whitespace-nowrap px-3 py-4 text-right text-sm text-gray-500">
-                            {ledgerLine.balance}
+                            {formatValue(line.amount)}
                           </td>
                           <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                             <a
@@ -184,8 +167,7 @@ export default function AccountDetailPage() {
                             >
                               Edit
                               <span className="sr-only">
-                                , {ledgerLine.transaction.date},{" "}
-                                {ledgerLine.note}
+                                , {line.transaction.date}, {line.note}
                               </span>
                             </a>
                           </td>
@@ -193,6 +175,21 @@ export default function AccountDetailPage() {
                       ))}
                     </Fragment>
                   ))}
+                  <tr className="border-t border-gray-200">
+                    <th
+                      colSpan={3}
+                      scope="colgroup"
+                      className="bg-gray-50 px-4 py-2 text-left text-sm font-semibold text-gray-900 sm:px-6"
+                    ></th>
+                    <td className="bg-gray-50 px-3 py-2 text-right text-sm text-gray-500">
+                      {formatValue(
+                        account.preExisting && account.balanceAtStart
+                          ? account.balanceAtStart
+                          : "0"
+                      )}
+                    </td>
+                    <td className="bg-gray-50"></td>
+                  </tr>
                 </tbody>
               </table>
             </div>
@@ -201,4 +198,26 @@ export default function AccountDetailPage() {
       </div>
     </div>
   );
+}
+
+// TODO make local configurable
+const valueFormat = new Intl.NumberFormat("de-CH", {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+});
+
+function formatValue(value: string | number) {
+  if (typeof value === "string") value = parseFloat(value);
+
+  return valueFormat.format(value);
+}
+
+function formatDate(value: Date | string) {
+  if (typeof value === "string") value = new Date(value);
+
+  if (isToday(value)) return "Today";
+  if (isYesterday(value)) return "Yesterday";
+  if (isThisYear(value)) return format(value, "dd MMM");
+
+  return format(value, "dd MMM yyyy");
 }

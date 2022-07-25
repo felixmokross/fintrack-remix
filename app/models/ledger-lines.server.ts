@@ -2,15 +2,53 @@ import type { Account, User } from "@prisma/client";
 import { BookingType } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime";
 import { prisma } from "~/db.server";
+import type { getAccount } from "./account.server";
 
-export async function getLedgerLines({
-  accountId,
+export async function getReverseLedgerDateGroups({
+  account,
   userId,
 }: {
-  accountId: Account["id"];
+  account: NonNullable<Awaited<ReturnType<typeof getAccount>>>;
   userId: User["id"];
 }) {
-  const bookings = await getBookings({ accountId, userId });
+  const ledgerLines = await getLedgerLines({ account, userId });
+  ledgerLines.reverse();
+
+  return Array.from(
+    ledgerLines
+      .reduce((acc, line) => {
+        const dateKey = line.transaction.date.valueOf();
+
+        if (!acc.has(dateKey)) {
+          acc.set(dateKey, {
+            date: line.transaction.date,
+            lines: [line],
+            balance: line.balance,
+          });
+        } else {
+          acc.get(dateKey)!.lines.push(line);
+        }
+
+        return acc;
+      }, new Map<number, LedgerDateGroup>())
+      .values()
+  );
+}
+
+export type LedgerDateGroup = {
+  date: Date;
+  lines: LedgerLine[];
+  balance: Decimal;
+};
+
+export async function getLedgerLines({
+  account,
+  userId,
+}: {
+  account: NonNullable<Awaited<ReturnType<typeof getAccount>>>;
+  userId: User["id"];
+}) {
+  const bookings = await getBookings({ accountId: account.id, userId });
 
   return bookings.reduce<Accumulator>(
     (acc, booking) => {
@@ -18,7 +56,12 @@ export async function getLedgerLines({
       acc.lines.push({ ...booking, balance: acc.balance });
       return acc;
     },
-    { balance: new Decimal(0), lines: [] }
+    {
+      balance: new Decimal(
+        (account.preExisting && account.balanceAtStart) || 0
+      ),
+      lines: [],
+    }
   ).lines;
 }
 
