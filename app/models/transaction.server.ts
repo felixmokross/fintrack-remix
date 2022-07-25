@@ -27,7 +27,7 @@ export function createTransaction({
   >[];
   userId: User["id"];
 }) {
-  const payload = {
+  return prisma.transaction.create({
     data: {
       date,
       note,
@@ -59,9 +59,7 @@ export function createTransaction({
         },
       },
     },
-  };
-  console.log(JSON.stringify(payload, null, 2));
-  return prisma.transaction.create(payload);
+  });
 }
 
 export function deleteTransaction({

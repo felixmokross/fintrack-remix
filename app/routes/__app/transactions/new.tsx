@@ -105,7 +105,7 @@ export const action: ActionFunction = async ({ request }) => {
     bookings: bookings.map(
       ({ type, accountId, categoryId, currency, note, amount }) => ({
         type: type as BookingType,
-        accountId: accountId,
+        accountId,
         incomeExpenseCategoryId: categoryId,
         currency: currency,
         note: note,
@@ -344,7 +344,7 @@ export default function NewTransactionModal() {
                     type === BookingType.CHARGE) && (
                     <Combobox
                       label="Account"
-                      name={`${index}.accountId`}
+                      name={`bookings.${index}.accountId`}
                       groupClassName="sm:col-span-6"
                       options={accounts.map((a) => ({
                         primaryText: a.name,

@@ -30,7 +30,7 @@ export default function AccountsPage() {
           <h1 className="text-xl font-semibold text-gray-900">Accounts</h1>
         </div>
         <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
-          <Button as={Link} to="new" variant="primary">
+          <Button as={Link} to="new" variant="secondary">
             Add account
           </Button>
         </div>
@@ -105,7 +105,7 @@ export default function AccountsPage() {
                             ({account.currency})
                           </>
                         ) : (
-                          account.stockId
+                          account.stock?.symbol
                         )}
                       </td>
                       <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
@@ -116,6 +116,14 @@ export default function AccountsPage() {
                       <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                         <Link
                           to={account.id}
+                          className="text-indigo-600 hover:text-indigo-900"
+                        >
+                          View
+                          <span className="sr-only">, {account.name}</span>
+                        </Link>{" "}
+                        &middot;{" "}
+                        <Link
+                          to={`${account.id}/edit`}
                           className="text-indigo-600 hover:text-indigo-900"
                         >
                           Edit
