@@ -10,6 +10,34 @@ export function getTransactionListItems({ userId }: { userId: User["id"] }) {
   });
 }
 
+export function getTransaction({
+  id,
+  userId,
+}: {
+  id: Transaction["id"];
+  userId: User["id"];
+}) {
+  return prisma.transaction.findMany({
+    where: { id, userId },
+    select: {
+      id: true,
+      date: true,
+      note: true,
+      bookings: {
+        select: {
+          id: true,
+          type: true,
+          accountId: true,
+          incomeExpenseCategoryId: true,
+          currency: true,
+          note: true,
+          amount: true,
+        },
+      },
+    },
+  });
+}
+
 export function createTransaction({
   date,
   note,
@@ -32,6 +60,71 @@ export function createTransaction({
       date,
       note,
       bookings: {
+        create: bookings.map(
+          ({
+            type,
+            accountId,
+            incomeExpenseCategoryId,
+            currency,
+            note,
+            amount,
+          }) => ({
+            type,
+            account: accountId ? { connect: { id: accountId } } : undefined,
+            incomeExpenseCategory: incomeExpenseCategoryId
+              ? { connect: { id: incomeExpenseCategoryId } }
+              : undefined,
+            currency,
+            note,
+            amount,
+            user: { connect: { id: userId } },
+          })
+        ),
+      },
+      user: {
+        connect: {
+          id: userId,
+        },
+      },
+    },
+  });
+}
+
+export async function transactionExists({
+  id,
+  userId,
+}: Pick<Transaction, "id" | "userId">) {
+  return (await prisma.transaction.count({ where: { id, userId } })) > 0;
+}
+
+export async function updateTransaction({
+  id,
+  date,
+  note,
+  bookings,
+  userId,
+}: Pick<Transaction, "id" | "date" | "note"> & {
+  bookings: Pick<
+    Booking,
+    | "type"
+    | "accountId"
+    | "incomeExpenseCategoryId"
+    | "currency"
+    | "note"
+    | "amount"
+  >[];
+  userId: User["id"];
+}) {
+  if (!(await transactionExists({ id, userId })))
+    throw new Error("Transaction not found");
+
+  return await prisma.transaction.update({
+    where: { id },
+    data: {
+      date,
+      note,
+      bookings: {
+        deleteMany: {},
         create: bookings.map(
           ({
             type,
