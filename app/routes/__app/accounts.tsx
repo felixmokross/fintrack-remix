@@ -2,25 +2,25 @@ import { AccountType, AccountUnit } from "@prisma/client";
 import { Link, Outlet, useFetcher, useLoaderData } from "@remix-run/react";
 import type { LoaderFunction, MetaFunction } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
+import { useState } from "react";
+import { NewAccountModal } from "~/components/accounts";
 import { currenciesByCode } from "~/currencies";
 import { getAccountListItems } from "~/models/account.server";
 import { requireUserId } from "~/session.server";
 import { Button } from "~/shared/button";
 import { getTitle } from "~/shared/util";
 
-type LoaderData = {
-  accounts: Awaited<ReturnType<typeof getAccountListItems>>;
-};
+type LoaderData = { accounts: Awaited<ReturnType<typeof getAccountListItems>> };
 
 export const loader: LoaderFunction = async ({ request }) => {
   const userId = await requireUserId(request);
-  const accounts = await getAccountListItems({ userId });
-  return json<LoaderData>({ accounts });
+  return json<LoaderData>({ accounts: await getAccountListItems({ userId }) });
 };
 
 export const meta: MetaFunction = () => ({ title: getTitle("Accounts") });
 
 export default function AccountsPage() {
+  const [activeModal, setActiveModal] = useState<ActiveModal>();
   const fetcher = useFetcher();
   const { accounts } = useLoaderData<LoaderData>();
   return (
@@ -30,7 +30,10 @@ export default function AccountsPage() {
           <h1 className="text-xl font-semibold text-gray-900">Accounts</h1>
         </div>
         <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
-          <Button as={Link} to="new" variant="secondary">
+          {/* <Button as={Link} to="new" variant="secondary">
+            Add account
+          </Button> */}
+          <Button onClick={() => setActiveModal("new")} variant="secondary">
             Add account
           </Button>
         </div>
@@ -154,6 +157,16 @@ export default function AccountsPage() {
         </div>
       </div>
       <Outlet />
+      <NewAccountModal
+        open={activeModal === "new"}
+        onClose={closeActiveModal}
+      />
     </div>
   );
+
+  function closeActiveModal() {
+    setActiveModal(undefined);
+  }
 }
+
+type ActiveModal = "new" | "edit";

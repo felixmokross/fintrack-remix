@@ -13,13 +13,14 @@ export enum ModalSize {
 }
 
 function ModalRoot({
+  open = true,
   onClose,
   initialFocus,
   children,
   size = ModalSize.SMALL,
 }: ModalProps) {
   return (
-    <Transition.Root show={true} appear={true} as={Fragment}>
+    <Transition.Root show={open} appear={true} as={Fragment}>
       <Dialog
         as="div"
         className="relative z-10"
@@ -70,6 +71,7 @@ function ModalRoot({
 }
 
 export type ModalProps = PropsWithChildren<{
+  open?: boolean; // TODO make required when routable modals are not used anymore
   onClose: () => void;
   initialFocus?: React.MutableRefObject<HTMLElement | null>;
   size?: ModalSize;
