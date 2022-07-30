@@ -1,8 +1,61 @@
 import type { Account, User } from "@prisma/client";
 import { AccountUnit } from "@prisma/client";
 import { AccountType } from "@prisma/client";
+import invariant from "tiny-invariant";
 import { prisma } from "~/db.server";
 import { isValidDate, parseDecimal } from "~/shared/util";
+
+export async function getAccountValues(
+  request: Request
+): Promise<AccountValues> {
+  const formData = await request.formData();
+  const name = formData.get("name");
+  const type = formData.get("type");
+  const assetClassId = formData.get("assetClassId");
+  const groupId = formData.get("groupId");
+  const unit = formData.get("unit");
+  const currency = formData.get("currency");
+  const stockId = formData.get("stockId");
+  const preExisting = formData.get("preExisting");
+  const balanceAtStart = formData.get("balanceAtStart");
+  const openingDate = formData.get("openingDate");
+
+  invariant(typeof name === "string", "name not found");
+  invariant(typeof type === "string", "type not found");
+  invariant(
+    !assetClassId || typeof assetClassId === "string",
+    "assetClassId not found"
+  );
+  invariant(typeof groupId === "string", "groupId not found");
+  invariant(typeof unit === "string", "unit not found");
+  invariant(!currency || typeof currency === "string", "currency not found");
+  invariant(!stockId || typeof stockId === "string", "stockId not found");
+  invariant(
+    preExisting === "off" || preExisting === "on",
+    "preExisting not found"
+  );
+  invariant(
+    !balanceAtStart || typeof balanceAtStart === "string",
+    "balanceAtStart not found"
+  );
+  invariant(
+    !openingDate || typeof openingDate === "string",
+    "openingDate not found"
+  );
+
+  return {
+    name,
+    type,
+    assetClassId,
+    groupId,
+    unit,
+    currency,
+    stockId,
+    preExisting,
+    balanceAtStart,
+    openingDate,
+  };
+}
 
 export function getAccountListItems({ userId }: { userId: User["id"] }) {
   return prisma.account.findMany({

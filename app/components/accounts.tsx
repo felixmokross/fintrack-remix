@@ -12,13 +12,10 @@ import type {
 import type { getAssetClassListItems } from "~/models/asset-class.server";
 import type { getStockListItems } from "~/models/stock.server";
 import {
-  AccountTypeRadioGroup,
-  AccountUnitRadioGroup,
-} from "~/shared/accounts";
-import {
   CurrencyCombobox,
   DetailedRadioGroup,
   Input,
+  RadioGroup,
   Select,
 } from "~/shared/forms";
 import { Modal, ModalSize } from "~/shared/modal";
@@ -228,11 +225,83 @@ export function AccountFormModal({
   );
 }
 
-type AccounFormModalProps = {
+export type AccounFormModalProps = {
   title: string;
   icon: ComponentType<IconProps>;
   href: string;
   open: boolean;
   data: SerializeType<AccountFormLoaderData>;
   onClose: () => void;
+};
+
+function AccountTypeRadioGroup({
+  groupClassName,
+  label,
+  name,
+  error,
+  onChange,
+  defaultValue = AccountType.ASSET,
+  disabled = false,
+}: AccountTypeRadioGroupProps) {
+  return (
+    <RadioGroup
+      label={label}
+      name={name}
+      error={error}
+      onChange={onChange}
+      defaultValue={defaultValue}
+      groupClassName={groupClassName}
+      disabled={disabled}
+      options={[
+        { value: AccountType.ASSET, label: "Asset" },
+        { value: AccountType.LIABILITY, label: "Liability" },
+      ]}
+    />
+  );
+}
+
+type AccountTypeRadioGroupProps = {
+  groupClassName?: string;
+  label: string;
+  name: string;
+  error?: string;
+  defaultValue?: string;
+  onChange?: (accountType: AccountType) => void;
+  disabled?: boolean;
+};
+
+function AccountUnitRadioGroup({
+  groupClassName,
+  label,
+  name,
+  error,
+  onChange,
+  defaultValue = AccountUnit.CURRENCY,
+  disabled,
+}: AccountUnitRadioGroupProps) {
+  return (
+    <RadioGroup
+      groupClassName={groupClassName}
+      label={label}
+      name={name}
+      error={error}
+      onChange={onChange}
+      defaultValue={defaultValue}
+      disabled={disabled}
+      options={[
+        { value: AccountUnit.CURRENCY, label: "Currency" },
+        { value: AccountUnit.STOCK, label: "Stock" },
+      ]}
+    />
+  );
+}
+
+type AccountUnitRadioGroupProps = {
+  groupClassName?: string;
+  label: string;
+  name: string;
+  error?: string;
+  defaultValue?: string;
+  onChange?: (accountUnit: AccountUnit) => void;
+  disabled?: boolean;
 };
