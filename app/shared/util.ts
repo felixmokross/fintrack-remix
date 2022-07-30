@@ -31,3 +31,7 @@ export function isValidDate(date: string) {
 export function parseDecimal(value: string) {
   return new Decimal(value);
 }
+
+export function hasErrors(errors: object) {
+  return Object.values(errors).length > 0;
+}

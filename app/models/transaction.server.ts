@@ -90,11 +90,7 @@ export function createTransaction({
           })
         ),
       },
-      user: {
-        connect: {
-          id: userId,
-        },
-      },
+      user: { connect: { id: userId } },
     },
   });
 }
@@ -159,11 +155,7 @@ export async function updateTransaction({
           })
         ),
       },
-      user: {
-        connect: {
-          id: userId,
-        },
-      },
+      user: { connect: { id: userId } },
     },
   });
 }
@@ -195,39 +187,63 @@ export function validateTransaction({ date, bookings }: TransactionValues) {
   return errors;
 }
 
-function validateBooking({
-  type,
-  accountId,
+function validateBooking(booking: BookingValues) {
+  switch (booking.type) {
+    case BookingType.DEPOSIT:
+    case BookingType.CHARGE:
+      return validateDepositCharge(booking);
+    case BookingType.INCOME:
+    case BookingType.EXPENSE:
+      return validateIncomeExpense(booking);
+    case BookingType.APPRECIATION:
+    case BookingType.DEPRECIATION:
+      return validateCommonBookingValues(booking);
+    default:
+      throw new Error();
+  }
+}
+
+function validateDepositCharge({ accountId, amount }: BookingValues) {
+  const errors: FormErrors<BookingValues> = validateCommonBookingValues({
+    amount,
+  });
+
+  if (!accountId) {
+    errors.accountId = "Account is required";
+  }
+
+  return errors;
+}
+
+function validateIncomeExpense({
   categoryId,
   currency,
   amount,
 }: BookingValues) {
-  const errors: FormErrors<BookingValues> = {};
+  const errors: FormErrors<BookingValues> = validateCommonBookingValues({
+    amount,
+  });
 
-  switch (type) {
-    case BookingType.DEPOSIT:
-    case BookingType.CHARGE:
-      if (!accountId) {
-        errors.accountId = "Account is required";
-      }
-      break;
-    case BookingType.INCOME:
-    case BookingType.EXPENSE:
-      if (!categoryId) {
-        errors.categoryId = "Category is required";
-      }
-      if (!currency) {
-        errors.currency = "Currency is required";
-      }
-      break;
+  if (!categoryId) {
+    errors.categoryId = "Category is required";
   }
 
+  if (!currency) {
+    errors.currency = "Currency is required";
+  }
+
+  return errors;
+}
+
+function validateCommonBookingValues({
+  amount,
+}: Pick<BookingValues, "amount">) {
+  const errors: FormErrors<BookingValues> = {};
   if (!amount) {
     errors.amount = "Amount is required";
   } else if (parseDecimal(amount).isNaN()) {
     errors.amount = "Amount must be a number";
   }
-
   return errors;
 }
 
