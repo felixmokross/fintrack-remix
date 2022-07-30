@@ -33,7 +33,7 @@ import {
 import { Modal, ModalSize } from "~/shared/modal";
 import { parseDate, parseDecimal } from "~/shared/util";
 
-type LoaderData = {
+export type LoaderData = {
   assetClasses: Awaited<ReturnType<typeof getAssetClassListItems>>;
   accountGroups: Awaited<ReturnType<typeof getAccountGroupListItems>>;
   stocks: Awaited<ReturnType<typeof getStockListItems>>;

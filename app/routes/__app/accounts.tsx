@@ -3,12 +3,14 @@ import { Link, Outlet, useFetcher, useLoaderData } from "@remix-run/react";
 import type { LoaderFunction, MetaFunction } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import { useState } from "react";
-import { NewAccountModal } from "~/components/accounts";
+import { EditAccountModal, NewAccountModal } from "~/components/accounts";
 import { currenciesByCode } from "~/currencies";
 import { getAccountListItems } from "~/models/account.server";
 import { requireUserId } from "~/session.server";
 import { Button } from "~/shared/button";
+import type { SerializeType } from "~/shared/util";
 import { getTitle } from "~/shared/util";
+import type { LoaderData as EditAccountLoaderData } from "~/routes/__app/accounts/$accountId.edit";
 
 type LoaderData = { accounts: Awaited<ReturnType<typeof getAccountListItems>> };
 
@@ -22,6 +24,7 @@ export const meta: MetaFunction = () => ({ title: getTitle("Accounts") });
 export default function AccountsPage() {
   const [activeModal, setActiveModal] = useState<ActiveModal>();
   const fetcher = useFetcher();
+  const loader = useFetcher<SerializeType<EditAccountLoaderData>>();
   const { accounts } = useLoaderData<LoaderData>();
   return (
     <div className="px-4 py-2 sm:px-6 md:py-4 lg:px-8">
@@ -30,9 +33,6 @@ export default function AccountsPage() {
           <h1 className="text-xl font-semibold text-gray-900">Accounts</h1>
         </div>
         <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
-          {/* <Button as={Link} to="new" variant="secondary">
-            Add account
-          </Button> */}
           <Button onClick={() => setActiveModal("new")} variant="secondary">
             Add account
           </Button>
@@ -125,13 +125,17 @@ export default function AccountsPage() {
                           <span className="sr-only">, {account.name}</span>
                         </Link>{" "}
                         &middot;{" "}
-                        <Link
-                          to={`${account.id}/edit`}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            loader.load(`/accounts/${account.id}/edit`);
+                            setActiveModal("edit");
+                          }}
                           className="text-indigo-600 hover:text-indigo-900"
                         >
                           Edit
                           <span className="sr-only">, {account.name}</span>
-                        </Link>{" "}
+                        </button>{" "}
                         &middot;{" "}
                         <fetcher.Form
                           className="inline"
@@ -161,6 +165,13 @@ export default function AccountsPage() {
         open={activeModal === "new"}
         onClose={closeActiveModal}
       />
+      {loader.state !== "loading" && loader.data && (
+        <EditAccountModal
+          open={activeModal === "edit"}
+          onClose={closeActiveModal}
+          data={loader.data}
+        />
+      )}
     </div>
   );
 
