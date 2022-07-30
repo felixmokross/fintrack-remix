@@ -2,17 +2,19 @@ import type { BookingType } from "@prisma/client";
 import type { ActionFunction, LoaderFunction } from "@remix-run/server-runtime";
 import { json, redirect } from "@remix-run/server-runtime";
 import invariant from "tiny-invariant";
-import { PencilIcon } from "~/icons";
+import { PencilIcon } from "~/components/icons";
 import { getAccountListItems } from "~/models/account.server";
 import { getIncomeExpenseCategoryListItems } from "~/models/income-expense-category.server";
-import { updateTransaction } from "~/models/transaction.server";
+import {
+  getTransactionValues,
+  updateTransaction,
+} from "~/models/transaction.server";
 import { getTransaction } from "~/models/transaction.server";
 import { validateTransaction } from "~/models/transaction.server";
 import { requireUserId } from "~/session.server";
-import type { ActionData, LoaderData } from "~/shared/transactions";
-import { getTransactionValues } from "~/shared/transactions";
-import { TransactionFormModal } from "~/shared/transactions";
-import { hasErrors, parseDate, parseDecimal } from "~/shared/util";
+import type { ActionData, LoaderData } from "~/components/transactions";
+import { TransactionFormModal } from "~/components/transactions";
+import { hasErrors, parseDate, parseDecimal } from "~/utils.server";
 
 export const loader: LoaderFunction = async ({ request, params }) => {
   const userId = await requireUserId(request);

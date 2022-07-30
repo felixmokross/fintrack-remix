@@ -1,7 +1,7 @@
 import { Dialog, Transition } from "@headlessui/react";
 import type { ComponentType, ElementType, PropsWithChildren } from "react";
 import { Fragment } from "react";
-import type { IconProps } from "~/icons";
+import type { IconProps } from "~/components/icons";
 import type { ButtonProps } from "./button";
 import { Button as StandardButton } from "./button";
 import { cn } from "./classnames";

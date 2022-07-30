@@ -11,7 +11,7 @@ import { createAccount } from "~/models/account.server";
 import { getAssetClassListItems } from "~/models/asset-class.server";
 import { getStockListItems } from "~/models/stock.server";
 import { requireUserId } from "~/session.server";
-import { hasErrors, parseDate, parseDecimal } from "~/shared/util";
+import { hasErrors, parseDecimal, parseDate } from "~/utils.server";
 
 export const loader: LoaderFunction = async ({ request }) => {
   const userId = await requireUserId(request);

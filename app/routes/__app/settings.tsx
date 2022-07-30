@@ -1,8 +1,8 @@
 import { Outlet } from "@remix-run/react";
 import type { MetaFunction } from "@remix-run/server-runtime";
 import { NavLink } from "react-router-dom";
-import { cn } from "~/shared/classnames";
-import { getTitle } from "~/shared/util";
+import { cn } from "~/components/classnames";
+import { getTitle } from "~/utils";
 
 const navigation = [
   { name: "Asset Classes", to: "asset-classes" },

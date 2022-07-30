@@ -1,31 +1,8 @@
 import { useMatches } from "@remix-run/react";
+import type { ComponentPropsWithoutRef, ElementType } from "react";
 import { useMemo } from "react";
 
 import type { User } from "~/models/user.server";
-
-const DEFAULT_REDIRECT = "/";
-
-/**
- * This should be used any time the redirect path is user-provided
- * (Like the query string on our login/signup pages). This avoids
- * open-redirect vulnerabilities.
- * @param {string} to The redirect destination
- * @param {string} defaultRedirect The redirect to use if the to is unsafe.
- */
-export function safeRedirect(
-  to: FormDataEntryValue | string | null | undefined,
-  defaultRedirect: string = DEFAULT_REDIRECT
-) {
-  if (!to || typeof to !== "string") {
-    return defaultRedirect;
-  }
-
-  if (!to.startsWith("/") || to.startsWith("//")) {
-    return defaultRedirect;
-  }
-
-  return to;
-}
 
 /**
  * This base hook is used in other hooks to quickly search for specific data
@@ -69,3 +46,58 @@ export function useUser(): User {
 export function validateEmail(email: unknown): email is string {
   return typeof email === "string" && email.length > 3 && email.includes("@");
 }
+
+// inspired by Formik
+export type FormErrors<Values> = {
+  [K in keyof Values]?: Values[K] extends unknown[]
+    ? Values[K][number] extends object
+      ? FormErrors<Values[K][number]>[]
+      : string
+    : Values[K] extends object
+    ? FormErrors<Values[K]>
+    : string;
+};
+
+export type PolymorphicComponentProps<T extends ElementType> = {
+  as?: T;
+} & ComponentPropsWithoutRef<T>;
+
+export function getTitle(pageTitle?: string) {
+  return pageTitle ? `${pageTitle} · Fintrack` : "Fintrack";
+}
+
+// useFetcher currently does not support automatic mapping to the serialzed type, and SerializeType is not exported, therefore copied this from Remix:
+declare type JsonPrimitives =
+  | string
+  | number
+  | boolean
+  | String
+  | Number
+  | Boolean
+  | null;
+declare type NonJsonPrimitives = undefined | Function | symbol;
+export declare type SerializeType<T> = T extends JsonPrimitives
+  ? T
+  : T extends NonJsonPrimitives
+  ? never
+  : T extends {
+      toJSON(): infer U;
+    }
+  ? U
+  : T extends []
+  ? []
+  : T extends [unknown, ...unknown[]]
+  ? {
+      [k in keyof T]: T[k] extends NonJsonPrimitives
+        ? null
+        : SerializeType<T[k]>;
+    }
+  : T extends (infer U)[]
+  ? (U extends NonJsonPrimitives ? null : SerializeType<U>)[]
+  : T extends object
+  ? {
+      [k in keyof T as T[k] extends NonJsonPrimitives
+        ? never
+        : k]: SerializeType<T[k]>;
+    }
+  : never;

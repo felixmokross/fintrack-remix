@@ -7,13 +7,13 @@ import {
 import type { ActionFunction } from "@remix-run/server-runtime";
 import { json, redirect } from "@remix-run/server-runtime";
 import invariant from "tiny-invariant";
-import { PlusIcon } from "~/icons";
+import { PlusIcon } from "~/components/icons";
 import type { StockErrors, StockValues } from "~/models/stock.server";
 import { createStock } from "~/models/stock.server";
 import { validateStock } from "~/models/stock.server";
 import { requireUserId } from "~/session.server";
-import { CurrencyCombobox, Input } from "~/shared/forms";
-import { Modal } from "~/shared/modal";
+import { CurrencyCombobox, Input } from "~/components/forms";
+import { Modal } from "~/components/modal";
 
 type ActionData = {
   errors?: StockErrors;

@@ -1,9 +1,50 @@
 import type { Booking, Transaction, User } from "@prisma/client";
 import { BookingType } from "@prisma/client";
+import invariant from "tiny-invariant";
 import { prisma } from "~/db.server";
-import type { FormErrors } from "~/shared/util";
-import { parseDecimal } from "~/shared/util";
-import { isValidDate } from "~/shared/util";
+import type { FormErrors } from "~/utils";
+import { isValidDate, parseDecimal } from "~/utils.server";
+
+export async function getTransactionValues(
+  request: Request
+): Promise<TransactionValues> {
+  const formData = await request.formData();
+  const date = formData.get("date");
+  const note = formData.get("note");
+
+  invariant(typeof date === "string", "date not found");
+  invariant(typeof note === "string", "note not found");
+
+  const bookings = new Array<BookingValues>(
+    Number(formData.get("bookingsCount"))
+  );
+
+  for (let i = 0; i < bookings.length; i++) {
+    const type = formData.get(`bookings.${i}.type`);
+    const accountId = formData.get(`bookings.${i}.accountId`);
+    const categoryId = formData.get(`bookings.${i}.categoryId`);
+    const currency = formData.get(`bookings.${i}.currency`);
+    const note = formData.get(`bookings.${i}.note`);
+    const amount = formData.get(`bookings.${i}.amount`);
+
+    invariant(typeof type === "string", "type not found");
+    invariant(
+      !accountId || typeof accountId === "string",
+      "accountId not found"
+    );
+    invariant(
+      !categoryId || typeof categoryId === "string",
+      "categoryId not found"
+    );
+    invariant(!currency || typeof currency === "string", "currency not found");
+    invariant(!note || typeof note === "string", "note not found");
+    invariant(typeof amount === "string", "amount not found");
+
+    bookings[i] = { type, accountId, categoryId, currency, note, amount };
+  }
+
+  return { date, note, bookings };
+}
 
 export function getTransactionListItems({ userId }: { userId: User["id"] }) {
   return prisma.transaction.findMany({

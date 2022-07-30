@@ -9,8 +9,8 @@ import { currenciesByCode } from "~/currencies";
 import { getAccount } from "~/models/account.server";
 import { getReverseLedgerDateGroups } from "~/models/ledger-lines.server";
 import { requireUserId } from "~/session.server";
-import { Button } from "~/shared/button";
-import { cn } from "~/shared/classnames";
+import { Button } from "~/components/button";
+import { cn } from "~/components/classnames";
 
 type LoaderData = {
   account: NonNullable<Awaited<ReturnType<typeof getAccount>>>;

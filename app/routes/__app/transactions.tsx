@@ -3,8 +3,8 @@ import type { LoaderFunction, MetaFunction } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import { getTransactionListItems } from "~/models/transaction.server";
 import { requireUserId } from "~/session.server";
-import { Button } from "~/shared/button";
-import { getTitle } from "~/shared/util";
+import { Button } from "~/components/button";
+import { getTitle } from "~/utils";
 
 type LoaderData = {
   transactions: Awaited<ReturnType<typeof getTransactionListItems>>;

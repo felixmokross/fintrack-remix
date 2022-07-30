@@ -9,12 +9,12 @@ import type { ActionFunction, LoaderFunction } from "@remix-run/server-runtime";
 import { redirect } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import invariant from "tiny-invariant";
-import { PencilIcon } from "~/icons";
+import { PencilIcon } from "~/components/icons";
 import type { StockErrors, StockValues } from "~/models/stock.server";
 import { getStock, updateStock, validateStock } from "~/models/stock.server";
 import { requireUserId } from "~/session.server";
-import { CurrencyCombobox, Input } from "~/shared/forms";
-import { Modal } from "~/shared/modal";
+import { CurrencyCombobox, Input } from "~/components/forms";
+import { Modal } from "~/components/modal";
 
 type ActionData = {
   errors?: StockErrors;

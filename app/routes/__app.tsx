@@ -8,8 +8,8 @@ import {
   useTransition,
 } from "@remix-run/react";
 import { Fragment, useRef } from "react";
-import { SearchIcon, XIcon, MenuIcon, CogIcon } from "~/icons";
-import { cn } from "~/shared/classnames";
+import { SearchIcon, XIcon, MenuIcon, CogIcon } from "~/components/icons";
+import { cn } from "~/components/classnames";
 import { useUser } from "~/utils";
 
 export default function App() {

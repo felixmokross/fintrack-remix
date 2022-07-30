@@ -1,6 +1,6 @@
 import type { ElementType, PropsWithChildren } from "react";
+import type { PolymorphicComponentProps } from "~/utils";
 import { cn } from "./classnames";
-import type { PolymorphicComponentProps } from "./util";
 
 export function buttonClassName(variant: ButtonVariant = "secondary") {
   return cn(

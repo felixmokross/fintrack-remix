@@ -6,12 +6,12 @@ import { useState } from "react";
 import type { AccountFormLoaderData } from "~/components/accounts";
 import { AccountFormModal } from "~/components/accounts";
 import { currenciesByCode } from "~/currencies";
-import { PencilIcon, PlusIcon } from "~/icons";
+import { PencilIcon, PlusIcon } from "~/components/icons";
 import { getAccountListItems } from "~/models/account.server";
 import { requireUserId } from "~/session.server";
-import { Button } from "~/shared/button";
-import type { SerializeType } from "~/shared/util";
-import { getTitle } from "~/shared/util";
+import { Button } from "~/components/button";
+import type { SerializeType } from "~/utils";
+import { getTitle } from "~/utils";
 
 type LoaderData = { accounts: Awaited<ReturnType<typeof getAccountListItems>> };
 

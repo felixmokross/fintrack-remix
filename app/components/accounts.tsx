@@ -2,7 +2,7 @@ import { AccountType, AccountUnit } from "@prisma/client";
 import { useFetcher } from "@remix-run/react";
 import type { ComponentType } from "react";
 import { useEffect, useState } from "react";
-import type { IconProps } from "~/icons";
+import type { IconProps } from "~/components/icons";
 import type { getAccountGroupListItems } from "~/models/account-group.server";
 import type {
   AccountErrors,
@@ -17,9 +17,9 @@ import {
   Input,
   RadioGroup,
   Select,
-} from "~/shared/forms";
-import { Modal, ModalSize } from "~/shared/modal";
-import type { SerializeType } from "~/shared/util";
+} from "~/components/forms";
+import { Modal, ModalSize } from "~/components/modal";
+import type { SerializeType } from "~/utils";
 
 export type AccountFormLoaderData = {
   assetClasses: Awaited<ReturnType<typeof getAssetClassListItems>>;

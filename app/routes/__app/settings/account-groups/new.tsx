@@ -7,7 +7,7 @@ import {
 import type { ActionFunction } from "@remix-run/server-runtime";
 import { json, redirect } from "@remix-run/server-runtime";
 import invariant from "tiny-invariant";
-import { PlusIcon } from "~/icons";
+import { PlusIcon } from "~/components/icons";
 import type {
   AccountGroupErrors,
   AccountGroupValues,
@@ -17,8 +17,8 @@ import {
   validateAccountGroup,
 } from "~/models/account-group.server";
 import { requireUserId } from "~/session.server";
-import { Input } from "~/shared/forms";
-import { Modal } from "~/shared/modal";
+import { Input } from "~/components/forms";
+import { Modal } from "~/components/modal";
 
 type ActionData = {
   errors?: AccountGroupErrors;

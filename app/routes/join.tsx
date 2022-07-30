@@ -10,8 +10,8 @@ import * as React from "react";
 import { getUserId, createUserSession } from "~/session.server";
 
 import { createUser, getUserByEmail } from "~/models/user.server";
-import { safeRedirect, validateEmail } from "~/utils";
-import { getTitle } from "~/shared/util";
+import { getTitle, validateEmail } from "~/utils";
+import { safeRedirect } from "~/utils.server";
 
 export const loader: LoaderFunction = async ({ request }) => {
   const userId = await getUserId(request);

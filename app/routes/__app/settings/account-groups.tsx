@@ -3,7 +3,7 @@ import type { LoaderFunction } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import { getAccountGroupListItems } from "~/models/account-group.server";
 import { requireUserId } from "~/session.server";
-import { Button } from "~/shared/button";
+import { Button } from "~/components/button";
 
 type LoaderData = {
   accountGroups: Awaited<ReturnType<typeof getAccountGroupListItems>>;

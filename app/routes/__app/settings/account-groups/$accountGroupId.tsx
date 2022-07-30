@@ -9,7 +9,7 @@ import type { ActionFunction, LoaderFunction } from "@remix-run/server-runtime";
 import { redirect } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import invariant from "tiny-invariant";
-import { PencilIcon } from "~/icons";
+import { PencilIcon } from "~/components/icons";
 import type {
   AccountGroupErrors,
   AccountGroupValues,
@@ -20,8 +20,8 @@ import {
 } from "~/models/account-group.server";
 import { updateAccountGroup } from "~/models/account-group.server";
 import { requireUserId } from "~/session.server";
-import { Input } from "~/shared/forms";
-import { Modal } from "~/shared/modal";
+import { Input } from "~/components/forms";
+import { Modal } from "~/components/modal";
 
 type ActionData = {
   errors?: AccountGroupErrors;

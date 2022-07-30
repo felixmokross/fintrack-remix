@@ -3,7 +3,7 @@ import type { LoaderFunction } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import { getAssetClassListItems } from "~/models/asset-class.server";
 import { requireUserId } from "~/session.server";
-import { Button } from "~/shared/button";
+import { Button } from "~/components/button";
 
 type LoaderData = {
   assetClasses: Awaited<ReturnType<typeof getAssetClassListItems>>;

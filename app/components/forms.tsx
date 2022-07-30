@@ -6,7 +6,7 @@ import {
 import type { DetailedHTMLProps, PropsWithChildren } from "react";
 import { useState } from "react";
 import { currencyItems } from "~/currencies";
-import { CheckCircleIcon, CheckIcon, SelectorIcon } from "~/icons";
+import { CheckCircleIcon, CheckIcon, SelectorIcon } from "~/components/icons";
 import { cn } from "./classnames";
 import { useId } from "react";
 

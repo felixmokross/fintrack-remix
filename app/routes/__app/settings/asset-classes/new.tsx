@@ -8,7 +8,7 @@ import type { ActionFunction } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import { redirect } from "@remix-run/server-runtime";
 import invariant from "tiny-invariant";
-import { PlusIcon } from "~/icons";
+import { PlusIcon } from "~/components/icons";
 import type {
   AssetClassErrors,
   AssetClassValues,
@@ -19,8 +19,8 @@ import {
 } from "~/models/asset-class.server";
 import { createAssetClass } from "~/models/asset-class.server";
 import { requireUserId } from "~/session.server";
-import { Input } from "~/shared/forms";
-import { Modal } from "~/shared/modal";
+import { Input } from "~/components/forms";
+import { Modal } from "~/components/modal";
 
 type ActionData = {
   errors?: AssetClassErrors;
