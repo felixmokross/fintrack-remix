@@ -1,6 +1,17 @@
 import { Decimal } from "@prisma/client/runtime";
 import type { ComponentPropsWithoutRef, ElementType } from "react";
 
+// inspired by Formik
+export type FormErrors<Values> = {
+  [K in keyof Values]?: Values[K] extends unknown[]
+    ? Values[K][number] extends object
+      ? FormErrors<Values[K][number]>[]
+      : string
+    : Values[K] extends object
+    ? FormErrors<Values[K]>
+    : string;
+};
+
 export type PolymorphicComponentProps<T extends ElementType> = {
   as?: T;
 } & ComponentPropsWithoutRef<T>;
@@ -17,6 +28,6 @@ export function isValidDate(date: string) {
   return !isNaN(parseDate(date).valueOf());
 }
 
-export function parseDecimal(balanceAtStart: string) {
-  return new Decimal(balanceAtStart);
+export function parseDecimal(value: string) {
+  return new Decimal(value);
 }
