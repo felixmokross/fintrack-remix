@@ -1,5 +1,12 @@
 import { Disclosure, Menu, Transition } from "@headlessui/react";
-import { NavLink, Link, Outlet, Form } from "@remix-run/react";
+import {
+  NavLink,
+  Link,
+  Outlet,
+  Form,
+  useFetchers,
+  useTransition,
+} from "@remix-run/react";
 import { Fragment, useRef } from "react";
 import { SearchIcon, XIcon, MenuIcon, CogIcon } from "~/icons";
 import { cn } from "~/shared/classnames";
@@ -72,6 +79,7 @@ export default function App() {
                       >
                         Transactions
                       </NavLink>
+                      <LoadingIndicator className="inline-flex items-center border-b-2  border-transparent px-1 pt-1 text-sm font-medium text-gray-500" />
                     </div>
                   </div>
                   <div className="flex flex-1 items-center justify-center px-2 lg:ml-6 lg:justify-end">
@@ -281,3 +289,17 @@ export default function App() {
     </>
   );
 }
+
+function LoadingIndicator({ className }: LoadingIndicatorProps) {
+  const fetchers = useFetchers();
+  const transition = useTransition();
+  return transition.state === "loading" ||
+    transition.state === "submitting" ||
+    fetchers.some((f) => f.state === "loading" || f.state === "submitting") ? (
+    <div className={cn(className, "animate-pulse")}>Loading&hellip;</div>
+  ) : null;
+}
+
+type LoadingIndicatorProps = {
+  className?: string;
+};
