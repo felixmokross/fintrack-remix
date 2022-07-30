@@ -2,8 +2,11 @@ import type { AccountType, AccountUnit } from "@prisma/client";
 import type { ActionFunction, LoaderFunction } from "@remix-run/server-runtime";
 import { json, redirect } from "@remix-run/server-runtime";
 import invariant from "tiny-invariant";
+import type {
+  AccountFormActionData,
+  AccountFormLoaderData,
+} from "~/components/accounts";
 import { getAccountGroupListItems } from "~/models/account-group.server";
-import type { AccountErrors, AccountValues } from "~/models/account.server";
 import { validateAccount } from "~/models/account.server";
 import { createAccount } from "~/models/account.server";
 import { getAssetClassListItems } from "~/models/asset-class.server";
@@ -11,20 +14,9 @@ import { getStockListItems } from "~/models/stock.server";
 import { requireUserId } from "~/session.server";
 import { parseDate, parseDecimal } from "~/shared/util";
 
-export type LoaderData = {
-  assetClasses: Awaited<ReturnType<typeof getAssetClassListItems>>;
-  accountGroups: Awaited<ReturnType<typeof getAccountGroupListItems>>;
-  stocks: Awaited<ReturnType<typeof getStockListItems>>;
-};
-
-export type ActionData = {
-  errors?: AccountErrors;
-  values?: AccountValues;
-};
-
 export const loader: LoaderFunction = async ({ request }) => {
   const userId = await requireUserId(request);
-  return json<LoaderData>({
+  return json<AccountFormLoaderData>({
     assetClasses: await getAssetClassListItems({ userId }),
     accountGroups: await getAccountGroupListItems({ userId }),
     stocks: await getStockListItems({ userId }),
@@ -82,7 +74,7 @@ export const action: ActionFunction = async ({ request }) => {
     openingDate,
   });
   if (Object.values(errors).length > 0) {
-    return json<ActionData>(
+    return json<AccountFormActionData>(
       {
         errors,
         values: {

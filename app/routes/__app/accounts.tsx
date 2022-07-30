@@ -3,14 +3,15 @@ import { Link, Outlet, useFetcher, useLoaderData } from "@remix-run/react";
 import type { LoaderFunction, MetaFunction } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import { useState } from "react";
-import { EditAccountModal, NewAccountModal } from "~/components/accounts";
+import type { AccountFormLoaderData } from "~/components/accounts";
+import { AccountFormModal } from "~/components/accounts";
 import { currenciesByCode } from "~/currencies";
+import { PencilIcon, PlusIcon } from "~/icons";
 import { getAccountListItems } from "~/models/account.server";
 import { requireUserId } from "~/session.server";
 import { Button } from "~/shared/button";
 import type { SerializeType } from "~/shared/util";
 import { getTitle } from "~/shared/util";
-import type { LoaderData as EditAccountLoaderData } from "~/routes/__app/accounts/$accountId.edit";
 
 type LoaderData = { accounts: Awaited<ReturnType<typeof getAccountListItems>> };
 
@@ -23,8 +24,9 @@ export const meta: MetaFunction = () => ({ title: getTitle("Accounts") });
 
 export default function AccountsPage() {
   const [activeModal, setActiveModal] = useState<ActiveModal>();
-  const fetcher = useFetcher();
-  const loader = useFetcher<SerializeType<EditAccountLoaderData>>();
+  const [accountId, setAccountId] = useState<string>();
+  const deleteAction = useFetcher();
+  const accountFormLoader = useFetcher<SerializeType<AccountFormLoaderData>>();
   const { accounts } = useLoaderData<LoaderData>();
   return (
     <div className="px-4 py-2 sm:px-6 md:py-4 lg:px-8">
@@ -33,7 +35,13 @@ export default function AccountsPage() {
           <h1 className="text-xl font-semibold text-gray-900">Accounts</h1>
         </div>
         <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
-          <Button onClick={() => setActiveModal("new")} variant="secondary">
+          <Button
+            onClick={() => {
+              accountFormLoader.load("/accounts/new");
+              setActiveModal("new");
+            }}
+            variant="secondary"
+          >
             Add account
           </Button>
         </div>
@@ -128,7 +136,11 @@ export default function AccountsPage() {
                         <button
                           type="button"
                           onClick={() => {
-                            loader.load(`/accounts/${account.id}/edit`);
+                            // TODO improve API
+                            accountFormLoader.load(
+                              `/accounts/${account.id}/edit`
+                            );
+                            setAccountId(account.id);
                             setActiveModal("edit");
                           }}
                           className="text-indigo-600 hover:text-indigo-900"
@@ -137,7 +149,7 @@ export default function AccountsPage() {
                           <span className="sr-only">, {account.name}</span>
                         </button>{" "}
                         &middot;{" "}
-                        <fetcher.Form
+                        <deleteAction.Form
                           className="inline"
                           action="delete"
                           method="post"
@@ -150,7 +162,7 @@ export default function AccountsPage() {
                             Delete
                             <span className="sr-only">, {account.name}</span>
                           </button>
-                        </fetcher.Form>
+                        </deleteAction.Form>
                       </td>
                     </tr>
                   ))}
@@ -161,17 +173,27 @@ export default function AccountsPage() {
         </div>
       </div>
       <Outlet />
-      <NewAccountModal
-        open={activeModal === "new"}
-        onClose={closeActiveModal}
-      />
-      {loader.state !== "loading" && loader.data && (
-        <EditAccountModal
-          open={activeModal === "edit"}
-          onClose={closeActiveModal}
-          data={loader.data}
-        />
-      )}
+      {accountFormLoader.state !== "loading" &&
+        accountFormLoader.data &&
+        (activeModal === "new" ? (
+          <AccountFormModal
+            title="New Account"
+            icon={PlusIcon}
+            href="/accounts/new"
+            open={!!activeModal}
+            data={accountFormLoader.data}
+            onClose={closeActiveModal}
+          />
+        ) : (
+          <AccountFormModal
+            title="Edit Account"
+            icon={PencilIcon}
+            href={`/accounts/${accountId}/edit`}
+            open={!!activeModal}
+            data={accountFormLoader.data}
+            onClose={closeActiveModal}
+          />
+        ))}
     </div>
   );
 
