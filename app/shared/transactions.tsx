@@ -55,8 +55,6 @@ export function TransactionFormModal({
   );
   const { state } = useTransition();
   const disabled = state !== "idle";
-  console.log(bookings);
-  console.log(transaction);
   return (
     <Modal onClose={onClose} size={ModalSize.EXTRA_LARGE}>
       <Form method="post" replace>

@@ -75,7 +75,14 @@ export const action: ActionFunction = async ({ request }) => {
     invariant(!note || typeof note === "string", "note not found");
     invariant(typeof amount === "string", "amount not found");
 
-    bookings[i] = { type, accountId, categoryId, currency, note, amount };
+    bookings[i] = {
+      type,
+      accountId,
+      categoryId,
+      currency,
+      note,
+      amount,
+    };
   }
 
   const errors = validateTransaction({ date, note, bookings });

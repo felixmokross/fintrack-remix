@@ -30,12 +30,14 @@ export function getTransaction({
         select: {
           id: true,
           type: true,
+          sortOrder: true,
           accountId: true,
           incomeExpenseCategoryId: true,
           currency: true,
           note: true,
           amount: true,
         },
+        orderBy: { sortOrder: "asc" },
       },
     },
   });
@@ -64,15 +66,19 @@ export function createTransaction({
       note,
       bookings: {
         create: bookings.map(
-          ({
+          (
+            {
+              type,
+              accountId,
+              incomeExpenseCategoryId,
+              currency,
+              note,
+              amount,
+            },
+            index
+          ) => ({
             type,
-            accountId,
-            incomeExpenseCategoryId,
-            currency,
-            note,
-            amount,
-          }) => ({
-            type,
+            sortOrder: index,
             account: accountId ? { connect: { id: accountId } } : undefined,
             incomeExpenseCategory: incomeExpenseCategoryId
               ? { connect: { id: incomeExpenseCategoryId } }
@@ -129,15 +135,19 @@ export async function updateTransaction({
       bookings: {
         deleteMany: {},
         create: bookings.map(
-          ({
+          (
+            {
+              type,
+              accountId,
+              incomeExpenseCategoryId,
+              currency,
+              note,
+              amount,
+            },
+            index
+          ) => ({
             type,
-            accountId,
-            incomeExpenseCategoryId,
-            currency,
-            note,
-            amount,
-          }) => ({
-            type,
+            sortOrder: index,
             account: accountId ? { connect: { id: accountId } } : undefined,
             incomeExpenseCategory: incomeExpenseCategoryId
               ? { connect: { id: incomeExpenseCategoryId } }
@@ -190,7 +200,6 @@ function validateBooking({
   accountId,
   categoryId,
   currency,
-  note,
   amount,
 }: BookingValues) {
   const errors: FormErrors<BookingValues> = {};

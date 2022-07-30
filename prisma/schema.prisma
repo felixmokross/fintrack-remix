@@ -166,6 +166,8 @@ model Booking {
 
   amount Decimal
 
+  sortOrder Int @default(0)
+
   user   User   @relation(fields: [userId], references: [id], onDelete: Restrict)
   userId String
 }
