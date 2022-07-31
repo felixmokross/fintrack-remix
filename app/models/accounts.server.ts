@@ -3,7 +3,7 @@ import { AccountUnit } from "@prisma/client";
 import { AccountType } from "@prisma/client";
 import invariant from "tiny-invariant";
 import { prisma } from "~/db.server";
-import { isValidDate, parseDecimal } from "~/utils.server";
+import { isValidDate, isValidDecimal } from "~/utils.server";
 
 export async function getAccountValues(
   request: Request
@@ -268,7 +268,7 @@ export function validateAccount({
   if (preExisting === "on") {
     if (!balanceAtStart) {
       errors.balanceAtStart = "Balance at start is required";
-    } else if (parseDecimal(balanceAtStart).isNaN()) {
+    } else if (!isValidDecimal(balanceAtStart)) {
       errors.balanceAtStart = "Balance at start must be a number";
     }
   } else {

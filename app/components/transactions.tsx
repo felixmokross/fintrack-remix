@@ -9,9 +9,10 @@ import type { getAccountListItems } from "~/models/accounts.server";
 import type { getIncomeExpenseCategoryListItems } from "~/models/income-expense-categories.server";
 import type {
   getTransaction,
+  TransactionErrors,
   TransactionValues,
 } from "~/models/transactions.server";
-import type { FormErrors, SerializeType } from "~/utils";
+import type { SerializeType } from "~/utils";
 import { buttonClassName } from "./button";
 import { cn } from "./classnames";
 import { Combobox, CurrencyCombobox, Input } from "./forms";
@@ -27,7 +28,7 @@ export type TransactionFormLoaderData = {
 
 export type TransactionFormActionData = {
   ok: boolean;
-  errors?: FormErrors<TransactionValues>;
+  errors?: TransactionErrors;
   values?: TransactionValues;
 };
 
@@ -206,6 +207,11 @@ export function TransactionFormModal({
             >
               Cancel
             </Modal.Button>
+            {action.data?.errors?.form && (
+              <p className="flex-grow self-center text-sm text-red-600">
+                {action.data.errors.form}
+              </p>
+            )}
           </Modal.Footer>
         </fieldset>
       </action.Form>

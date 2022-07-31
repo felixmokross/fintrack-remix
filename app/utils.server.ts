@@ -36,6 +36,22 @@ export function parseDecimal(value: string) {
   return new Decimal(value);
 }
 
+export function isValidDecimal(value: string) {
+  try {
+    new Decimal(value);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export function hasErrors(errors: object) {
   return Object.values(errors).length > 0;
+}
+
+export function sum(values: readonly Decimal.Value[]): Decimal {
+  return values.reduce(
+    (prev: Decimal, curr) => prev.plus(curr),
+    new Decimal(0)
+  );
 }

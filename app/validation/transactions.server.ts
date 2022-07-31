@@ -5,18 +5,20 @@ import type {
   BookingValues,
 } from "~/models/transactions.server";
 import type { FormErrors } from "~/utils";
-import { isValidDate, parseDecimal } from "~/utils.server";
+import { isValidDate, isValidDecimal, sum } from "~/utils.server";
 
 export function validateTransaction({ date, bookings }: TransactionValues) {
   const errors: TransactionErrors = {};
-  if (date.length === 0) {
-    errors.date = "Date is required";
-  } else if (!isValidDate(date)) {
-    errors.date = "Date must be a date";
-  }
 
-  if (bookings.length < 2) {
-    errors.form = "Must have at least two bookings";
+  if (date.length === 0) errors.date = "Date is required";
+  else if (!isValidDate(date)) errors.date = "Date must be a date";
+
+  if (bookings.length < 2) errors.form = "Must have at least two bookings";
+  else if (allBookingsHaveValidAmounts(bookings)) {
+    const transactionBalance = getTransactionBalance(bookings);
+
+    if (!transactionBalance.isZero())
+      errors.form = `Transaction is not balanced by ${transactionBalance.toString()}`;
   }
 
   errors.bookings = bookings.map(validateBooking);
@@ -25,6 +27,34 @@ export function validateTransaction({ date, bookings }: TransactionValues) {
     delete errors.bookings;
 
   return errors;
+}
+
+function allBookingsHaveValidAmounts(bookings: BookingValues[]) {
+  return bookings.every((b) => isValidDecimal(b.amount));
+}
+
+function getTransactionBalance(bookings: BookingValues[]) {
+  return sum(
+    bookings
+      .filter(
+        (b) =>
+          b.type === BookingType.DEPOSIT ||
+          b.type === BookingType.EXPENSE ||
+          b.type === BookingType.DEPRECIATION
+      )
+      .map((b) => b.amount)
+  ).sub(
+    sum(
+      bookings
+        .filter(
+          (b) =>
+            b.type === BookingType.CHARGE ||
+            b.type === BookingType.INCOME ||
+            b.type === BookingType.APPRECIATION
+        )
+        .map((b) => b.amount)
+    )
+  );
 }
 
 function validateBooking(booking: BookingValues) {
@@ -81,7 +111,7 @@ function validateCommonBookingValues({
   const errors: FormErrors<BookingValues> = {};
   if (!amount) {
     errors.amount = "Amount is required";
-  } else if (parseDecimal(amount).isNaN()) {
+  } else if (!isValidDecimal(amount)) {
     errors.amount = "Amount must be a number";
   }
   return errors;
