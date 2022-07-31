@@ -1,7 +1,6 @@
 import type { AccountType, AccountUnit } from "@prisma/client";
 import type { LoaderFunction, ActionFunction } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
-import { redirect } from "@remix-run/server-runtime";
 import invariant from "tiny-invariant";
 import type {
   AccountFormActionData,
@@ -38,7 +37,10 @@ export const action: ActionFunction = async ({ request, params }) => {
   const values = await getAccountValues(request);
   const errors = validateAccount(values);
   if (hasErrors(errors)) {
-    return json<AccountFormActionData>({ errors, values }, { status: 400 });
+    return json<AccountFormActionData>(
+      { ok: false, errors, values },
+      { status: 400 }
+    );
   }
 
   await updateAccount({
@@ -58,5 +60,5 @@ export const action: ActionFunction = async ({ request, params }) => {
     userId,
   });
 
-  return redirect(`/accounts`);
+  return json({ ok: true });
 };

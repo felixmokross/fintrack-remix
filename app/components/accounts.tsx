@@ -1,8 +1,7 @@
 import { AccountType, AccountUnit } from "@prisma/client";
 import { useFetcher } from "@remix-run/react";
-import type { ComponentType } from "react";
 import { useEffect, useState } from "react";
-import type { IconProps } from "~/components/icons";
+import { PencilIcon, PlusIcon } from "~/components/icons";
 import type { getAccountGroupListItems } from "~/models/account-group.server";
 import type {
   AccountErrors,
@@ -29,22 +28,20 @@ export type AccountFormLoaderData = {
 };
 
 export type AccountFormActionData = {
+  ok: boolean;
   errors?: AccountErrors;
   values?: AccountValues;
 };
 
 export function AccountFormModal({
   open,
-  title,
-  icon,
-  href,
   data: { account, accountGroups, assetClasses, stocks },
   onClose,
 }: AccounFormModalProps) {
   const action = useFetcher<AccountFormActionData>();
   useEffect(() => {
-    if (action.type === "actionRedirect") onClose();
-  }, [action.type, onClose]);
+    if (action.type === "done" && action.data.ok) onClose();
+  }, [action.type, action.data, onClose]);
 
   const [type, setType] = useState(account?.type || AccountType.ASSET);
   const [unit, setUnit] = useState(account?.unit || AccountUnit.CURRENCY);
@@ -53,9 +50,15 @@ export function AccountFormModal({
   const disabled = action.state !== "idle";
   return (
     <Modal open={open} onClose={onClose} size={ModalSize.LARGE}>
-      <action.Form method="post" action={href}>
+      <action.Form
+        method="post"
+        action={account ? `${account.id}/edit` : "new"}
+      >
         <fieldset disabled={disabled}>
-          <Modal.Body title={title} icon={icon}>
+          <Modal.Body
+            title={account ? "Edit Account" : "New Account"}
+            icon={account ? PencilIcon : PlusIcon}
+          >
             <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
               <Input
                 label="Name"
@@ -226,9 +229,6 @@ export function AccountFormModal({
 }
 
 export type AccounFormModalProps = {
-  title: string;
-  icon: ComponentType<IconProps>;
-  href: string;
   open: boolean;
   data: SerializeType<AccountFormLoaderData>;
   onClose: () => void;

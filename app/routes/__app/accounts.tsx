@@ -6,7 +6,6 @@ import { useState } from "react";
 import type { AccountFormLoaderData } from "~/components/accounts";
 import { AccountFormModal } from "~/components/accounts";
 import { currenciesByCode } from "~/currencies";
-import { PencilIcon, PlusIcon } from "~/components/icons";
 import { getAccountListItems } from "~/models/account.server";
 import { requireUserId } from "~/session.server";
 import { Button } from "~/components/button";
@@ -23,11 +22,15 @@ export const loader: LoaderFunction = async ({ request }) => {
 export const meta: MetaFunction = () => ({ title: getTitle("Accounts") });
 
 export default function AccountsPage() {
-  const [activeModal, setActiveModal] = useState<ActiveModal>();
-  const [accountId, setAccountId] = useState<string>();
+  const [accountFormModalOpen, setAccountFormModalOpen] =
+    useState<boolean>(false);
+
   const deleteAction = useFetcher();
-  const accountFormLoader = useFetcher<SerializeType<AccountFormLoaderData>>();
+  const accountFormModalLoader =
+    useFetcher<SerializeType<AccountFormLoaderData>>();
+
   const { accounts } = useLoaderData<LoaderData>();
+
   return (
     <div className="px-4 py-2 sm:px-6 md:py-4 lg:px-8">
       <div className="sm:flex">
@@ -36,10 +39,7 @@ export default function AccountsPage() {
         </div>
         <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
           <Button
-            onClick={() => {
-              accountFormLoader.load("/accounts/new");
-              setActiveModal("new");
-            }}
+            onClick={() => openAccountFormModal({ mode: "new" })}
             variant="secondary"
           >
             Add account
@@ -135,14 +135,12 @@ export default function AccountsPage() {
                         &middot;{" "}
                         <button
                           type="button"
-                          onClick={() => {
-                            // TODO improve API
-                            accountFormLoader.load(
-                              `/accounts/${account.id}/edit`
-                            );
-                            setAccountId(account.id);
-                            setActiveModal("edit");
-                          }}
+                          onClick={() =>
+                            openAccountFormModal({
+                              mode: "edit",
+                              accountId: account.id,
+                            })
+                          }
                           className="text-indigo-600 hover:text-indigo-900"
                         >
                           Edit
@@ -173,33 +171,25 @@ export default function AccountsPage() {
         </div>
       </div>
       <Outlet />
-      {accountFormLoader.state !== "loading" &&
-        accountFormLoader.data &&
-        (activeModal === "new" ? (
+      {accountFormModalLoader.state !== "loading" &&
+        accountFormModalLoader.data && (
           <AccountFormModal
-            title="New Account"
-            icon={PlusIcon}
-            href="/accounts/new"
-            open={!!activeModal}
-            data={accountFormLoader.data}
-            onClose={closeActiveModal}
+            open={accountFormModalOpen}
+            data={accountFormModalLoader.data}
+            onClose={() => setAccountFormModalOpen(false)}
           />
-        ) : (
-          <AccountFormModal
-            title="Edit Account"
-            icon={PencilIcon}
-            href={`/accounts/${accountId}/edit`}
-            open={!!activeModal}
-            data={accountFormLoader.data}
-            onClose={closeActiveModal}
-          />
-        ))}
+        )}
     </div>
   );
 
-  function closeActiveModal() {
-    setActiveModal(undefined);
+  function openAccountFormModal(param: ModalParam) {
+    accountFormModalLoader.load(
+      param.mode === "new"
+        ? "/accounts/new"
+        : `/accounts/${param.accountId}/edit`
+    );
+    setAccountFormModalOpen(true);
   }
 }
 
-type ActiveModal = "new" | "edit";
+type ModalParam = { mode: "new" } | { mode: "edit"; accountId: string };

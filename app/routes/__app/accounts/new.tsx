@@ -1,6 +1,6 @@
 import type { AccountType, AccountUnit } from "@prisma/client";
 import type { ActionFunction, LoaderFunction } from "@remix-run/server-runtime";
-import { json, redirect } from "@remix-run/server-runtime";
+import { json } from "@remix-run/server-runtime";
 import type {
   AccountFormActionData,
   AccountFormLoaderData,
@@ -28,7 +28,10 @@ export const action: ActionFunction = async ({ request }) => {
   const errors = validateAccount(values);
 
   if (hasErrors(errors)) {
-    return json<AccountFormActionData>({ errors, values }, { status: 400 });
+    return json<AccountFormActionData>(
+      { ok: false, errors, values },
+      { status: 400 }
+    );
   }
 
   await createAccount({
@@ -47,5 +50,5 @@ export const action: ActionFunction = async ({ request }) => {
     userId,
   });
 
-  return redirect(`/accounts`);
+  return json({ ok: true });
 };
