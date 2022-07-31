@@ -3,14 +3,22 @@ import {
   RadioGroup as HeadlessRadioGroup,
   Switch,
 } from "@headlessui/react";
-import type { DetailedHTMLProps, PropsWithChildren } from "react";
+import type { DetailedHTMLProps, PropsWithChildren, ReactNode } from "react";
 import { useEffect } from "react";
 import { useState } from "react";
 import { currencyItems } from "~/currencies";
-import { CheckCircleIcon, CheckIcon, SelectorIcon } from "~/components/icons";
+import {
+  CheckCircleIcon,
+  CheckIcon,
+  PencilIcon,
+  PlusIcon,
+  SelectorIcon,
+} from "~/components/icons";
 import { cn } from "./classnames";
 import { useId } from "react";
 import { useFetcher } from "@remix-run/react";
+import type { ModalSize } from "./modal";
+import { Modal } from "./modal";
 
 const labelClassName = "block text-sm font-medium text-gray-700";
 
@@ -491,9 +499,55 @@ export type ToggleProps = {
   onChange?: (enabled: boolean) => void;
 };
 
-export function useFormModalFetcher<T extends FormActionData>(
-  onClose: () => void
-) {
+export function FormModal<TFormActionData extends FormActionData>({
+  open,
+  onClose,
+  children,
+  mode,
+  title,
+  actionUrl,
+  size,
+}: FormModalProps<TFormActionData["values"], TFormActionData["errors"]>) {
+  const action = useFormModalFetcher<TFormActionData>(onClose);
+  const disabled = action.state !== "idle";
+  return (
+    <Modal open={open} onClose={onClose} size={size}>
+      <action.Form method="post" action={actionUrl}>
+        <fieldset disabled={disabled}>
+          <Modal.Body
+            title={title}
+            icon={mode === "edit" ? PencilIcon : PlusIcon}
+          >
+            {children({
+              disabled,
+              values: action.data?.values,
+              errors: action.data?.errors,
+            })}
+          </Modal.Body>
+          <Modal.Footer>
+            <Modal.Button type="submit" variant="primary">
+              {action.state === "submitting" ? "Saving…" : "Save"}
+            </Modal.Button>
+            <Modal.Button
+              type="button"
+              onClick={onClose}
+              className="mt-3 sm:mt-0"
+            >
+              Cancel
+            </Modal.Button>
+            {action.data?.errors?.form && (
+              <p className="flex-grow self-center text-sm text-red-600">
+                {action.data.errors.form}
+              </p>
+            )}
+          </Modal.Footer>
+        </fieldset>
+      </action.Form>
+    </Modal>
+  );
+}
+
+function useFormModalFetcher<T extends FormActionData>(onClose: () => void) {
   const action = useFetcher<T>();
 
   useEffect(() => {
@@ -503,4 +557,26 @@ export function useFormModalFetcher<T extends FormActionData>(
   return action;
 }
 
-type FormActionData = { ok: boolean };
+type FormModalProps<TValues, TErrors> = {
+  open: boolean;
+  onClose: () => void;
+  mode: FormModalMode;
+  title: string;
+  actionUrl: string;
+  children: (params: FormRenderParams<TValues, TErrors>) => ReactNode;
+  size?: ModalSize;
+};
+
+type FormModalMode = "new" | "edit";
+
+type FormRenderParams<TValues, TErrors> = {
+  disabled: boolean;
+  values?: TValues;
+  errors?: TErrors;
+};
+
+type FormActionData = {
+  ok: boolean;
+  values?: any;
+  errors?: { form?: string; [key: string]: any };
+};

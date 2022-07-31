@@ -4,9 +4,7 @@ import type {
   getAccountGroup,
 } from "~/models/account-groups.server";
 import type { SerializeType } from "~/utils";
-import { Input, useFormModalFetcher } from "./forms";
-import { PencilIcon, PlusIcon } from "./icons";
-import { Modal } from "./modal";
+import { FormModal, Input } from "./forms";
 
 export type AccountGroupFormLoaderData = {
   accountGroup?: NonNullable<Awaited<ReturnType<typeof getAccountGroup>>>;
@@ -23,45 +21,26 @@ export function AccountGroupFormModal({
   data: { accountGroup },
   onClose,
 }: AccountGroupFormModalProps) {
-  const action = useFormModalFetcher<AccountGroupFormActionData>(onClose);
-
-  const disabled = action.state !== "idle";
   return (
-    <Modal open={open} onClose={onClose}>
-      <action.Form
-        method="post"
-        action={accountGroup ? `${accountGroup.id}/edit` : "new"}
-      >
-        <fieldset disabled={disabled}>
-          <Modal.Body
-            title={accountGroup ? "Edit Account Group" : "New Account Group"}
-            icon={accountGroup ? PencilIcon : PlusIcon}
-          >
-            <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
-              <Input
-                label="Name"
-                name="name"
-                error={action.data?.errors?.name}
-                defaultValue={action.data?.values?.name || accountGroup?.name}
-                groupClassName="sm:col-span-6"
-              />
-            </div>
-          </Modal.Body>
-          <Modal.Footer>
-            <Modal.Button type="submit" variant="primary">
-              {action.state !== "idle" ? "Saving…" : "Save"}
-            </Modal.Button>
-            <Modal.Button
-              type="button"
-              onClick={onClose}
-              className="mt-3 sm:mt-0"
-            >
-              Cancel
-            </Modal.Button>
-          </Modal.Footer>
-        </fieldset>
-      </action.Form>
-    </Modal>
+    <FormModal<AccountGroupFormActionData>
+      open={open}
+      onClose={onClose}
+      mode={accountGroup ? "edit" : "new"}
+      actionUrl={accountGroup ? `${accountGroup.id}/edit` : "new"}
+      title={accountGroup ? "Edit Account" : "New Account"}
+    >
+      {({ values, errors }) => (
+        <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+          <Input
+            label="Name"
+            name="name"
+            error={errors?.name}
+            defaultValue={values?.name || accountGroup?.name}
+            groupClassName="sm:col-span-6"
+          />
+        </div>
+      )}
+    </FormModal>
   );
 }
 
