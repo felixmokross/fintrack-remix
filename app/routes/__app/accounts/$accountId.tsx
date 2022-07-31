@@ -233,15 +233,14 @@ export default function AccountDetailPage() {
           </div>
         </div>
       </div>
-      {transactionFormLoader.state !== "loading" &&
-        transactionFormLoader.data && (
-          <TransactionFormModal
-            open={transactionFormModalOpen}
-            data={transactionFormLoader.data}
-            onClose={() => setTransactionFormModalOpen(false)}
-            prefillAccountId={account.id}
-          />
-        )}
+      {transactionFormLoader.type === "done" && (
+        <TransactionFormModal
+          open={transactionFormModalOpen}
+          data={transactionFormLoader.data}
+          onClose={() => setTransactionFormModalOpen(false)}
+          prefillAccountId={account.id}
+        />
+      )}
     </div>
   );
 

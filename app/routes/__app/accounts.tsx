@@ -22,8 +22,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 export const meta: MetaFunction = () => ({ title: getTitle("Accounts") });
 
 export default function AccountsPage() {
-  const [accountFormModalOpen, setAccountFormModalOpen] =
-    useState<boolean>(false);
+  const [accountFormModalOpen, setAccountFormModalOpen] = useState(false);
   const accountFormLoader = useFetcher<SerializeType<AccountFormLoaderData>>();
 
   const deleteAction = useFetcher();
@@ -169,7 +168,7 @@ export default function AccountsPage() {
         </div>
       </div>
       <Outlet />
-      {accountFormLoader.state !== "loading" && accountFormLoader.data && (
+      {accountFormLoader.type === "done" && (
         <AccountFormModal
           open={accountFormModalOpen}
           data={accountFormLoader.data}

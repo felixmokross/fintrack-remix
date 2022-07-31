@@ -1,9 +1,13 @@
-import { Link, Outlet, useFetcher, useLoaderData } from "@remix-run/react";
+import { useFetcher, useLoaderData } from "@remix-run/react";
 import type { LoaderFunction } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import { getAccountGroupListItems } from "~/models/account-groups.server";
 import { requireUserId } from "~/session.server";
 import { Button } from "~/components/button";
+import { useState } from "react";
+import type { SerializeType } from "~/utils";
+import type { AccountGroupFormLoaderData } from "~/components/account-groups";
+import { AccountGroupFormModal } from "~/components/account-groups";
 
 type LoaderData = {
   accountGroups: Awaited<ReturnType<typeof getAccountGroupListItems>>;
@@ -16,8 +20,14 @@ export const loader: LoaderFunction = async ({ request }) => {
 };
 
 export default function AccountGroupsPage() {
+  const [accountGroupFormModalOpen, setAccountGroupFormModalOpen] =
+    useState(false);
+  const accountGroupFormLoader =
+    useFetcher<SerializeType<AccountGroupFormLoaderData>>();
+
+  const deleteAction = useFetcher();
+
   const { accountGroups } = useLoaderData<LoaderData>();
-  const fetcher = useFetcher();
   return (
     <div className="px-4 sm:px-6 lg:px-8">
       <div className="sm:flex">
@@ -31,7 +41,10 @@ export default function AccountGroupsPage() {
           </p>
         </div>
         <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
-          <Button as={Link} to="new" variant="primary">
+          <Button
+            onClick={() => openAccountGroupFormModal({ mode: "new" })}
+            variant="primary"
+          >
             Add account group
           </Button>
         </div>
@@ -64,24 +77,24 @@ export default function AccountGroupsPage() {
                         {accountGroup.name}
                       </td>
                       <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                        <Link
-                          to={accountGroup.id}
+                        <button
+                          onClick={() =>
+                            openAccountGroupFormModal({
+                              mode: "edit",
+                              accountGroupId: accountGroup.id,
+                            })
+                          }
                           className="text-indigo-600 hover:text-indigo-900"
                         >
                           Edit
                           <span className="sr-only">, {accountGroup.name}</span>
-                        </Link>{" "}
+                        </button>{" "}
                         &middot;{" "}
-                        <fetcher.Form
+                        <deleteAction.Form
                           className="inline"
-                          action="delete"
+                          action={`${accountGroup.id}/delete`}
                           method="post"
                         >
-                          <input
-                            type="hidden"
-                            name="id"
-                            value={accountGroup.id}
-                          />
                           <button
                             type="submit"
                             className="text-indigo-600 hover:text-indigo-900"
@@ -91,7 +104,7 @@ export default function AccountGroupsPage() {
                               , {accountGroup.name}
                             </span>
                           </button>
-                        </fetcher.Form>
+                        </deleteAction.Form>
                       </td>
                     </tr>
                   ))}
@@ -101,7 +114,27 @@ export default function AccountGroupsPage() {
           </div>
         </div>
       </div>
-      <Outlet />
+      {accountGroupFormLoader.type === "done" && (
+        <AccountGroupFormModal
+          open={accountGroupFormModalOpen}
+          data={accountGroupFormLoader.data}
+          onClose={() => setAccountGroupFormModalOpen(false)}
+        />
+      )}
     </div>
   );
+
+  function openAccountGroupFormModal(param: AccountGroupFormModalParam) {
+    accountGroupFormLoader.load(
+      param.mode === "new"
+        ? "/settings/account-groups/new"
+        : `/settings/account-groups/${param.accountGroupId}/edit`
+    );
+
+    setAccountGroupFormModalOpen(true);
+  }
 }
+
+type AccountGroupFormModalParam =
+  | { mode: "new" }
+  | { mode: "edit"; accountGroupId: string };

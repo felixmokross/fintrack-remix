@@ -1,5 +1,6 @@
 import type { AccountGroup, User } from "@prisma/client";
 import { prisma } from "~/db.server";
+import type { FormErrors } from "~/utils";
 
 export function getAccountGroupListItems({ userId }: { userId: User["id"] }) {
   return prisma.accountGroup.findMany({
@@ -30,11 +31,7 @@ export function createAccountGroup({
   return prisma.accountGroup.create({
     data: {
       name,
-      user: {
-        connect: {
-          id: userId,
-        },
-      },
+      user: { connect: { id: userId } },
     },
   });
 }
@@ -82,6 +79,4 @@ export type AccountGroupValues = {
   name: string;
 };
 
-export type AccountGroupErrors = {
-  name?: string;
-};
+export type AccountGroupErrors = FormErrors<AccountGroupValues>;

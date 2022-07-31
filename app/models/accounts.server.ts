@@ -3,6 +3,7 @@ import { AccountUnit } from "@prisma/client";
 import { AccountType } from "@prisma/client";
 import invariant from "tiny-invariant";
 import { prisma } from "~/db.server";
+import { FormErrors } from "~/utils";
 import { isValidDate, isValidDecimal } from "~/utils.server";
 
 export async function getAccountValues(
@@ -215,18 +216,7 @@ export type AccountValues = {
   openingDate: string | null;
 };
 
-export type AccountErrors = {
-  name?: string;
-  type?: string;
-  assetClassId?: string;
-  groupId?: string;
-  unit?: string;
-  currency?: string;
-  stockId?: string;
-  preExisting?: string;
-  balanceAtStart?: string;
-  openingDate?: string;
-};
+export type AccountErrors = FormErrors<AccountValues>;
 
 export function validateAccount({
   name,
