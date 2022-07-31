@@ -1,7 +1,6 @@
 import type { BookingType } from "@prisma/client";
 import type { ActionFunction, LoaderFunction } from "@remix-run/server-runtime";
-import { json, redirect } from "@remix-run/server-runtime";
-import { PlusIcon } from "~/components/icons";
+import { json } from "@remix-run/server-runtime";
 import { getAccountListItems } from "~/models/account.server";
 import { getIncomeExpenseCategoryListItems } from "~/models/income-expense-category.server";
 import {
@@ -10,13 +9,15 @@ import {
   validateTransaction,
 } from "~/models/transaction.server";
 import { requireUserId } from "~/session.server";
-import type { ActionData, LoaderData } from "~/components/transactions";
-import { TransactionFormModal } from "~/components/transactions";
+import type {
+  TransactionFormActionData,
+  TransactionFormLoaderData,
+} from "~/components/transactions";
 import { hasErrors, parseDate, parseDecimal } from "~/utils.server";
 
 export const loader: LoaderFunction = async ({ request }) => {
   const userId = await requireUserId(request);
-  return json<LoaderData>({
+  return json<TransactionFormLoaderData>({
     accounts: await getAccountListItems({ userId }),
     incomeExpenseCategories: await getIncomeExpenseCategoryListItems({
       userId,
@@ -31,7 +32,10 @@ export const action: ActionFunction = async ({ request }) => {
   const errors = validateTransaction(values);
 
   if (hasErrors(errors)) {
-    return json<ActionData>({ errors, values }, { status: 400 });
+    return json<TransactionFormActionData>(
+      { ok: false, errors, values },
+      { status: 400 }
+    );
   }
 
   await createTransaction({
@@ -50,9 +54,5 @@ export const action: ActionFunction = async ({ request }) => {
     userId,
   });
 
-  return redirect(`/transactions`);
+  return json({ ok: true });
 };
-
-export default function NewTransactionModal() {
-  return <TransactionFormModal title="New Transaction" icon={PlusIcon} />;
-}

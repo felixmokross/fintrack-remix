@@ -1,9 +1,9 @@
 import { AccountUnit, BookingType } from "@prisma/client";
-import { Link, useLoaderData } from "@remix-run/react";
+import { useFetcher, useLoaderData } from "@remix-run/react";
 import type { LoaderFunction } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
-import { format, isThisYear, isToday, isYesterday } from "date-fns";
-import { Fragment } from "react";
+import { format, isThisYear, isToday, isTomorrow, isYesterday } from "date-fns";
+import { Fragment, useState } from "react";
 import invariant from "tiny-invariant";
 import { currenciesByCode } from "~/currencies";
 import { getAccount } from "~/models/account.server";
@@ -11,6 +11,9 @@ import { getReverseLedgerDateGroups } from "~/models/ledger-lines.server";
 import { requireUserId } from "~/session.server";
 import { Button } from "~/components/button";
 import { cn } from "~/components/classnames";
+import type { SerializeType } from "~/utils";
+import type { TransactionFormLoaderData } from "~/components/transactions";
+import { TransactionFormModal } from "~/components/transactions";
 
 type LoaderData = {
   account: NonNullable<Awaited<ReturnType<typeof getAccount>>>;
@@ -35,6 +38,11 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 };
 
 export default function AccountDetailPage() {
+  const [transactionFormModalOpen, setTransactionFormModalOpen] =
+    useState<boolean>(false);
+  const transactionFormLoader =
+    useFetcher<SerializeType<TransactionFormLoaderData>>();
+
   const { account, ledgerDateGroups } = useLoaderData<LoaderData>();
   return (
     <div className="mt-8">
@@ -60,7 +68,10 @@ export default function AccountDetailPage() {
           </p>
         </div>
         <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
-          <Button as={Link} to="/transactions/new" variant="primary">
+          <Button
+            onClick={() => openTransactionFormModal({ mode: "new" })}
+            variant="primary"
+          >
             Add transaction
           </Button>
         </div>
@@ -161,15 +172,21 @@ export default function AccountDetailPage() {
                             {formatValue(line.amount)}
                           </td>
                           <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                            <a
-                              href="./edit"
+                            <button
+                              type="button"
+                              onClick={() =>
+                                openTransactionFormModal({
+                                  mode: "edit",
+                                  transactionId: line.transaction.id,
+                                })
+                              }
                               className="text-indigo-600 hover:text-indigo-900"
                             >
                               Edit
                               <span className="sr-only">
                                 , {line.transaction.date}, {line.note}
                               </span>
-                            </a>
+                            </button>
                           </td>
                         </tr>
                       ))}
@@ -196,9 +213,30 @@ export default function AccountDetailPage() {
           </div>
         </div>
       </div>
+      {transactionFormLoader.state !== "loading" &&
+        transactionFormLoader.data && (
+          <TransactionFormModal
+            open={transactionFormModalOpen}
+            data={transactionFormLoader.data}
+            onClose={() => setTransactionFormModalOpen(false)}
+          />
+        )}
     </div>
   );
+
+  function openTransactionFormModal(param: TransactionFormModalParam) {
+    transactionFormLoader.load(
+      param.mode === "new"
+        ? "/transactions/new"
+        : `/transactions/${param.transactionId}/edit`
+    );
+    setTransactionFormModalOpen(true);
+  }
 }
+
+type TransactionFormModalParam =
+  | { mode: "new" }
+  | { mode: "edit"; transactionId: string };
 
 // TODO make local configurable
 const valueFormat = new Intl.NumberFormat("de-CH", {
@@ -215,6 +253,7 @@ function formatValue(value: string | number) {
 function formatDate(value: Date | string) {
   if (typeof value === "string") value = new Date(value);
 
+  if (isTomorrow(value)) return "Tomorrow";
   if (isToday(value)) return "Today";
   if (isYesterday(value)) return "Yesterday";
   if (isThisYear(value)) return format(value, "dd MMM");

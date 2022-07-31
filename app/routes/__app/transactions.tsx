@@ -1,9 +1,8 @@
-import { Link, Outlet, useFetcher, useLoaderData } from "@remix-run/react";
+import { useFetcher, useLoaderData } from "@remix-run/react";
 import type { LoaderFunction, MetaFunction } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import { getTransactionListItems } from "~/models/transaction.server";
 import { requireUserId } from "~/session.server";
-import { Button } from "~/components/button";
 import { getTitle } from "~/utils";
 
 type LoaderData = {
@@ -26,11 +25,6 @@ export default function TransactionsPage() {
       <div className="sm:flex">
         <div className="sm:flex-auto">
           <h1 className="text-xl font-semibold text-gray-900">Transactions</h1>
-        </div>
-        <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
-          <Button as={Link} to="new" variant="primary">
-            Add transaction
-          </Button>
         </div>
       </div>
       <div className="mt-8 flex flex-col">
@@ -70,16 +64,6 @@ export default function TransactionsPage() {
                         {transaction.note}
                       </td>
                       <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                        <Link
-                          to={transaction.id}
-                          className="text-indigo-600 hover:text-indigo-900"
-                        >
-                          Edit
-                          <span className="sr-only">
-                            , {transaction.date}, {transaction.note}
-                          </span>
-                        </Link>{" "}
-                        &middot;{" "}
                         <fetcher.Form
                           className="inline"
                           action="delete"
@@ -109,7 +93,6 @@ export default function TransactionsPage() {
           </div>
         </div>
       </div>
-      <Outlet />
     </div>
   );
 }

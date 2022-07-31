@@ -6,10 +6,13 @@ import {
   useLoaderData,
   Form,
   useTransition,
+  useFetcher,
 } from "@remix-run/react";
 import type { ComponentType } from "react";
+import { useEffect } from "react";
 import { Fragment, useReducer } from "react";
 import type { IconProps } from "~/components/icons";
+import { PencilIcon, PlusIcon } from "~/components/icons";
 import { ChevronDownIcon, TrashIcon } from "~/components/icons";
 import type { getAccountListItems } from "~/models/account.server";
 import type { getIncomeExpenseCategoryListItems } from "~/models/income-expense-category.server";
@@ -17,13 +20,13 @@ import type {
   getTransaction,
   TransactionValues,
 } from "~/models/transaction.server";
-import type { FormErrors } from "~/utils";
+import type { FormErrors, SerializeType } from "~/utils";
 import { buttonClassName } from "./button";
 import { cn } from "./classnames";
 import { Combobox, CurrencyCombobox, Input } from "./forms";
 import { Modal, ModalSize } from "./modal";
 
-export type LoaderData = {
+export type TransactionFormLoaderData = {
   accounts: Awaited<ReturnType<typeof getAccountListItems>>;
   incomeExpenseCategories: Awaited<
     ReturnType<typeof getIncomeExpenseCategoryListItems>
@@ -31,7 +34,8 @@ export type LoaderData = {
   transaction?: NonNullable<Awaited<ReturnType<typeof getTransaction>>>;
 };
 
-export type ActionData = {
+export type TransactionFormActionData = {
+  ok: boolean;
   errors?: FormErrors<TransactionValues>;
   values?: TransactionValues;
 };
@@ -40,44 +44,55 @@ const defaultBookings: BookingsState = [
   { type: BookingType.CHARGE },
   { type: BookingType.EXPENSE },
 ];
-
 export function TransactionFormModal({
-  title,
-  icon,
+  open,
+  data: { accounts, incomeExpenseCategories, transaction },
+  onClose,
 }: TransactionFormModalProps) {
-  const navigate = useNavigate();
-  const actionData = useActionData<ActionData>();
-  const { accounts, incomeExpenseCategories, transaction } =
-    useLoaderData<LoaderData>();
+  const action = useFetcher<TransactionFormActionData>();
+  useEffect(() => {
+    if (action.type === "done" && action.data.ok) onClose();
+  }, [action.type, action.data, onClose]);
+
   const [bookings, dispatch] = useReducer(
     bookingsReducer,
     transaction?.bookings.map((b) => ({ type: b.type })) || defaultBookings
   );
-  const { state } = useTransition();
-  const disabled = state !== "idle";
+
+  const disabled = action.state !== "idle";
   return (
-    <Modal onClose={onClose} size={ModalSize.EXTRA_LARGE}>
-      <Form method="post" replace>
+    <Modal open={open} onClose={onClose} size={ModalSize.EXTRA_LARGE}>
+      <action.Form
+        method="post"
+        action={
+          transaction
+            ? `/transactions/${transaction.id}/edit`
+            : "/transactions/new"
+        }
+      >
         <fieldset disabled={disabled}>
-          <Modal.Body title={title} icon={icon}>
+          <Modal.Body
+            title={transaction ? "Edit Transaction" : "New Transaction"}
+            icon={transaction ? PencilIcon : PlusIcon}
+          >
             <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-12">
               <Input
                 label="Date"
                 name="date"
                 type="date"
                 defaultValue={
-                  actionData?.values?.date || transaction?.date?.split("T")[0]
+                  action.data?.values?.date || transaction?.date?.split("T")[0]
                 }
-                error={actionData?.errors?.date}
+                error={action.data?.errors?.date}
                 groupClassName="sm:col-span-3"
               />
               <Input
                 label="Note (optional)"
                 name="note"
                 defaultValue={
-                  actionData?.values?.note || transaction?.note || undefined
+                  action.data?.values?.note || transaction?.note || undefined
                 }
-                error={actionData?.errors?.note}
+                error={action.data?.errors?.note}
                 groupClassName="sm:col-span-6"
               />
               <div className="flex items-end sm:col-span-3">
@@ -109,11 +124,11 @@ export function TransactionFormModal({
                       label="Account"
                       name={`bookings.${index}.accountId`}
                       defaultValue={
-                        actionData?.values?.bookings[index]?.accountId ||
+                        action.data?.values?.bookings[index]?.accountId ||
                         transaction?.bookings[index]?.accountId ||
                         undefined
                       }
-                      error={actionData?.errors?.bookings?.[index]?.accountId}
+                      error={action.data?.errors?.bookings?.[index]?.accountId}
                       groupClassName="sm:col-span-6"
                       options={accounts.map((a) => ({
                         primaryText: a.name,
@@ -128,13 +143,13 @@ export function TransactionFormModal({
                         label="Category"
                         name={`bookings.${index}.categoryId`}
                         defaultValue={
-                          actionData?.values?.bookings[index]?.categoryId ||
+                          action.data?.values?.bookings[index]?.categoryId ||
                           transaction?.bookings[index]
                             ?.incomeExpenseCategoryId ||
                           undefined
                         }
                         error={
-                          actionData?.errors?.bookings?.[index]?.categoryId
+                          action.data?.errors?.bookings?.[index]?.categoryId
                         }
                         groupClassName="sm:col-span-2"
                         options={incomeExpenseCategories
@@ -148,11 +163,11 @@ export function TransactionFormModal({
                         label="Currency"
                         name={`bookings.${index}.currency`}
                         defaultValue={
-                          actionData?.values?.bookings[index]?.currency ||
+                          action.data?.values?.bookings[index]?.currency ||
                           transaction?.bookings[index]?.currency ||
                           undefined
                         }
-                        error={actionData?.errors?.bookings?.[index]?.currency}
+                        error={action.data?.errors?.bookings?.[index]?.currency}
                         groupClassName="sm:col-span-4"
                       />
                     </>
@@ -162,20 +177,20 @@ export function TransactionFormModal({
                     name={`bookings.${index}.note`}
                     groupClassName="sm:col-span-2 sm:col-start-8"
                     defaultValue={
-                      actionData?.values?.bookings[index]?.note ||
+                      action.data?.values?.bookings[index]?.note ||
                       transaction?.bookings[index]?.note ||
                       undefined
                     }
-                    error={actionData?.errors?.bookings?.[index]?.note}
+                    error={action.data?.errors?.bookings?.[index]?.note}
                   />
                   <Input
                     label="Amount"
                     name={`bookings.${index}.amount`}
                     defaultValue={
-                      actionData?.values?.bookings[index]?.amount ||
+                      action.data?.values?.bookings[index]?.amount ||
                       transaction?.bookings[index]?.amount
                     }
-                    error={actionData?.errors?.bookings?.[index]?.amount}
+                    error={action.data?.errors?.bookings?.[index]?.amount}
                     groupClassName="sm:col-span-2"
                   />
                   <div className="flex items-center justify-end sm:col-span-1">
@@ -193,7 +208,7 @@ export function TransactionFormModal({
           </Modal.Body>
           <Modal.Footer>
             <Modal.Button type="submit" variant="primary">
-              {state !== "idle" ? "Saving…" : "Save"}
+              {action.state !== "idle" ? "Saving…" : "Save"}
             </Modal.Button>
             <Modal.Button
               type="button"
@@ -204,18 +219,15 @@ export function TransactionFormModal({
             </Modal.Button>
           </Modal.Footer>
         </fieldset>
-      </Form>
+      </action.Form>
     </Modal>
   );
-
-  function onClose() {
-    navigate(-1);
-  }
 }
 
 export type TransactionFormModalProps = {
-  title: string;
-  icon: ComponentType<IconProps>;
+  open: boolean;
+  data: SerializeType<TransactionFormLoaderData>;
+  onClose: () => void;
 };
 
 export function bookingsReducer(state: BookingsState, action: BookingsAction) {

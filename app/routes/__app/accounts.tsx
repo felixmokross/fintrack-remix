@@ -24,13 +24,11 @@ export const meta: MetaFunction = () => ({ title: getTitle("Accounts") });
 export default function AccountsPage() {
   const [accountFormModalOpen, setAccountFormModalOpen] =
     useState<boolean>(false);
+  const accountFormLoader = useFetcher<SerializeType<AccountFormLoaderData>>();
 
   const deleteAction = useFetcher();
-  const accountFormModalLoader =
-    useFetcher<SerializeType<AccountFormLoaderData>>();
 
   const { accounts } = useLoaderData<LoaderData>();
-
   return (
     <div className="px-4 py-2 sm:px-6 md:py-4 lg:px-8">
       <div className="sm:flex">
@@ -171,19 +169,18 @@ export default function AccountsPage() {
         </div>
       </div>
       <Outlet />
-      {accountFormModalLoader.state !== "loading" &&
-        accountFormModalLoader.data && (
-          <AccountFormModal
-            open={accountFormModalOpen}
-            data={accountFormModalLoader.data}
-            onClose={() => setAccountFormModalOpen(false)}
-          />
-        )}
+      {accountFormLoader.state !== "loading" && accountFormLoader.data && (
+        <AccountFormModal
+          open={accountFormModalOpen}
+          data={accountFormLoader.data}
+          onClose={() => setAccountFormModalOpen(false)}
+        />
+      )}
     </div>
   );
 
-  function openAccountFormModal(param: ModalParam) {
-    accountFormModalLoader.load(
+  function openAccountFormModal(param: AccountFormModalParam) {
+    accountFormLoader.load(
       param.mode === "new"
         ? "/accounts/new"
         : `/accounts/${param.accountId}/edit`
@@ -192,4 +189,6 @@ export default function AccountsPage() {
   }
 }
 
-type ModalParam = { mode: "new" } | { mode: "edit"; accountId: string };
+type AccountFormModalParam =
+  | { mode: "new" }
+  | { mode: "edit"; accountId: string };

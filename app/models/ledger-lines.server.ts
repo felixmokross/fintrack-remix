@@ -105,6 +105,7 @@ async function getBookings({
       type: true,
       transaction: {
         select: {
+          id: true,
           date: true,
           note: true,
           bookings: {
