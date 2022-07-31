@@ -3,7 +3,12 @@ import {
   RadioGroup as HeadlessRadioGroup,
   Switch,
 } from "@headlessui/react";
-import type { DetailedHTMLProps, PropsWithChildren, ReactNode } from "react";
+import type {
+  ComponentType,
+  DetailedHTMLProps,
+  PropsWithChildren,
+  ReactNode,
+} from "react";
 import { useEffect } from "react";
 import { useState } from "react";
 import { currencyItems } from "~/currencies";
@@ -19,6 +24,7 @@ import { useId } from "react";
 import { useFetcher } from "@remix-run/react";
 import type { ModalSize } from "./modal";
 import { Modal } from "./modal";
+import type { SerializeType } from "~/utils";
 
 const labelClassName = "block text-sm font-medium text-gray-700";
 
@@ -497,6 +503,30 @@ export type ToggleProps = {
   name: string;
   defaultValue?: string;
   onChange?: (enabled: boolean) => void;
+};
+
+export function useFormModal<TFormLoaderData>(
+  modal: ComponentType<ModalProps<TFormLoaderData>>
+) {
+  const [open, setOpen] = useState(false);
+  const loader = useFetcher<SerializeType<TFormLoaderData>>();
+  const Modal = modal;
+  return {
+    open: (loaderUrl: string) => {
+      loader.load(loaderUrl);
+      setOpen(true);
+    },
+    element:
+      loader.type === "done" ? (
+        <Modal open={open} onClose={() => setOpen(false)} data={loader.data} />
+      ) : null,
+  };
+}
+
+export type ModalProps<TFormLoaderData> = {
+  open: boolean;
+  onClose: () => void;
+  data: SerializeType<TFormLoaderData>;
 };
 
 export function FormModal<TFormActionData extends FormActionData>({

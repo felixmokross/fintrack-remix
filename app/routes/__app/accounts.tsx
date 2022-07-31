@@ -2,15 +2,14 @@ import { AccountType, AccountUnit } from "@prisma/client";
 import { Link, Outlet, useFetcher, useLoaderData } from "@remix-run/react";
 import type { LoaderFunction, MetaFunction } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
-import { useState } from "react";
 import type { AccountFormLoaderData } from "~/components/accounts";
 import { AccountFormModal } from "~/components/accounts";
 import { currenciesByCode } from "~/currencies";
 import { getAccountListItems } from "~/models/accounts.server";
 import { requireUserId } from "~/session.server";
 import { Button } from "~/components/button";
-import type { SerializeType } from "~/utils";
 import { getTitle } from "~/utils";
+import { useFormModal } from "~/components/forms";
 
 type LoaderData = { accounts: Awaited<ReturnType<typeof getAccountListItems>> };
 
@@ -22,8 +21,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 export const meta: MetaFunction = () => ({ title: getTitle("Accounts") });
 
 export default function AccountsPage() {
-  const [formModalOpen, setFormModalOpen] = useState(false);
-  const formLoader = useFetcher<SerializeType<AccountFormLoaderData>>();
+  const formModal = useFormModal<AccountFormLoaderData>(AccountFormModal);
 
   const deleteAction = useFetcher();
 
@@ -36,7 +34,7 @@ export default function AccountsPage() {
         </div>
         <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
           <Button
-            onClick={() => openFormModal({ mode: "new" })}
+            onClick={() => formModal.open("/accounts/new")}
             variant="secondary"
           >
             Add account
@@ -134,10 +132,7 @@ export default function AccountsPage() {
                         <button
                           type="button"
                           onClick={() =>
-                            openFormModal({
-                              mode: "edit",
-                              accountId: account.id,
-                            })
+                            formModal.open(`/accounts/${account.id}/edit`)
                           }
                           className="text-indigo-600 hover:text-indigo-900"
                         >
@@ -168,24 +163,7 @@ export default function AccountsPage() {
         </div>
       </div>
       <Outlet />
-      {formLoader.type === "done" && (
-        <AccountFormModal
-          open={formModalOpen}
-          data={formLoader.data}
-          onClose={() => setFormModalOpen(false)}
-        />
-      )}
+      {formModal.element}
     </div>
   );
-
-  function openFormModal(param: FormModalParam) {
-    formLoader.load(
-      param.mode === "new"
-        ? "/accounts/new"
-        : `/accounts/${param.accountId}/edit`
-    );
-    setFormModalOpen(true);
-  }
 }
-
-type FormModalParam = { mode: "new" } | { mode: "edit"; accountId: string };
