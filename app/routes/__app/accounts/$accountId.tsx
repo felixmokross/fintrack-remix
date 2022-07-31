@@ -43,6 +43,8 @@ export default function AccountDetailPage() {
   const transactionFormLoader =
     useFetcher<SerializeType<TransactionFormLoaderData>>();
 
+  const deleteAction = useFetcher();
+
   const { account, ledgerDateGroups } = useLoaderData<LoaderData>();
   return (
     <div className="mt-8">
@@ -184,9 +186,32 @@ export default function AccountDetailPage() {
                             >
                               Edit
                               <span className="sr-only">
-                                , {line.transaction.date}, {line.note}
+                                , {line.transaction.date},{" "}
+                                {line.transaction.note}
                               </span>
-                            </button>
+                            </button>{" "}
+                            &middot;{" "}
+                            <deleteAction.Form
+                              className="inline"
+                              action="/transactions/delete"
+                              method="post"
+                            >
+                              <input
+                                type="hidden"
+                                name="id"
+                                value={line.transaction.id}
+                              />
+                              <button
+                                type="submit"
+                                className="text-indigo-600 hover:text-indigo-900"
+                              >
+                                Delete
+                                <span className="sr-only">
+                                  , {line.transaction.date},{" "}
+                                  {line.transaction.note}
+                                </span>
+                              </button>
+                            </deleteAction.Form>
                           </td>
                         </tr>
                       ))}

@@ -1,10 +1,10 @@
 import type { ActionFunction } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
-import { redirect } from "@remix-run/server-runtime";
 import { deleteAccount } from "~/models/account.server";
 import { requireUserId } from "~/session.server";
 
 type ActionData = {
+  ok: boolean;
   errors?: {
     id?: string;
   };
@@ -18,12 +18,12 @@ export const action: ActionFunction = async ({ request }) => {
 
   if (typeof id !== "string" || id.length === 0) {
     return json<ActionData>(
-      { errors: { id: "ID is required" } },
+      { ok: false, errors: { id: "ID is required" } },
       { status: 400 }
     );
   }
 
   await deleteAccount({ id, userId });
 
-  return redirect(`/accounts`);
+  return json({ ok: true });
 };

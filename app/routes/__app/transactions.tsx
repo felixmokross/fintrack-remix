@@ -46,12 +46,6 @@ export default function TransactionsPage() {
                     >
                       Note
                     </th>
-                    <th
-                      scope="col"
-                      className="relative py-3.5 pl-3 pr-4 sm:pr-6"
-                    >
-                      <span className="sr-only">Action</span>
-                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white">
@@ -62,28 +56,6 @@ export default function TransactionsPage() {
                       </td>
                       <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
                         {transaction.note}
-                      </td>
-                      <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                        <fetcher.Form
-                          className="inline"
-                          action="delete"
-                          method="post"
-                        >
-                          <input
-                            type="hidden"
-                            name="id"
-                            value={transaction.id}
-                          />
-                          <button
-                            type="submit"
-                            className="text-indigo-600 hover:text-indigo-900"
-                          >
-                            Delete
-                            <span className="sr-only">
-                              ,{transaction.date}, {transaction.note}
-                            </span>
-                          </button>
-                        </fetcher.Form>
                       </td>
                     </tr>
                   ))}
