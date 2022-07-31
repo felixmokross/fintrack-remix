@@ -2,7 +2,7 @@ import { useMatches } from "@remix-run/react";
 import type { ComponentPropsWithoutRef, ElementType } from "react";
 import { useMemo } from "react";
 
-import type { User } from "~/models/user.server";
+import type { User } from "~/models/users.server";
 
 /**
  * This base hook is used in other hooks to quickly search for specific data

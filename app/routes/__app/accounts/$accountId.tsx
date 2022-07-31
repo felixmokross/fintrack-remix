@@ -6,7 +6,7 @@ import { format, isThisYear, isToday, isTomorrow, isYesterday } from "date-fns";
 import { Fragment, useState } from "react";
 import invariant from "tiny-invariant";
 import { currenciesByCode } from "~/currencies";
-import { getAccount } from "~/models/account.server";
+import { getAccount } from "~/models/accounts.server";
 import { getReverseLedgerDateGroups } from "~/models/ledger-lines.server";
 import { requireUserId } from "~/session.server";
 import { Button } from "~/components/button";

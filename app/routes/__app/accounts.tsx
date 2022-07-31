@@ -6,7 +6,7 @@ import { useState } from "react";
 import type { AccountFormLoaderData } from "~/components/accounts";
 import { AccountFormModal } from "~/components/accounts";
 import { currenciesByCode } from "~/currencies";
-import { getAccountListItems } from "~/models/account.server";
+import { getAccountListItems } from "~/models/accounts.server";
 import { requireUserId } from "~/session.server";
 import { Button } from "~/components/button";
 import type { SerializeType } from "~/utils";

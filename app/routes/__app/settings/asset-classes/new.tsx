@@ -12,12 +12,12 @@ import { PlusIcon } from "~/components/icons";
 import type {
   AssetClassErrors,
   AssetClassValues,
-} from "~/models/asset-class.server";
+} from "~/models/asset-classes.server";
 import {
   parseSortOrder,
   validateAssetClass,
-} from "~/models/asset-class.server";
-import { createAssetClass } from "~/models/asset-class.server";
+} from "~/models/asset-classes.server";
+import { createAssetClass } from "~/models/asset-classes.server";
 import { requireUserId } from "~/session.server";
 import { Input } from "~/components/forms";
 import { Modal } from "~/components/modal";

@@ -13,12 +13,12 @@ import { PencilIcon } from "~/components/icons";
 import type {
   AccountGroupErrors,
   AccountGroupValues,
-} from "~/models/account-group.server";
+} from "~/models/account-groups.server";
 import {
   getAccountGroup,
   validateAccountGroup,
-} from "~/models/account-group.server";
-import { updateAccountGroup } from "~/models/account-group.server";
+} from "~/models/account-groups.server";
+import { updateAccountGroup } from "~/models/account-groups.server";
 import { requireUserId } from "~/session.server";
 import { Input } from "~/components/forms";
 import { Modal } from "~/components/modal";

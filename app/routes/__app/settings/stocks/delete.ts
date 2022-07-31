@@ -1,7 +1,7 @@
 import type { ActionFunction } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import { redirect } from "@remix-run/server-runtime";
-import { deleteStock } from "~/models/stock.server";
+import { deleteStock } from "~/models/stocks.server";
 import { requireUserId } from "~/session.server";
 
 type ActionData = {

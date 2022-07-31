@@ -9,7 +9,7 @@ import * as React from "react";
 
 import { getUserId, createUserSession } from "~/session.server";
 
-import { createUser, getUserByEmail } from "~/models/user.server";
+import { createUser, getUserByEmail } from "~/models/users.server";
 import { getTitle, validateEmail } from "~/utils";
 import { safeRedirect } from "~/utils.server";
 

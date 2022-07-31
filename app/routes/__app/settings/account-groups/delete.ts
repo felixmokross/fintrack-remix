@@ -1,7 +1,7 @@
 import type { ActionFunction } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import { redirect } from "@remix-run/server-runtime";
-import { deleteAccountGroup } from "~/models/account-group.server";
+import { deleteAccountGroup } from "~/models/account-groups.server";
 import { requireUserId } from "~/session.server";
 
 type ActionData = {

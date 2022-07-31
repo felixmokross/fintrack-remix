@@ -5,12 +5,12 @@ import { useEffect } from "react";
 import { Fragment, useReducer } from "react";
 import { PencilIcon, PlusIcon } from "~/components/icons";
 import { ChevronDownIcon, TrashIcon } from "~/components/icons";
-import type { getAccountListItems } from "~/models/account.server";
-import type { getIncomeExpenseCategoryListItems } from "~/models/income-expense-category.server";
+import type { getAccountListItems } from "~/models/accounts.server";
+import type { getIncomeExpenseCategoryListItems } from "~/models/income-expense-categories.server";
 import type {
   getTransaction,
   TransactionValues,
-} from "~/models/transaction.server";
+} from "~/models/transactions.server";
 import type { FormErrors, SerializeType } from "~/utils";
 import { buttonClassName } from "./button";
 import { cn } from "./classnames";

@@ -1,19 +1,19 @@
 import type { BookingType } from "@prisma/client";
 import type { ActionFunction, LoaderFunction } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
-import { getAccountListItems } from "~/models/account.server";
-import { getIncomeExpenseCategoryListItems } from "~/models/income-expense-category.server";
+import { getAccountListItems } from "~/models/accounts.server";
+import { getIncomeExpenseCategoryListItems } from "~/models/income-expense-categories.server";
 import {
   createTransaction,
   getTransactionValues,
-  validateTransaction,
-} from "~/models/transaction.server";
+} from "~/models/transactions.server";
 import { requireUserId } from "~/session.server";
 import type {
   TransactionFormActionData,
   TransactionFormLoaderData,
 } from "~/components/transactions";
 import { hasErrors, parseDate, parseDecimal } from "~/utils.server";
+import { validateTransaction } from "~/validation/transactions.server";
 
 export const loader: LoaderFunction = async ({ request }) => {
   const userId = await requireUserId(request);

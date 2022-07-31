@@ -1,7 +1,7 @@
 import { useLoaderData } from "@remix-run/react";
 import type { LoaderFunction, MetaFunction } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
-import { getTransactionListItems } from "~/models/transaction.server";
+import { getTransactionListItems } from "~/models/transactions.server";
 import { requireUserId } from "~/session.server";
 import { getTitle } from "~/utils";
 

@@ -11,11 +11,11 @@ import { PlusIcon } from "~/components/icons";
 import type {
   IncomeExpenseCategoryErrors,
   IncomeExpenseCategoryValues,
-} from "~/models/income-expense-category.server";
+} from "~/models/income-expense-categories.server";
 import {
   createIncomeCategory,
   validateIncomeExpenseCategory,
-} from "~/models/income-expense-category.server";
+} from "~/models/income-expense-categories.server";
 import { requireUserId } from "~/session.server";
 import { Input } from "~/components/forms";
 import { Modal } from "~/components/modal";

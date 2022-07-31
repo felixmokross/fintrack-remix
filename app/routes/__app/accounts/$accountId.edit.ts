@@ -6,12 +6,12 @@ import type {
   AccountFormActionData,
   AccountFormLoaderData,
 } from "~/components/accounts";
-import { getAccountGroupListItems } from "~/models/account-group.server";
-import { getAccount, getAccountValues } from "~/models/account.server";
-import { updateAccount } from "~/models/account.server";
-import { validateAccount } from "~/models/account.server";
-import { getAssetClassListItems } from "~/models/asset-class.server";
-import { getStockListItems } from "~/models/stock.server";
+import { getAccountGroupListItems } from "~/models/account-groups.server";
+import { getAccount, getAccountValues } from "~/models/accounts.server";
+import { updateAccount } from "~/models/accounts.server";
+import { validateAccount } from "~/models/accounts.server";
+import { getAssetClassListItems } from "~/models/asset-classes.server";
+import { getStockListItems } from "~/models/stocks.server";
 import { requireUserId } from "~/session.server";
 import { hasErrors, parseDecimal, parseDate } from "~/utils.server";
 

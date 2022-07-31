@@ -11,11 +11,11 @@ import { PlusIcon } from "~/components/icons";
 import type {
   AccountGroupErrors,
   AccountGroupValues,
-} from "~/models/account-group.server";
+} from "~/models/account-groups.server";
 import {
   createAccountGroup,
   validateAccountGroup,
-} from "~/models/account-group.server";
+} from "~/models/account-groups.server";
 import { requireUserId } from "~/session.server";
 import { Input } from "~/components/forms";
 import { Modal } from "~/components/modal";

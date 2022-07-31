@@ -1,7 +1,7 @@
 import { Link, Outlet, useFetcher, useLoaderData } from "@remix-run/react";
 import type { LoaderFunction } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
-import { getAccountGroupListItems } from "~/models/account-group.server";
+import { getAccountGroupListItems } from "~/models/account-groups.server";
 import { requireUserId } from "~/session.server";
 import { Button } from "~/components/button";
 

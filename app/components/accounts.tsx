@@ -2,14 +2,14 @@ import { AccountType, AccountUnit } from "@prisma/client";
 import { useFetcher } from "@remix-run/react";
 import { useEffect, useState } from "react";
 import { PencilIcon, PlusIcon } from "~/components/icons";
-import type { getAccountGroupListItems } from "~/models/account-group.server";
+import type { getAccountGroupListItems } from "~/models/account-groups.server";
 import type {
   AccountErrors,
   AccountValues,
   getAccount,
-} from "~/models/account.server";
-import type { getAssetClassListItems } from "~/models/asset-class.server";
-import type { getStockListItems } from "~/models/stock.server";
+} from "~/models/accounts.server";
+import type { getAssetClassListItems } from "~/models/asset-classes.server";
+import type { getStockListItems } from "~/models/stocks.server";
 import {
   CurrencyCombobox,
   DetailedRadioGroup,

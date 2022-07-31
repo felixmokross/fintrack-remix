@@ -2,7 +2,7 @@ import type { Account, User } from "@prisma/client";
 import { BookingType } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime";
 import { prisma } from "~/db.server";
-import type { getAccount } from "./account.server";
+import type { getAccount } from "./accounts.server";
 
 export async function getReverseLedgerDateGroups({
   account,
