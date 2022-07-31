@@ -1,4 +1,4 @@
-import { useFetcher, useLoaderData } from "@remix-run/react";
+import { useLoaderData } from "@remix-run/react";
 import type { LoaderFunction, MetaFunction } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import { getTransactionListItems } from "~/models/transaction.server";
@@ -18,7 +18,6 @@ export const loader: LoaderFunction = async ({ request }) => {
 export const meta: MetaFunction = () => ({ title: getTitle("Transactions") });
 
 export default function TransactionsPage() {
-  const fetcher = useFetcher();
   const { transactions } = useLoaderData<LoaderData>();
   return (
     <div className="px-4 py-2 sm:px-6 md:py-4 lg:px-8">
