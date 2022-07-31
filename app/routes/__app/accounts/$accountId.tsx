@@ -193,14 +193,9 @@ export default function AccountDetailPage() {
                             &middot;{" "}
                             <deleteAction.Form
                               className="inline"
-                              action="/transactions/delete"
+                              action={`/transactions/${line.transaction.id}/delete`}
                               method="post"
                             >
-                              <input
-                                type="hidden"
-                                name="id"
-                                value={line.transaction.id}
-                              />
                               <button
                                 type="submit"
                                 className="text-indigo-600 hover:text-indigo-900"
