@@ -22,8 +22,8 @@ export const loader: LoaderFunction = async ({ request }) => {
 export const meta: MetaFunction = () => ({ title: getTitle("Accounts") });
 
 export default function AccountsPage() {
-  const [accountFormModalOpen, setAccountFormModalOpen] = useState(false);
-  const accountFormLoader = useFetcher<SerializeType<AccountFormLoaderData>>();
+  const [formModalOpen, setFormModalOpen] = useState(false);
+  const formLoader = useFetcher<SerializeType<AccountFormLoaderData>>();
 
   const deleteAction = useFetcher();
 
@@ -36,7 +36,7 @@ export default function AccountsPage() {
         </div>
         <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
           <Button
-            onClick={() => openAccountFormModal({ mode: "new" })}
+            onClick={() => openFormModal({ mode: "new" })}
             variant="secondary"
           >
             Add account
@@ -134,7 +134,7 @@ export default function AccountsPage() {
                         <button
                           type="button"
                           onClick={() =>
-                            openAccountFormModal({
+                            openFormModal({
                               mode: "edit",
                               accountId: account.id,
                             })
@@ -168,26 +168,24 @@ export default function AccountsPage() {
         </div>
       </div>
       <Outlet />
-      {accountFormLoader.type === "done" && (
+      {formLoader.type === "done" && (
         <AccountFormModal
-          open={accountFormModalOpen}
-          data={accountFormLoader.data}
-          onClose={() => setAccountFormModalOpen(false)}
+          open={formModalOpen}
+          data={formLoader.data}
+          onClose={() => setFormModalOpen(false)}
         />
       )}
     </div>
   );
 
-  function openAccountFormModal(param: AccountFormModalParam) {
-    accountFormLoader.load(
+  function openFormModal(param: FormModalParam) {
+    formLoader.load(
       param.mode === "new"
         ? "/accounts/new"
         : `/accounts/${param.accountId}/edit`
     );
-    setAccountFormModalOpen(true);
+    setFormModalOpen(true);
   }
 }
 
-type AccountFormModalParam =
-  | { mode: "new" }
-  | { mode: "edit"; accountId: string };
+type FormModalParam = { mode: "new" } | { mode: "edit"; accountId: string };

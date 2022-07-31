@@ -20,10 +20,8 @@ export const loader: LoaderFunction = async ({ request }) => {
 };
 
 export default function AccountGroupsPage() {
-  const [accountGroupFormModalOpen, setAccountGroupFormModalOpen] =
-    useState(false);
-  const accountGroupFormLoader =
-    useFetcher<SerializeType<AccountGroupFormLoaderData>>();
+  const [formModalOpen, setFormModalOpen] = useState(false);
+  const formLoader = useFetcher<SerializeType<AccountGroupFormLoaderData>>();
 
   const deleteAction = useFetcher();
 
@@ -42,7 +40,7 @@ export default function AccountGroupsPage() {
         </div>
         <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
           <Button
-            onClick={() => openAccountGroupFormModal({ mode: "new" })}
+            onClick={() => openFormModal({ mode: "new" })}
             variant="primary"
           >
             Add account group
@@ -79,7 +77,7 @@ export default function AccountGroupsPage() {
                       <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                         <button
                           onClick={() =>
-                            openAccountGroupFormModal({
+                            openFormModal({
                               mode: "edit",
                               accountGroupId: accountGroup.id,
                             })
@@ -114,27 +112,27 @@ export default function AccountGroupsPage() {
           </div>
         </div>
       </div>
-      {accountGroupFormLoader.type === "done" && (
+      {formLoader.type === "done" && (
         <AccountGroupFormModal
-          open={accountGroupFormModalOpen}
-          data={accountGroupFormLoader.data}
-          onClose={() => setAccountGroupFormModalOpen(false)}
+          open={formModalOpen}
+          data={formLoader.data}
+          onClose={() => setFormModalOpen(false)}
         />
       )}
     </div>
   );
 
-  function openAccountGroupFormModal(param: AccountGroupFormModalParam) {
-    accountGroupFormLoader.load(
+  function openFormModal(param: FormModalParam) {
+    formLoader.load(
       param.mode === "new"
         ? "/settings/account-groups/new"
         : `/settings/account-groups/${param.accountGroupId}/edit`
     );
 
-    setAccountGroupFormModalOpen(true);
+    setFormModalOpen(true);
   }
 }
 
-type AccountGroupFormModalParam =
+type FormModalParam =
   | { mode: "new" }
   | { mode: "edit"; accountGroupId: string };

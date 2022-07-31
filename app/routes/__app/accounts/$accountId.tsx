@@ -38,10 +38,8 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 };
 
 export default function AccountDetailPage() {
-  const [transactionFormModalOpen, setTransactionFormModalOpen] =
-    useState<boolean>(false);
-  const transactionFormLoader =
-    useFetcher<SerializeType<TransactionFormLoaderData>>();
+  const [formModalOpen, setFormModalOpen] = useState<boolean>(false);
+  const formLoader = useFetcher<SerializeType<TransactionFormLoaderData>>();
 
   const deleteAction = useFetcher();
 
@@ -71,7 +69,7 @@ export default function AccountDetailPage() {
         </div>
         <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
           <Button
-            onClick={() => openTransactionFormModal({ mode: "new" })}
+            onClick={() => openFormModal({ mode: "new" })}
             variant="primary"
           >
             Add transaction
@@ -177,7 +175,7 @@ export default function AccountDetailPage() {
                             <button
                               type="button"
                               onClick={() =>
-                                openTransactionFormModal({
+                                openFormModal({
                                   mode: "edit",
                                   transactionId: line.transaction.id,
                                 })
@@ -233,30 +231,28 @@ export default function AccountDetailPage() {
           </div>
         </div>
       </div>
-      {transactionFormLoader.type === "done" && (
+      {formLoader.type === "done" && (
         <TransactionFormModal
-          open={transactionFormModalOpen}
-          data={transactionFormLoader.data}
-          onClose={() => setTransactionFormModalOpen(false)}
+          open={formModalOpen}
+          data={formLoader.data}
+          onClose={() => setFormModalOpen(false)}
           prefillAccountId={account.id}
         />
       )}
     </div>
   );
 
-  function openTransactionFormModal(param: TransactionFormModalParam) {
-    transactionFormLoader.load(
+  function openFormModal(param: FormModalParam) {
+    formLoader.load(
       param.mode === "new"
         ? "/transactions/new"
         : `/transactions/${param.transactionId}/edit`
     );
-    setTransactionFormModalOpen(true);
+    setFormModalOpen(true);
   }
 }
 
-type TransactionFormModalParam =
-  | { mode: "new" }
-  | { mode: "edit"; transactionId: string };
+type FormModalParam = { mode: "new" } | { mode: "edit"; transactionId: string };
 
 // TODO make local configurable
 const valueFormat = new Intl.NumberFormat("de-CH", {
