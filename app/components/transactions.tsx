@@ -40,14 +40,11 @@ export type TransactionFormActionData = {
   values?: TransactionValues;
 };
 
-const defaultBookings: BookingsState = [
-  { type: BookingType.CHARGE },
-  { type: BookingType.EXPENSE },
-];
 export function TransactionFormModal({
   open,
   data: { accounts, incomeExpenseCategories, transaction },
   onClose,
+  prefillAccountId,
 }: TransactionFormModalProps) {
   const action = useFetcher<TransactionFormActionData>();
   useEffect(() => {
@@ -126,6 +123,7 @@ export function TransactionFormModal({
                       defaultValue={
                         action.data?.values?.bookings[index]?.accountId ||
                         transaction?.bookings[index]?.accountId ||
+                        (index === 0 && prefillAccountId) ||
                         undefined
                       }
                       error={action.data?.errors?.bookings?.[index]?.accountId}
@@ -228,9 +226,15 @@ export type TransactionFormModalProps = {
   open: boolean;
   data: SerializeType<TransactionFormLoaderData>;
   onClose: () => void;
+  prefillAccountId: string;
 };
 
-export function bookingsReducer(state: BookingsState, action: BookingsAction) {
+const defaultBookings: BookingsState = [
+  { type: BookingType.CHARGE },
+  { type: BookingType.EXPENSE },
+];
+
+function bookingsReducer(state: BookingsState, action: BookingsAction) {
   switch (action.type) {
     case "add":
       return state.concat({ type: action.bookingType });
@@ -241,12 +245,12 @@ export function bookingsReducer(state: BookingsState, action: BookingsAction) {
   }
 }
 
-export type BookingsState = { type: BookingType }[];
-export type BookingsAction =
+type BookingsState = { type: BookingType }[];
+type BookingsAction =
   | { type: "add"; bookingType: BookingType }
   | { type: "remove"; index: number };
 
-export function AddBookingMenu({ dispatch }: AddBookingMenuProps) {
+function AddBookingMenu({ dispatch }: AddBookingMenuProps) {
   return (
     <Menu as="div" className="relative inline-block">
       <div>

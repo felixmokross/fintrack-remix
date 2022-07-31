@@ -239,6 +239,7 @@ export default function AccountDetailPage() {
             open={transactionFormModalOpen}
             data={transactionFormLoader.data}
             onClose={() => setTransactionFormModalOpen(false)}
+            prefillAccountId={account.id}
           />
         )}
     </div>
