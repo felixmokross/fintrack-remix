@@ -1,6 +1,5 @@
-import { Outlet } from "@remix-run/react";
+import { NavLink, Outlet } from "@remix-run/react";
 import type { MetaFunction } from "@remix-run/server-runtime";
-import { NavLink } from "react-router-dom";
 import { cn } from "~/components/classnames";
 import { getTitle } from "~/utils";
 
@@ -25,6 +24,7 @@ export default function SettingsPage() {
           <NavLink
             key={item.name}
             to={item.to}
+            prefetch="intent"
             className={({ isActive }) =>
               cn(
                 isActive

@@ -171,6 +171,7 @@ export default function LoginPage() {
               Don't have an account?{" "}
               <Link
                 className="text-blue-500 underline"
+                prefetch="intent"
                 to={{
                   pathname: "/join",
                   search: searchParams.toString(),

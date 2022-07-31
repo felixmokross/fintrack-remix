@@ -55,6 +55,7 @@ export default function App() {
                       </NavLink>
                       <NavLink
                         to="accounts"
+                        prefetch="intent"
                         className={({ isActive }) =>
                           cn(
                             "inline-flex items-center border-b-2  px-1 pt-1 text-sm font-medium",
@@ -68,6 +69,7 @@ export default function App() {
                       </NavLink>
                       <NavLink
                         to="transactions"
+                        prefetch="intent"
                         className={({ isActive }) =>
                           cn(
                             "inline-flex items-center border-b-2  px-1 pt-1 text-sm font-medium",
@@ -121,6 +123,7 @@ export default function App() {
                   <div className="hidden lg:ml-4 lg:flex lg:items-center">
                     <Link
                       to="settings"
+                      prefetch="intent"
                       className="flex-shrink-0 rounded-full bg-white p-1 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                     >
                       <span className="sr-only">Go to settings</span>
@@ -201,6 +204,7 @@ export default function App() {
                   </NavLink>
                   <NavLink
                     to="accounts"
+                    prefetch="intent"
                     onClick={() => closeWithoutFocus()}
                     className={({ isActive }) =>
                       cn(
@@ -215,6 +219,7 @@ export default function App() {
                   </NavLink>
                   <NavLink
                     to="transactions"
+                    prefetch="intent"
                     onClick={() => closeWithoutFocus()}
                     className={({ isActive }) =>
                       cn(
@@ -247,6 +252,7 @@ export default function App() {
                     </div>
                     <Link
                       to="settings"
+                      prefetch="intent"
                       onClick={() => closeWithoutFocus()}
                       className="ml-auto flex-shrink-0 rounded-full bg-white p-1 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                     >
