@@ -1,12 +1,10 @@
-import { useFetcher } from "@remix-run/react";
-import { useEffect } from "react";
 import type {
   AccountGroupErrors,
   AccountGroupValues,
   getAccountGroup,
 } from "~/models/account-groups.server";
 import type { SerializeType } from "~/utils";
-import { Input } from "./forms";
+import { Input, useFormModalFetcher } from "./forms";
 import { PencilIcon, PlusIcon } from "./icons";
 import { Modal } from "./modal";
 
@@ -25,10 +23,7 @@ export function AccountGroupFormModal({
   data: { accountGroup },
   onClose,
 }: AccountGroupFormModalProps) {
-  const action = useFetcher<AccountGroupFormActionData>();
-  useEffect(() => {
-    if (action.type === "done" && action.data.ok) onClose();
-  }, [action.type, action.data, onClose]);
+  const action = useFormModalFetcher<AccountGroupFormActionData>(onClose);
 
   const disabled = action.state !== "idle";
   return (

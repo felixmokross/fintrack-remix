@@ -4,11 +4,13 @@ import {
   Switch,
 } from "@headlessui/react";
 import type { DetailedHTMLProps, PropsWithChildren } from "react";
+import { useEffect } from "react";
 import { useState } from "react";
 import { currencyItems } from "~/currencies";
 import { CheckCircleIcon, CheckIcon, SelectorIcon } from "~/components/icons";
 import { cn } from "./classnames";
 import { useId } from "react";
+import { useFetcher } from "@remix-run/react";
 
 const labelClassName = "block text-sm font-medium text-gray-700";
 
@@ -488,3 +490,17 @@ export type ToggleProps = {
   defaultValue?: string;
   onChange?: (enabled: boolean) => void;
 };
+
+export function useFormModalFetcher<T extends FormActionData>(
+  onClose: () => void
+) {
+  const action = useFetcher<T>();
+
+  useEffect(() => {
+    if (action.type === "done" && action.data.ok) onClose();
+  }, [action.type, action.data, onClose]);
+
+  return action;
+}
+
+type FormActionData = { ok: boolean };

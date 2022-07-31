@@ -1,7 +1,5 @@
 import { Menu, Transition } from "@headlessui/react";
 import { BookingType } from "@prisma/client";
-import { useFetcher } from "@remix-run/react";
-import { useEffect } from "react";
 import { Fragment, useReducer } from "react";
 import { PencilIcon, PlusIcon } from "~/components/icons";
 import { ChevronDownIcon, TrashIcon } from "~/components/icons";
@@ -15,7 +13,12 @@ import type {
 import type { SerializeType } from "~/utils";
 import { buttonClassName } from "./button";
 import { cn } from "./classnames";
-import { Combobox, CurrencyCombobox, Input } from "./forms";
+import {
+  Combobox,
+  CurrencyCombobox,
+  Input,
+  useFormModalFetcher,
+} from "./forms";
 import { Modal, ModalSize } from "./modal";
 
 export type TransactionFormLoaderData = {
@@ -38,10 +41,7 @@ export function TransactionFormModal({
   onClose,
   prefillAccountId,
 }: TransactionFormModalProps) {
-  const action = useFetcher<TransactionFormActionData>();
-  useEffect(() => {
-    if (action.type === "done" && action.data.ok) onClose();
-  }, [action.type, action.data, onClose]);
+  const action = useFormModalFetcher<TransactionFormActionData>(onClose);
 
   const [bookings, dispatch] = useReducer(
     bookingsReducer,

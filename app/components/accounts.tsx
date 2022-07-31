@@ -1,6 +1,5 @@
 import { AccountType, AccountUnit } from "@prisma/client";
-import { useFetcher } from "@remix-run/react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { PencilIcon, PlusIcon } from "~/components/icons";
 import type { getAccountGroupListItems } from "~/models/account-groups.server";
 import type {
@@ -16,6 +15,7 @@ import {
   Input,
   RadioGroup,
   Select,
+  useFormModalFetcher,
 } from "~/components/forms";
 import { Modal, ModalSize } from "~/components/modal";
 import type { SerializeType } from "~/utils";
@@ -38,10 +38,7 @@ export function AccountFormModal({
   data: { account, accountGroups, assetClasses, stocks },
   onClose,
 }: AccounFormModalProps) {
-  const action = useFetcher<AccountFormActionData>();
-  useEffect(() => {
-    if (action.type === "done" && action.data.ok) onClose();
-  }, [action.type, action.data, onClose]);
+  const action = useFormModalFetcher<AccountFormActionData>(onClose);
 
   const [type, setType] = useState(account?.type || AccountType.ASSET);
   const [unit, setUnit] = useState(account?.unit || AccountUnit.CURRENCY);
