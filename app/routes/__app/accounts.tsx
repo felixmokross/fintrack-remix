@@ -21,7 +21,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 export const meta: MetaFunction = () => ({ title: getTitle("Accounts") });
 
 export default function AccountsPage() {
-  const formModal = useFormModal<AccountFormLoaderData>(AccountFormModal);
+  const formModal = useFormModal<AccountFormLoaderData>();
 
   const deleteAction = useFetcher();
 
@@ -163,7 +163,13 @@ export default function AccountsPage() {
         </div>
       </div>
       <Outlet />
-      {formModal.element}
+      {formModal.ready && (
+        <AccountFormModal
+          open={formModal.isOpen}
+          onClose={formModal.close}
+          data={formModal.data}
+        />
+      )}
     </div>
   );
 }

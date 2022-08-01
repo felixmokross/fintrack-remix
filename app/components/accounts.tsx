@@ -35,7 +35,7 @@ export function AccountFormModal({
   open,
   data: { account, accountGroups, assetClasses, stocks },
   onClose,
-}: AccounFormModalProps) {
+}: AccountFormModalProps) {
   const [type, setType] = useState(account?.type || AccountType.ASSET);
   const [unit, setUnit] = useState(account?.unit || AccountUnit.CURRENCY);
   const [preExisting, setPreExisting] = useState(account?.preExisting || false);
@@ -187,7 +187,7 @@ export function AccountFormModal({
   );
 }
 
-export type AccounFormModalProps = {
+export type AccountFormModalProps = {
   open: boolean;
   data: SerializeType<AccountFormLoaderData>;
   onClose: () => void;

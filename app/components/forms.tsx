@@ -3,12 +3,7 @@ import {
   RadioGroup as HeadlessRadioGroup,
   Switch,
 } from "@headlessui/react";
-import type {
-  ComponentType,
-  DetailedHTMLProps,
-  PropsWithChildren,
-  ReactNode,
-} from "react";
+import type { DetailedHTMLProps, PropsWithChildren, ReactNode } from "react";
 import { useEffect } from "react";
 import { useState } from "react";
 import { currencyItems } from "~/currencies";
@@ -505,21 +500,18 @@ export type ToggleProps = {
   onChange?: (enabled: boolean) => void;
 };
 
-export function useFormModal<TFormLoaderData>(
-  modal: ComponentType<ModalProps<TFormLoaderData>>
-) {
-  const [open, setOpen] = useState(false);
+export function useFormModal<TFormLoaderData>() {
+  const [isOpen, setIsOpen] = useState(false);
   const loader = useFetcher<SerializeType<TFormLoaderData>>();
-  const Modal = modal;
+  const ready = loader.type === "done";
   return {
+    isOpen,
     open: (loaderUrl: string) => {
       loader.load(loaderUrl);
-      setOpen(true);
+      setIsOpen(true);
     },
-    element:
-      loader.type === "done" ? (
-        <Modal open={open} onClose={() => setOpen(false)} data={loader.data} />
-      ) : null,
+    close: () => setIsOpen(false),
+    ...(ready ? { ready, data: loader.data } : { ready, data: undefined }),
   };
 }
 
