@@ -3,7 +3,7 @@ import { useFetcher, useLoaderData } from "@remix-run/react";
 import type { LoaderFunction } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import { format, isThisYear, isToday, isTomorrow, isYesterday } from "date-fns";
-import { Fragment, useState } from "react";
+import { Fragment } from "react";
 import invariant from "tiny-invariant";
 import { currenciesByCode } from "~/currencies";
 import { getAccount } from "~/models/accounts.server";
@@ -11,9 +11,9 @@ import { getReverseLedgerDateGroups } from "~/models/ledger-lines.server";
 import { requireUserId } from "~/session.server";
 import { Button } from "~/components/button";
 import { cn } from "~/components/classnames";
-import type { SerializeType } from "~/utils";
 import type { TransactionFormLoaderData } from "~/components/transactions";
 import { TransactionFormModal } from "~/components/transactions";
+import { useFormModal } from "~/components/forms";
 
 type LoaderData = {
   account: NonNullable<Awaited<ReturnType<typeof getAccount>>>;
@@ -38,8 +38,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 };
 
 export default function AccountDetailPage() {
-  const [formModalOpen, setFormModalOpen] = useState<boolean>(false);
-  const formLoader = useFetcher<SerializeType<TransactionFormLoaderData>>();
+  const formModal = useFormModal<TransactionFormLoaderData>();
 
   const deleteAction = useFetcher();
 
@@ -69,7 +68,7 @@ export default function AccountDetailPage() {
         </div>
         <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
           <Button
-            onClick={() => openFormModal({ mode: "new" })}
+            onClick={() => formModal.open("/transactions/new")}
             variant="primary"
           >
             Add transaction
@@ -175,10 +174,9 @@ export default function AccountDetailPage() {
                             <button
                               type="button"
                               onClick={() =>
-                                openFormModal({
-                                  mode: "edit",
-                                  transactionId: line.transaction.id,
-                                })
+                                formModal.open(
+                                  `/transactions/${line.transaction.id}/edit`
+                                )
                               }
                               className="text-indigo-600 hover:text-indigo-900"
                             >
@@ -231,28 +229,17 @@ export default function AccountDetailPage() {
           </div>
         </div>
       </div>
-      {formLoader.type === "done" && (
+      {formModal.ready && (
         <TransactionFormModal
-          open={formModalOpen}
-          data={formLoader.data}
-          onClose={() => setFormModalOpen(false)}
+          open={formModal.isOpen}
+          data={formModal.data}
+          onClose={formModal.close}
           prefillAccountId={account.id}
         />
       )}
     </div>
   );
-
-  function openFormModal(param: FormModalParam) {
-    formLoader.load(
-      param.mode === "new"
-        ? "/transactions/new"
-        : `/transactions/${param.transactionId}/edit`
-    );
-    setFormModalOpen(true);
-  }
 }
-
-type FormModalParam = { mode: "new" } | { mode: "edit"; transactionId: string };
 
 // TODO make local configurable
 const valueFormat = new Intl.NumberFormat("de-CH", {
