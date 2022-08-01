@@ -4,10 +4,8 @@ import {
   Switch,
 } from "@headlessui/react";
 import type {
-  ComponentPropsWithoutRef,
   ComponentType,
   DetailedHTMLProps,
-  ElementType,
   PropsWithChildren,
 } from "react";
 import { useEffect } from "react";

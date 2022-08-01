@@ -3,7 +3,7 @@ import { AccountUnit } from "@prisma/client";
 import { AccountType } from "@prisma/client";
 import invariant from "tiny-invariant";
 import { prisma } from "~/db.server";
-import { FormErrors } from "~/utils";
+import type { FormErrors } from "~/utils";
 import { isValidDate, isValidDecimal } from "~/utils.server";
 
 export async function getAccountValues(

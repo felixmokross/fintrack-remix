@@ -1,7 +1,6 @@
 import type { Booking, Transaction, User } from "@prisma/client";
 import invariant from "tiny-invariant";
 import { prisma } from "~/db.server";
-import type { FormErrors } from "~/utils";
 
 export async function getTransactionValues(
   request: Request
