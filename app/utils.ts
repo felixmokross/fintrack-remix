@@ -56,7 +56,7 @@ export type FormErrors<Values> = {
     : Values[K] extends object
     ? FormErrors<Values[K]>
     : string;
-};
+} & { form?: string };
 
 export type PolymorphicComponentProps<T extends ElementType> = {
   as?: T;

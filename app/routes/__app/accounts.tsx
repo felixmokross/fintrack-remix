@@ -22,7 +22,9 @@ export const meta: MetaFunction = () => ({ title: getTitle("Accounts") });
 
 export default function AccountsPage() {
   const formModal = useFormModal<AccountFormLoaderData>((mode) =>
-    mode.type === "new" ? "/accounts/new" : `/accounts/${mode.id}/edit`
+    mode.type === "new"
+      ? { title: "New Account", url: "/accounts/new" }
+      : { title: "Edit Account", url: `/accounts/${mode.id}/edit` }
   );
 
   const deleteAction = useFetcher();
@@ -165,12 +167,7 @@ export default function AccountsPage() {
         </div>
       </div>
       <Outlet />
-      <FormModal
-        modal={formModal}
-        title={(mode) => (mode.type === "new" ? "New Account" : "Edit Account")}
-      >
-        {(props) => <AccountForm {...props} />}
-      </FormModal>
+      <FormModal modal={formModal} form={AccountForm} />
     </div>
   );
 }

@@ -3,13 +3,12 @@ import {
   RadioGroup as HeadlessRadioGroup,
   Switch,
 } from "@headlessui/react";
-import {
+import type {
+  ComponentPropsWithoutRef,
+  ComponentType,
   DetailedHTMLProps,
+  ElementType,
   PropsWithChildren,
-  ReactNode,
-  Ref,
-  RefObject,
-  useRef,
 } from "react";
 import { useEffect } from "react";
 import { useState } from "react";
@@ -23,10 +22,11 @@ import {
 } from "~/components/icons";
 import { cn } from "./classnames";
 import { useId } from "react";
-import { FetcherWithComponents, useFetcher } from "@remix-run/react";
+import type { FetcherWithComponents } from "@remix-run/react";
+import { useFetcher } from "@remix-run/react";
 import type { ModalSize } from "./modal";
 import { Modal } from "./modal";
-import type { SerializeType } from "~/utils";
+import type { FormErrors, SerializeType } from "~/utils";
 
 const labelClassName = "block text-sm font-medium text-gray-700";
 
@@ -508,7 +508,7 @@ export type ToggleProps = {
 };
 
 export function useFormModal<TFormLoaderData>(
-  url: (mode: FormModalMode) => string
+  config: (mode: FormModalMode) => FormModalConfig
 ): UseFormModalReturnValue<TFormLoaderData> {
   const [isOpen, setIsOpen] = useState(false);
   const [mode, setMode] = useState<FormModalMode>({ type: "new" });
@@ -517,15 +517,17 @@ export function useFormModal<TFormLoaderData>(
     if (loader.type === "done") setIsOpen(true);
   }, [loader.type]);
 
+  const { url, title } = config(mode);
   return {
     isOpen,
     open: (mode: FormModalMode) => {
-      loader.load(url(mode));
+      loader.load(config(mode).url);
       setMode(mode);
     },
     close: () => setIsOpen(false),
     loader,
     mode,
+    title,
     url,
   };
 }
@@ -535,39 +537,46 @@ type UseFormModalReturnValue<TFormLoaderData> = {
   open: (mode: FormModalMode) => void;
   close: () => void;
   loader: FetcherWithComponents<SerializeType<TFormLoaderData>>;
+  title: string;
   mode: FormModalMode;
-  url: (mode: FormModalMode) => string;
+  url: string;
+};
+
+type FormModalConfig = {
+  title: string;
+  url: string;
 };
 
 export function FormModal<
   TFormLoaderData,
-  TFormActionData extends FormActionData
+  TFormActionData extends FormActionData<TValues>,
+  TValues,
+  TFormProps extends FormProps<TValues, TFormLoaderData>
 >({
-  children,
-  title,
+  form: FormComponent,
   size,
-  modal: { isOpen, close, loader, mode, url },
-}: FormModalProps<
-  TFormLoaderData,
-  TFormActionData["values"],
-  TFormActionData["errors"]
->) {
-  const action = useFormModalAction<TFormActionData>(close);
+  modal: { isOpen, close, loader, title, url, mode },
+  ...props
+}: FormModalProps<TFormLoaderData, TValues, TFormProps>) {
+  const action = useFormModalAction<TFormActionData, TValues>(close);
   const disabled = action.state !== "idle";
   return (
     <Modal open={isOpen} onClose={close} size={size}>
-      <action.Form method="post" action={url(mode)}>
+      <action.Form method="post" action={url}>
         <fieldset disabled={disabled}>
           <Modal.Body
-            title={title(mode)}
+            title={title}
             icon={mode.type === "edit" ? PencilIcon : PlusIcon}
           >
-            {children({
-              data: loader.data!,
-              disabled,
-              values: action.data?.values,
-              errors: action.data?.errors,
-            })}
+            <FormComponent
+              {...({
+                disabled,
+                data: loader.data!,
+                values: action.data?.values,
+                errors: action.data?.errors,
+              } as TFormProps)} // Could not figure out if this is possible without the type assertion
+              {...props}
+            />
           </Modal.Body>
           <Modal.Footer>
             <Modal.Button type="submit" variant="primary">
@@ -592,7 +601,9 @@ export function FormModal<
   );
 }
 
-function useFormModalAction<T extends FormActionData>(onClose: () => void) {
+function useFormModalAction<T extends FormActionData<TValues>, TValues>(
+  onClose: () => void
+) {
   const action = useFetcher<T>();
   const [submitting, setSubmitting] = useState(false);
 
@@ -613,26 +624,27 @@ function useFormModalAction<T extends FormActionData>(onClose: () => void) {
   return action;
 }
 
-type FormModalProps<TFormLoaderData, TValues, TErrors> = {
+type FormModalProps<
+  TFormLoaderData,
+  TValues,
+  TFormProps extends FormProps<TValues, TFormLoaderData>
+> = {
   modal: UseFormModalReturnValue<TFormLoaderData>;
-  title: (mode: FormModalMode) => string;
-  children: (
-    params: FormRenderParams<TFormLoaderData, TValues, TErrors>
-  ) => ReactNode;
+  form: ComponentType<TFormProps>;
   size?: ModalSize;
-};
+} & Omit<TFormProps, "data" | "values" | "errors" | "disabled">;
 
 type FormModalMode = { type: "new" } | { type: "edit"; id: string };
 
-type FormRenderParams<TFormLoaderData, TValues, TErrors> = {
-  disabled: boolean;
+type FormActionData<TValues> = {
+  ok: boolean;
   values?: TValues;
-  errors?: TErrors;
-  data: SerializeType<TFormLoaderData>;
+  errors?: FormErrors<TValues>;
 };
 
-type FormActionData = {
-  ok: boolean;
-  values?: any;
-  errors?: { form?: string; [key: string]: any };
+export type FormProps<TValues, TFormLoaderData> = {
+  values?: TValues;
+  errors?: FormErrors<TValues>;
+  disabled: boolean;
+  data: SerializeType<TFormLoaderData>;
 };

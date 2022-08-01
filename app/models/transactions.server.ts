@@ -212,10 +212,6 @@ export type TransactionValues = {
   bookings: BookingValues[];
 };
 
-export type TransactionErrors = FormErrors<TransactionValues> & {
-  form?: string;
-};
-
 export type BookingValues = {
   type: string;
   accountId: string | null;

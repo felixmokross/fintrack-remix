@@ -4,10 +4,9 @@ import { json } from "@remix-run/server-runtime";
 import { getAccountGroupListItems } from "~/models/account-groups.server";
 import { requireUserId } from "~/session.server";
 import { Button } from "~/components/button";
-import { useState } from "react";
-import type { SerializeType } from "~/utils";
 import type { AccountGroupFormLoaderData } from "~/components/account-groups";
 import { AccountGroupFormModal } from "~/components/account-groups";
+import { FormModal, useFormModal } from "~/components/forms";
 
 type LoaderData = {
   accountGroups: Awaited<ReturnType<typeof getAccountGroupListItems>>;
@@ -20,8 +19,14 @@ export const loader: LoaderFunction = async ({ request }) => {
 };
 
 export default function AccountGroupsPage() {
-  const [formModalOpen, setFormModalOpen] = useState(false);
-  const formLoader = useFetcher<SerializeType<AccountGroupFormLoaderData>>();
+  const formModal = useFormModal<AccountGroupFormLoaderData>((mode) =>
+    mode.type === "new"
+      ? { title: "New Account Group", url: "/settings/account-groups/new" }
+      : {
+          title: "Edit Account Group",
+          url: `/settings/account-groups/${mode.id}/edit`,
+        }
+  );
 
   const deleteAction = useFetcher();
 
@@ -40,7 +45,7 @@ export default function AccountGroupsPage() {
         </div>
         <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
           <Button
-            onClick={() => openFormModal({ mode: "new" })}
+            onClick={() => formModal.open({ type: "new" })}
             variant="primary"
           >
             Add account group
@@ -77,9 +82,9 @@ export default function AccountGroupsPage() {
                       <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                         <button
                           onClick={() =>
-                            openFormModal({
-                              mode: "edit",
-                              accountGroupId: accountGroup.id,
+                            formModal.open({
+                              type: "edit",
+                              id: accountGroup.id,
                             })
                           }
                           className="text-indigo-600 hover:text-indigo-900"
@@ -112,27 +117,7 @@ export default function AccountGroupsPage() {
           </div>
         </div>
       </div>
-      {formLoader.type === "done" && (
-        <AccountGroupFormModal
-          open={formModalOpen}
-          data={formLoader.data}
-          onClose={() => setFormModalOpen(false)}
-        />
-      )}
+      <FormModal modal={formModal} form={AccountGroupFormModal} />
     </div>
   );
-
-  function openFormModal(param: FormModalParam) {
-    formLoader.load(
-      param.mode === "new"
-        ? "/settings/account-groups/new"
-        : `/settings/account-groups/${param.accountGroupId}/edit`
-    );
-
-    setFormModalOpen(true);
-  }
 }
-
-type FormModalParam =
-  | { mode: "new" }
-  | { mode: "edit"; accountGroupId: string };

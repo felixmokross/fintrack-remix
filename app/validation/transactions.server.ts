@@ -1,14 +1,13 @@
 import { BookingType } from "@prisma/client";
 import type {
   TransactionValues,
-  TransactionErrors,
   BookingValues,
 } from "~/models/transactions.server";
 import type { FormErrors } from "~/utils";
 import { isValidDate, isValidDecimal, sum } from "~/utils.server";
 
 export function validateTransaction({ date, bookings }: TransactionValues) {
-  const errors: TransactionErrors = {};
+  const errors: FormErrors<TransactionValues> = {};
 
   if (date.length === 0) errors.date = "Date is required";
   else if (!isValidDate(date)) errors.date = "Date must be a date";

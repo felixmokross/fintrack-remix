@@ -12,8 +12,9 @@ import { requireUserId } from "~/session.server";
 import { Button } from "~/components/button";
 import { cn } from "~/components/classnames";
 import type { TransactionFormLoaderData } from "~/components/transactions";
-import { TransactionFormModal } from "~/components/transactions";
-import { useFormModal } from "~/components/forms";
+import { TransactionForm } from "~/components/transactions";
+import { FormModal, useFormModal } from "~/components/forms";
+import { ModalSize } from "~/components/modal";
 
 type LoaderData = {
   account: NonNullable<Awaited<ReturnType<typeof getAccount>>>;
@@ -38,7 +39,11 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 };
 
 export default function AccountDetailPage() {
-  const formModal = useFormModal<TransactionFormLoaderData>();
+  const formModal = useFormModal<TransactionFormLoaderData>((mode) =>
+    mode.type === "new"
+      ? { title: "New Transaction", url: "/transactions/new" }
+      : { title: "Edit Transaction", url: `/transactions/${mode.id}/edit` }
+  );
 
   const deleteAction = useFetcher();
 
@@ -68,7 +73,7 @@ export default function AccountDetailPage() {
         </div>
         <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
           <Button
-            onClick={() => formModal.open("/transactions/new")}
+            onClick={() => formModal.open({ type: "new" })}
             variant="primary"
           >
             Add transaction
@@ -174,9 +179,10 @@ export default function AccountDetailPage() {
                             <button
                               type="button"
                               onClick={() =>
-                                formModal.open(
-                                  `/transactions/${line.transaction.id}/edit`
-                                )
+                                formModal.open({
+                                  type: "edit",
+                                  id: line.transaction.id,
+                                })
                               }
                               className="text-indigo-600 hover:text-indigo-900"
                             >
@@ -229,14 +235,12 @@ export default function AccountDetailPage() {
           </div>
         </div>
       </div>
-      {formModal.ready && (
-        <TransactionFormModal
-          open={formModal.isOpen}
-          data={formModal.data}
-          onClose={formModal.close}
-          prefillAccountId={account.id}
-        />
-      )}
+      <FormModal
+        size={ModalSize.EXTRA_LARGE}
+        modal={formModal}
+        form={TransactionForm}
+        prefillAccountId={account.id}
+      />
     </div>
   );
 }
