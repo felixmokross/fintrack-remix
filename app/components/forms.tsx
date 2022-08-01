@@ -634,7 +634,7 @@ type FormModalProps<
 
 type FormModalMode = { type: "new" } | { type: "edit"; id: string };
 
-type FormActionData<TValues> = {
+export type FormActionData<TValues> = {
   ok: boolean;
   values?: TValues;
   errors?: FormErrors<TValues>;

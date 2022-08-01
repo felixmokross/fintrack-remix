@@ -1,9 +1,12 @@
-import { Link, Outlet, useFetcher, useLoaderData } from "@remix-run/react";
+import { useFetcher, useLoaderData } from "@remix-run/react";
 import type { LoaderFunction } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import { getAssetClassListItems } from "~/models/asset-classes.server";
 import { requireUserId } from "~/session.server";
 import { Button } from "~/components/button";
+import { FormModal, useFormModal } from "~/components/forms";
+import type { AssetClassFormLoaderData } from "~/components/asset-classes";
+import { AssetClassForm } from "~/components/asset-classes";
 
 type LoaderData = {
   assetClasses: Awaited<ReturnType<typeof getAssetClassListItems>>;
@@ -16,8 +19,17 @@ export const loader: LoaderFunction = async ({ request }) => {
 };
 
 export default function AssetClassesPage() {
+  const formModal = useFormModal<AssetClassFormLoaderData>((mode) =>
+    mode.type === "new"
+      ? { title: "New Asset Class", url: "/settings/asset-classes/new" }
+      : {
+          title: "Edit Asset Class",
+          url: `/settings/asset-classes/${mode.id}/edit`,
+        }
+  );
+
   const { assetClasses } = useLoaderData<LoaderData>();
-  const fetcher = useFetcher();
+  const deleteAction = useFetcher();
   return (
     <div className="px-4 sm:px-6 lg:px-8">
       <div className="sm:flex">
@@ -30,7 +42,10 @@ export default function AssetClassesPage() {
           </p>
         </div>
         <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
-          <Button as={Link} to="new" variant="primary">
+          <Button
+            onClick={() => formModal.open({ type: "new" })}
+            variant="primary"
+          >
             Add asset class
           </Button>
         </div>
@@ -72,15 +87,17 @@ export default function AssetClassesPage() {
                         {assetClass.sortOrder}
                       </td>
                       <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                        <Link
-                          to={assetClass.id}
+                        <button
+                          onClick={() =>
+                            formModal.open({ type: "edit", id: assetClass.id })
+                          }
                           className="text-indigo-600 hover:text-indigo-900"
                         >
                           Edit
                           <span className="sr-only">, {assetClass.name}</span>
-                        </Link>{" "}
+                        </button>{" "}
                         &middot;{" "}
-                        <fetcher.Form
+                        <deleteAction.Form
                           className="inline"
                           action="delete"
                           method="post"
@@ -97,7 +114,7 @@ export default function AssetClassesPage() {
                             Delete
                             <span className="sr-only">, {assetClass.name}</span>
                           </button>
-                        </fetcher.Form>
+                        </deleteAction.Form>
                       </td>
                     </tr>
                   ))}
@@ -107,7 +124,7 @@ export default function AssetClassesPage() {
           </div>
         </div>
       </div>
-      <Outlet />
+      <FormModal modal={formModal} form={AssetClassForm} />
     </div>
   );
 }
