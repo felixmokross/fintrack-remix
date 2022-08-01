@@ -3,7 +3,14 @@ import {
   RadioGroup as HeadlessRadioGroup,
   Switch,
 } from "@headlessui/react";
-import type { DetailedHTMLProps, PropsWithChildren, ReactNode } from "react";
+import {
+  DetailedHTMLProps,
+  PropsWithChildren,
+  ReactNode,
+  Ref,
+  RefObject,
+  useRef,
+} from "react";
 import { useEffect } from "react";
 import { useState } from "react";
 import { currencyItems } from "~/currencies";
@@ -16,7 +23,7 @@ import {
 } from "~/components/icons";
 import { cn } from "./classnames";
 import { useId } from "react";
-import { useFetcher } from "@remix-run/react";
+import { FetcherWithComponents, useFetcher } from "@remix-run/react";
 import type { ModalSize } from "./modal";
 import { Modal } from "./modal";
 import type { SerializeType } from "~/utils";
@@ -500,47 +507,63 @@ export type ToggleProps = {
   onChange?: (enabled: boolean) => void;
 };
 
-export function useFormModal<TFormLoaderData>() {
+export function useFormModal<TFormLoaderData>(
+  url: (mode: FormModalMode) => string
+): UseFormModalReturnValue<TFormLoaderData> {
   const [isOpen, setIsOpen] = useState(false);
+  const [mode, setMode] = useState<FormModalMode>({ type: "new" });
   const loader = useFetcher<SerializeType<TFormLoaderData>>();
-  const ready = loader.type === "done";
+  useEffect(() => {
+    if (loader.type === "done") setIsOpen(true);
+  }, [loader.type]);
+
   return {
     isOpen,
-    open: (loaderUrl: string) => {
-      loader.load(loaderUrl);
-      setIsOpen(true);
+    open: (mode: FormModalMode) => {
+      loader.load(url(mode));
+      setMode(mode);
     },
     close: () => setIsOpen(false),
-    ...(ready ? { ready, data: loader.data } : { ready, data: undefined }),
+    loader,
+    mode,
+    url,
   };
 }
 
-export type ModalProps<TFormLoaderData> = {
-  open: boolean;
-  onClose: () => void;
-  data: SerializeType<TFormLoaderData>;
+type UseFormModalReturnValue<TFormLoaderData> = {
+  isOpen: boolean;
+  open: (mode: FormModalMode) => void;
+  close: () => void;
+  loader: FetcherWithComponents<SerializeType<TFormLoaderData>>;
+  mode: FormModalMode;
+  url: (mode: FormModalMode) => string;
 };
 
-export function FormModal<TFormActionData extends FormActionData>({
-  open,
-  onClose,
+export function FormModal<
+  TFormLoaderData,
+  TFormActionData extends FormActionData
+>({
   children,
-  mode,
   title,
-  actionUrl,
   size,
-}: FormModalProps<TFormActionData["values"], TFormActionData["errors"]>) {
-  const action = useFormModalAction<TFormActionData>(onClose);
+  modal: { isOpen, close, loader, mode, url },
+}: FormModalProps<
+  TFormLoaderData,
+  TFormActionData["values"],
+  TFormActionData["errors"]
+>) {
+  const action = useFormModalAction<TFormActionData>(close);
   const disabled = action.state !== "idle";
   return (
-    <Modal open={open} onClose={onClose} size={size}>
-      <action.Form method="post" action={actionUrl}>
+    <Modal open={isOpen} onClose={close} size={size}>
+      <action.Form method="post" action={url(mode)}>
         <fieldset disabled={disabled}>
           <Modal.Body
-            title={title}
-            icon={mode === "edit" ? PencilIcon : PlusIcon}
+            title={title(mode)}
+            icon={mode.type === "edit" ? PencilIcon : PlusIcon}
           >
             {children({
+              data: loader.data!,
               disabled,
               values: action.data?.values,
               errors: action.data?.errors,
@@ -552,7 +575,7 @@ export function FormModal<TFormActionData extends FormActionData>({
             </Modal.Button>
             <Modal.Button
               type="button"
-              onClick={onClose}
+              onClick={close}
               className="mt-3 sm:mt-0"
             >
               Cancel
@@ -571,30 +594,41 @@ export function FormModal<TFormActionData extends FormActionData>({
 
 function useFormModalAction<T extends FormActionData>(onClose: () => void) {
   const action = useFetcher<T>();
+  const [submitting, setSubmitting] = useState(false);
+
+  // need an extra state + useEffect currently to only close the modal if the action
+  // was submitting before, since fetchers can't be reset in Remix currently
+  // see https://github.com/remix-run/remix/pull/3551
+  useEffect(() => {
+    if (submitting && action.type === "actionReload" && action.data.ok) {
+      onClose();
+      setSubmitting(false);
+    }
+  }, [action.type, action.data, onClose, submitting]);
 
   useEffect(() => {
-    if (action.type === "done" && action.data.ok) onClose();
-  }, [action.type, action.data, onClose]);
+    if (action.state === "submitting") setSubmitting(true);
+  }, [action.state]);
 
   return action;
 }
 
-type FormModalProps<TValues, TErrors> = {
-  open: boolean;
-  onClose: () => void;
-  mode: FormModalMode;
-  title: string;
-  actionUrl: string;
-  children: (params: FormRenderParams<TValues, TErrors>) => ReactNode;
+type FormModalProps<TFormLoaderData, TValues, TErrors> = {
+  modal: UseFormModalReturnValue<TFormLoaderData>;
+  title: (mode: FormModalMode) => string;
+  children: (
+    params: FormRenderParams<TFormLoaderData, TValues, TErrors>
+  ) => ReactNode;
   size?: ModalSize;
 };
 
-type FormModalMode = "new" | "edit";
+type FormModalMode = { type: "new" } | { type: "edit"; id: string };
 
-type FormRenderParams<TValues, TErrors> = {
+type FormRenderParams<TFormLoaderData, TValues, TErrors> = {
   disabled: boolean;
   values?: TValues;
   errors?: TErrors;
+  data: SerializeType<TFormLoaderData>;
 };
 
 type FormActionData = {

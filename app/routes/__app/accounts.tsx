@@ -3,13 +3,13 @@ import { Link, Outlet, useFetcher, useLoaderData } from "@remix-run/react";
 import type { LoaderFunction, MetaFunction } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import type { AccountFormLoaderData } from "~/components/accounts";
-import { AccountFormModal } from "~/components/accounts";
+import { AccountForm } from "~/components/accounts";
 import { currenciesByCode } from "~/currencies";
 import { getAccountListItems } from "~/models/accounts.server";
 import { requireUserId } from "~/session.server";
 import { Button } from "~/components/button";
 import { getTitle } from "~/utils";
-import { useFormModal } from "~/components/forms";
+import { FormModal, useFormModal } from "~/components/forms";
 
 type LoaderData = { accounts: Awaited<ReturnType<typeof getAccountListItems>> };
 
@@ -21,7 +21,9 @@ export const loader: LoaderFunction = async ({ request }) => {
 export const meta: MetaFunction = () => ({ title: getTitle("Accounts") });
 
 export default function AccountsPage() {
-  const formModal = useFormModal<AccountFormLoaderData>();
+  const formModal = useFormModal<AccountFormLoaderData>((mode) =>
+    mode.type === "new" ? "/accounts/new" : `/accounts/${mode.id}/edit`
+  );
 
   const deleteAction = useFetcher();
 
@@ -34,7 +36,7 @@ export default function AccountsPage() {
         </div>
         <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
           <Button
-            onClick={() => formModal.open("/accounts/new")}
+            onClick={() => formModal.open({ type: "new" })}
             variant="secondary"
           >
             Add account
@@ -132,7 +134,7 @@ export default function AccountsPage() {
                         <button
                           type="button"
                           onClick={() =>
-                            formModal.open(`/accounts/${account.id}/edit`)
+                            formModal.open({ type: "edit", id: account.id })
                           }
                           className="text-indigo-600 hover:text-indigo-900"
                         >
@@ -163,13 +165,12 @@ export default function AccountsPage() {
         </div>
       </div>
       <Outlet />
-      {formModal.ready && (
-        <AccountFormModal
-          open={formModal.isOpen}
-          onClose={formModal.close}
-          data={formModal.data}
-        />
-      )}
+      <FormModal
+        modal={formModal}
+        title={(mode) => (mode.type === "new" ? "New Account" : "Edit Account")}
+      >
+        {(props) => <AccountForm {...props} />}
+      </FormModal>
     </div>
   );
 }
