@@ -530,7 +530,7 @@ export function FormModal<TFormActionData extends FormActionData>({
   actionUrl,
   size,
 }: FormModalProps<TFormActionData["values"], TFormActionData["errors"]>) {
-  const action = useFormModalFetcher<TFormActionData>(onClose);
+  const action = useFormModalAction<TFormActionData>(onClose);
   const disabled = action.state !== "idle";
   return (
     <Modal open={open} onClose={onClose} size={size}>
@@ -569,7 +569,7 @@ export function FormModal<TFormActionData extends FormActionData>({
   );
 }
 
-function useFormModalFetcher<T extends FormActionData>(onClose: () => void) {
+function useFormModalAction<T extends FormActionData>(onClose: () => void) {
   const action = useFetcher<T>();
 
   useEffect(() => {
