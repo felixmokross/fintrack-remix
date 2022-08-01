@@ -99,14 +99,9 @@ export default function AssetClassesPage() {
                         &middot;{" "}
                         <deleteAction.Form
                           className="inline"
-                          action="delete"
+                          action={`${assetClass.id}/delete`}
                           method="post"
                         >
-                          <input
-                            type="hidden"
-                            name="id"
-                            value={assetClass.id}
-                          />
                           <button
                             type="submit"
                             className="text-indigo-600 hover:text-indigo-900"
