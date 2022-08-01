@@ -1,13 +1,10 @@
 import { AccountType, AccountUnit } from "@prisma/client";
 import { useState } from "react";
 import type { getAccountGroupListItems } from "~/models/account-groups.server";
-import type {
-  AccountErrors,
-  AccountValues,
-  getAccount,
-} from "~/models/accounts.server";
+import type { AccountValues, getAccount } from "~/models/accounts.server";
 import type { getAssetClassListItems } from "~/models/asset-classes.server";
 import type { getStockListItems } from "~/models/stocks.server";
+import type { FormActionData, FormProps } from "~/components/forms";
 import {
   CurrencyCombobox,
   DetailedRadioGroup,
@@ -15,7 +12,6 @@ import {
   RadioGroup,
   Select,
 } from "~/components/forms";
-import type { SerializeType } from "~/utils";
 
 export type AccountFormLoaderData = {
   assetClasses: Awaited<ReturnType<typeof getAssetClassListItems>>;
@@ -24,11 +20,7 @@ export type AccountFormLoaderData = {
   account?: NonNullable<Awaited<ReturnType<typeof getAccount>>>;
 };
 
-export type AccountFormActionData = {
-  ok: boolean;
-  errors?: AccountErrors;
-  values?: AccountValues;
-};
+export type AccountFormActionData = FormActionData<AccountValues>;
 
 export function AccountForm({
   values,
@@ -177,12 +169,7 @@ export function AccountForm({
   );
 }
 
-export type AccountFormProps = {
-  values?: AccountValues;
-  errors?: AccountErrors;
-  disabled: boolean;
-  data: SerializeType<AccountFormLoaderData>;
-};
+export type AccountFormProps = FormProps<AccountValues, AccountFormLoaderData>;
 
 function AccountTypeRadioGroup({
   groupClassName,

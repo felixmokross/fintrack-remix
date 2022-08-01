@@ -8,10 +8,9 @@ import type {
   getTransaction,
   TransactionValues,
 } from "~/models/transactions.server";
-import type { FormErrors } from "~/utils";
 import { buttonClassName } from "./button";
 import { cn } from "./classnames";
-import type { FormProps } from "./forms";
+import type { FormActionData, FormProps } from "./forms";
 import { Combobox } from "./forms";
 import { CurrencyCombobox, Input } from "./forms";
 
@@ -23,11 +22,7 @@ export type TransactionFormLoaderData = {
   transaction?: NonNullable<Awaited<ReturnType<typeof getTransaction>>>;
 };
 
-export type TransactionFormActionData = {
-  ok: boolean;
-  errors?: FormErrors<TransactionValues>;
-  values?: TransactionValues;
-};
+export type TransactionFormActionData = FormActionData<TransactionValues>;
 
 export function TransactionForm({
   values,

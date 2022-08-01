@@ -216,8 +216,6 @@ export type AccountValues = {
   openingDate: string | null;
 };
 
-export type AccountErrors = FormErrors<AccountValues>;
-
 export function validateAccount({
   name,
   type,
@@ -229,7 +227,7 @@ export function validateAccount({
   balanceAtStart,
   openingDate,
 }: AccountValues) {
-  const errors: AccountErrors = {};
+  const errors: FormErrors<AccountValues> = {};
 
   if (name.length === 0) {
     errors.name = "Name is required";
