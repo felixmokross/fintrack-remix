@@ -2,6 +2,8 @@ import { useFetchers, useTransition } from "@remix-run/react";
 import { useEffect } from "react";
 import toast from "react-hot-toast";
 
+const delayInMs = 200;
+
 export function LoadingIndicator() {
   const fetchers = useFetchers();
   const transition = useTransition();
@@ -30,7 +32,7 @@ function onLoadingStart() {
 
   timeout = window.setTimeout(() => {
     if (loading) toastId = toast.loading("Loading…");
-  }, 300);
+  }, delayInMs);
 }
 
 function onLoadingEnd() {
