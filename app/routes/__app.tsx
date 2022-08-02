@@ -1,16 +1,11 @@
 import { Disclosure, Menu, Transition } from "@headlessui/react";
-import {
-  NavLink,
-  Link,
-  Outlet,
-  Form,
-  useFetchers,
-  useTransition,
-} from "@remix-run/react";
+import { NavLink, Link, Outlet, Form } from "@remix-run/react";
 import { Fragment, useRef } from "react";
 import { SearchIcon, XIcon, MenuIcon, CogIcon } from "~/components/icons";
 import { cn } from "~/components/classnames";
 import { useUser } from "~/utils";
+import { Toaster } from "~/components/toaster";
+import { LoadingIndicator } from "~/components/loading-indicator";
 
 export default function App() {
   const noFocusRef = useRef(null);
@@ -81,7 +76,6 @@ export default function App() {
                       >
                         Transactions
                       </NavLink>
-                      <LoadingIndicator className="inline-flex items-center border-b-2  border-transparent px-1 pt-1 text-sm font-medium text-gray-500" />
                     </div>
                   </div>
                   <div className="flex flex-1 items-center justify-center px-2 lg:ml-6 lg:justify-end">
@@ -292,20 +286,8 @@ export default function App() {
       <div className="mx-auto max-w-7xl sm:px-4 lg:px-8">
         <Outlet />
       </div>
+      <Toaster />
+      <LoadingIndicator />
     </>
   );
 }
-
-function LoadingIndicator({ className }: LoadingIndicatorProps) {
-  const fetchers = useFetchers();
-  const transition = useTransition();
-  return transition.state === "loading" ||
-    transition.state === "submitting" ||
-    fetchers.some((f) => f.state === "loading" || f.state === "submitting") ? (
-    <div className={cn(className, "animate-pulse")}>Loading&hellip;</div>
-  ) : null;
-}
-
-type LoadingIndicatorProps = {
-  className?: string;
-};
