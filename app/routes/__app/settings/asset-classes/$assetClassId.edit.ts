@@ -12,6 +12,7 @@ import {
   validateAssetClass,
 } from "~/models/asset-classes.server";
 import { requireUserId } from "~/session.server";
+import { hasErrors } from "~/utils.server";
 
 export const action: ActionFunction = async ({ request, params }) => {
   const userId = await requireUserId(request);
@@ -27,7 +28,7 @@ export const action: ActionFunction = async ({ request, params }) => {
 
   const errors = validateAssetClass({ name, sortOrder });
 
-  if (Object.values(errors).length > 0) {
+  if (hasErrors(errors)) {
     return json<AssetClassFormActionData>(
       { ok: false, errors, values: { name, sortOrder } },
       { status: 400 }

@@ -8,6 +8,7 @@ import {
 import { createAssetClass } from "~/models/asset-classes.server";
 import { requireUserId } from "~/session.server";
 import type { AssetClassFormActionData } from "~/components/asset-classes";
+import { hasErrors } from "~/utils.server";
 
 export const loader: LoaderFunction = async () => ({});
 
@@ -23,7 +24,7 @@ export const action: ActionFunction = async ({ request }) => {
 
   const errors = validateAssetClass({ name, sortOrder });
 
-  if (Object.values(errors).length > 0) {
+  if (hasErrors(errors)) {
     return json<AssetClassFormActionData>(
       { ok: false, errors, values: { name, sortOrder } },
       { status: 400 }

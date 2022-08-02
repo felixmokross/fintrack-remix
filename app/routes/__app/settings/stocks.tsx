@@ -1,9 +1,12 @@
-import { Link, Outlet, useFetcher, useLoaderData } from "@remix-run/react";
+import { useFetcher, useLoaderData } from "@remix-run/react";
 import type { LoaderFunction } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import { getStockListItems } from "~/models/stocks.server";
 import { requireUserId } from "~/session.server";
 import { Button } from "~/components/button";
+import { FormModal, useFormModal } from "~/components/forms";
+import type { StockFormLoaderData } from "~/components/stocks";
+import { StockForm } from "~/components/stocks";
 
 type LoaderData = {
   stocks: Awaited<ReturnType<typeof getStockListItems>>;
@@ -16,8 +19,14 @@ export const loader: LoaderFunction = async ({ request }) => {
 };
 
 export default function StocksPage() {
+  const formModal = useFormModal<StockFormLoaderData>((mode) =>
+    mode.type === "new"
+      ? { title: "New Stock", url: "/settings/stocks/new" }
+      : { title: "Edit Stock", url: `/settings/stocks/${mode.id}/edit` }
+  );
+
   const { stocks } = useLoaderData<LoaderData>();
-  const fetcher = useFetcher();
+  const deleteAction = useFetcher();
   return (
     <div className="px-4 sm:px-6 lg:px-8">
       <div className="sm:flex">
@@ -29,7 +38,10 @@ export default function StocksPage() {
           </p>
         </div>
         <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
-          <Button as={Link} to="new" variant="primary">
+          <Button
+            onClick={() => formModal.open({ type: "new" })}
+            variant="primary"
+          >
             Add stock
           </Button>
         </div>
@@ -71,20 +83,22 @@ export default function StocksPage() {
                         {stock.tradingCurrency}
                       </td>
                       <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                        <Link
-                          to={stock.id}
+                        <button
+                          type="button"
+                          onClick={() =>
+                            formModal.open({ type: "edit", id: stock.id })
+                          }
                           className="text-indigo-600 hover:text-indigo-900"
                         >
                           Edit
                           <span className="sr-only">, {stock.symbol}</span>
-                        </Link>{" "}
+                        </button>{" "}
                         &middot;{" "}
-                        <fetcher.Form
+                        <deleteAction.Form
                           className="inline"
-                          action="delete"
+                          action={`${stock.id}/delete`}
                           method="post"
                         >
-                          <input type="hidden" name="id" value={stock.id} />
                           <button
                             type="submit"
                             className="text-indigo-600 hover:text-indigo-900"
@@ -92,7 +106,7 @@ export default function StocksPage() {
                             Delete
                             <span className="sr-only">, {stock.id}</span>
                           </button>
-                        </fetcher.Form>
+                        </deleteAction.Form>
                       </td>
                     </tr>
                   ))}
@@ -102,7 +116,7 @@ export default function StocksPage() {
           </div>
         </div>
       </div>
-      <Outlet />
+      <FormModal modal={formModal} form={StockForm} />
     </div>
   );
 }
