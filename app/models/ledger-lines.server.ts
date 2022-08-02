@@ -14,25 +14,23 @@ export async function getReverseLedgerDateGroups({
   const ledgerLines = await getLedgerLines({ account, userId });
   ledgerLines.reverse();
 
-  return Array.from(
-    ledgerLines
-      .reduce((acc, line) => {
-        const dateKey = line.transaction.date.valueOf();
+  const groupByDate = new Map<number, LedgerDateGroup>();
 
-        if (!acc.has(dateKey)) {
-          acc.set(dateKey, {
-            date: line.transaction.date,
-            lines: [line],
-            balance: line.balance,
-          });
-        } else {
-          acc.get(dateKey)!.lines.push(line);
-        }
+  for (const line of ledgerLines) {
+    const dateKey = line.transaction.date.valueOf();
 
-        return acc;
-      }, new Map<number, LedgerDateGroup>())
-      .values()
-  );
+    if (!groupByDate.has(dateKey)) {
+      groupByDate.set(dateKey, {
+        date: line.transaction.date,
+        lines: [line],
+        balance: line.balance,
+      });
+    } else {
+      groupByDate.get(dateKey)!.lines.push(line);
+    }
+  }
+
+  return Array.from(groupByDate.values());
 }
 
 export type LedgerDateGroup = {
@@ -50,19 +48,17 @@ export async function getLedgerLines({
 }) {
   const bookings = await getBookings({ accountId: account.id, userId });
 
-  return bookings.reduce<Accumulator>(
-    (acc, booking) => {
-      acc.balance = acc.balance.plus(getBookingValue(booking));
-      acc.lines.push({ ...booking, balance: acc.balance });
-      return acc;
-    },
-    {
-      balance: new Decimal(
-        (account.preExisting && account.balanceAtStart) || 0
-      ),
-      lines: [],
-    }
-  ).lines;
+  let balance = new Decimal(
+    (account.preExisting && account.balanceAtStart) || 0
+  );
+  const lines = [];
+
+  for (const booking of bookings) {
+    balance = balance.plus(getBookingValue(booking));
+    lines.push({ ...booking, balance });
+  }
+
+  return lines;
 }
 
 function getBookingValue(booking: Booking) {
@@ -75,11 +71,6 @@ function getBookingValue(booking: Booking) {
       throw new Error("Unexpected");
   }
 }
-
-type Accumulator = {
-  balance: Decimal;
-  lines: LedgerLine[];
-};
 
 export type LedgerLine = Booking & {
   balance: Decimal;
