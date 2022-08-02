@@ -16,9 +16,9 @@ export function getStock({
 }: Pick<Stock, "id"> & {
   userId: User["id"];
 }) {
-  return prisma.stock.findFirst({
+  return prisma.stock.findUnique({
     select: { id: true, symbol: true, tradingCurrency: true },
-    where: { id, userId },
+    where: { id_userId: { id, userId } },
   });
 }
 
@@ -33,20 +33,9 @@ export function createStock({
     data: {
       symbol: symbol.toUpperCase(),
       tradingCurrency,
-      user: {
-        connect: {
-          id: userId,
-        },
-      },
+      user: { connect: { id: userId } },
     },
   });
-}
-
-export async function stockExists({
-  id,
-  userId,
-}: Pick<Stock, "id" | "userId">) {
-  return (await prisma.stock.count({ where: { id, userId } })) > 0;
 }
 
 export async function updateStock({
@@ -57,16 +46,14 @@ export async function updateStock({
 }: Pick<Stock, "id" | "symbol" | "tradingCurrency"> & {
   userId: User["id"];
 }) {
-  if (!(await stockExists({ id, userId }))) throw new Error("Stock not found");
-
   return await prisma.stock.update({
-    where: { id },
+    where: { id_userId: { id, userId } },
     data: { symbol, tradingCurrency },
   });
 }
 
 export function deleteStock({ id, userId }: Pick<Stock, "id" | "userId">) {
-  return prisma.stock.deleteMany({ where: { id, userId } });
+  return prisma.stock.delete({ where: { id_userId: { id, userId } } });
 }
 
 export function validateStock({ symbol, tradingCurrency }: StockValues) {

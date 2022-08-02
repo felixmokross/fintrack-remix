@@ -40,9 +40,9 @@ export function getIncomeExpenseCategory({
 }: Pick<IncomeExpenseCategory, "id"> & {
   userId: User["id"];
 }) {
-  return prisma.incomeExpenseCategory.findFirst({
+  return prisma.incomeExpenseCategory.findUnique({
     select: { id: true, name: true, type: true },
-    where: { id, userId },
+    where: { id_userId: { id, userId } },
   });
 }
 
@@ -57,22 +57,9 @@ export function createIncomeExpenseCategory({
     data: {
       name,
       type,
-      user: {
-        connect: {
-          id: userId,
-        },
-      },
+      user: { connect: { id: userId } },
     },
   });
-}
-
-export async function incomeExpenseCategoryExists({
-  id,
-  userId,
-}: Pick<IncomeExpenseCategory, "id" | "userId">) {
-  return (
-    (await prisma.incomeExpenseCategory.count({ where: { id, userId } })) > 0
-  );
 }
 
 export async function updateIncomeExpenseCategory({
@@ -82,11 +69,8 @@ export async function updateIncomeExpenseCategory({
 }: Pick<IncomeExpenseCategory, "id" | "name"> & {
   userId: User["id"];
 }) {
-  if (!(await incomeExpenseCategoryExists({ id, userId })))
-    throw new Error("Income/expense category not found");
-
   return await prisma.incomeExpenseCategory.update({
-    where: { id },
+    where: { id_userId: { id, userId } },
     data: { name },
   });
 }
@@ -95,7 +79,9 @@ export function deleteIncomeExpenseCategory({
   id,
   userId,
 }: Pick<IncomeExpenseCategory, "id" | "userId">) {
-  return prisma.incomeExpenseCategory.deleteMany({ where: { id, userId } });
+  return prisma.incomeExpenseCategory.delete({
+    where: { id_userId: { id, userId } },
+  });
 }
 
 export function validateIncomeExpenseCategory({

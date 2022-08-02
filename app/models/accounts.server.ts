@@ -84,8 +84,8 @@ export function getAccount({
 }: Pick<Account, "id"> & {
   userId: User["id"];
 }) {
-  return prisma.account.findFirst({
-    where: { id, userId },
+  return prisma.account.findUnique({
+    where: { id_userId: { id, userId } },
     select: {
       id: true,
       name: true,
@@ -134,24 +134,23 @@ export function createAccount({
     data: {
       name,
       type,
-      assetClass: assetClassId ? { connect: { id: assetClassId } } : undefined,
-      group: groupId ? { connect: { id: groupId } } : undefined,
+      assetClass: assetClassId
+        ? { connect: { id_userId: { id: assetClassId, userId } } }
+        : undefined,
+      group: groupId
+        ? { connect: { id_userId: { id: groupId, userId } } }
+        : undefined,
       unit,
       currency,
-      stock: stockId ? { connect: { id: stockId } } : undefined,
+      stock: stockId
+        ? { connect: { id_userId: { id: stockId, userId } } }
+        : undefined,
       preExisting,
       balanceAtStart,
       openingDate,
       user: { connect: { id: userId } },
     },
   });
-}
-
-export async function accountExists({
-  id,
-  userId,
-}: Pick<Account, "id" | "userId">) {
-  return (await prisma.account.count({ where: { id, userId } })) > 0;
 }
 
 export async function updateAccount({
@@ -183,19 +182,22 @@ export async function updateAccount({
 > & {
   userId: User["id"];
 }) {
-  if (!(await accountExists({ id, userId })))
-    throw new Error("Account not found");
-
   return await prisma.account.update({
-    where: { id },
+    where: { id_userId: { id, userId } },
     data: {
       name,
       type,
-      assetClass: assetClassId ? { connect: { id: assetClassId } } : undefined,
-      group: groupId ? { connect: { id: groupId } } : undefined,
+      assetClass: assetClassId
+        ? { connect: { id_userId: { id: assetClassId, userId } } }
+        : undefined,
+      group: groupId
+        ? { connect: { id_userId: { id: groupId, userId } } }
+        : undefined,
       unit,
       currency,
-      stock: stockId ? { connect: { id: stockId } } : undefined,
+      stock: stockId
+        ? { connect: { id_userId: { id: stockId, userId } } }
+        : undefined,
       preExisting,
       balanceAtStart,
       openingDate,
@@ -271,5 +273,5 @@ export function validateAccount({
 }
 
 export function deleteAccount({ id, userId }: Pick<Account, "id" | "userId">) {
-  return prisma.account.deleteMany({ where: { id, userId } });
+  return prisma.account.delete({ where: { id_userId: { id, userId } } });
 }

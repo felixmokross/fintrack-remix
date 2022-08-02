@@ -15,9 +15,9 @@ export function getAssetClass({
 }: Pick<AssetClass, "id"> & {
   userId: User["id"];
 }) {
-  return prisma.assetClass.findFirst({
+  return prisma.assetClass.findUnique({
     select: { id: true, name: true, sortOrder: true },
-    where: { id, userId },
+    where: { id_userId: { id, userId } },
   });
 }
 
@@ -41,13 +41,6 @@ export function createAssetClass({
   });
 }
 
-export async function assetClassExists({
-  id,
-  userId,
-}: Pick<AssetClass, "id" | "userId">) {
-  return (await prisma.assetClass.count({ where: { id, userId } })) > 0;
-}
-
 export async function updateAssetClass({
   id,
   name,
@@ -56,11 +49,8 @@ export async function updateAssetClass({
 }: Pick<AssetClass, "id" | "name" | "sortOrder"> & {
   userId: User["id"];
 }) {
-  if (!(await assetClassExists({ id, userId })))
-    throw new Error("Asset class not found");
-
   return await prisma.assetClass.update({
-    where: { id },
+    where: { id_userId: { id, userId } },
     data: { name, sortOrder },
   });
 }
@@ -69,7 +59,7 @@ export function deleteAssetClass({
   id,
   userId,
 }: Pick<AssetClass, "id" | "userId">) {
-  return prisma.assetClass.deleteMany({ where: { id, userId } });
+  return prisma.assetClass.delete({ where: { id_userId: { id, userId } } });
 }
 
 export function validateAssetClass({ name, sortOrder }: AssetClassValues) {
