@@ -16,9 +16,9 @@ export function getAccountGroup({
 }: Pick<AccountGroup, "id"> & {
   userId: User["id"];
 }) {
-  return prisma.accountGroup.findFirst({
+  return prisma.accountGroup.findUnique({
     select: { id: true, name: true },
-    where: { id, userId },
+    where: { id_userId: { id, userId } },
   });
 }
 
@@ -36,13 +36,6 @@ export function createAccountGroup({
   });
 }
 
-export async function accountGroupExists({
-  id,
-  userId,
-}: Pick<AccountGroup, "id" | "userId">) {
-  return (await prisma.accountGroup.count({ where: { id, userId } })) > 0;
-}
-
 export async function updateAccountGroup({
   id,
   name,
@@ -50,11 +43,8 @@ export async function updateAccountGroup({
 }: Pick<AccountGroup, "id" | "name"> & {
   userId: User["id"];
 }) {
-  if (!(await accountGroupExists({ id, userId })))
-    throw new Error("Account group not found");
-
   return await prisma.accountGroup.update({
-    where: { id },
+    where: { id_userId: { id, userId } },
     data: { name },
   });
 }
@@ -63,7 +53,7 @@ export function deleteAccountGroup({
   id,
   userId,
 }: Pick<AccountGroup, "id" | "userId">) {
-  return prisma.accountGroup.deleteMany({ where: { id, userId } });
+  return prisma.accountGroup.delete({ where: { id_userId: { id, userId } } });
 }
 
 export function validateAccountGroup({ name }: AccountGroupValues) {

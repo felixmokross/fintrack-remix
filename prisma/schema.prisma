@@ -39,7 +39,7 @@ model Account {
   assetClass   AssetClass? @relation(fields: [assetClassId], references: [id], onDelete: Restrict)
   assetClassId String?
 
-  group   AccountGroup? @relation(fields: [groupId], references: [id], onDelete: Restrict)
+  group   AccountGroup? @relation(fields: [groupId, userId], references: [id, userId], onDelete: Restrict)
   groupId String?
 
   unit AccountUnit @default(CURRENCY)
@@ -91,7 +91,7 @@ model AssetClass {
 }
 
 model AccountGroup {
-  id      String    @id @default(cuid())
+  id      String    @default(cuid())
   name    String
   account Account[]
 
@@ -100,6 +100,8 @@ model AccountGroup {
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Restrict)
   userId String
+
+  @@id(fields: [id, userId])
 }
 
 model Stock {
