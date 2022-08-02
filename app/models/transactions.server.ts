@@ -58,8 +58,8 @@ export function getTransaction({
   id: Transaction["id"];
   userId: User["id"];
 }) {
-  return prisma.transaction.findFirst({
-    where: { id, userId },
+  return prisma.transaction.findUnique({
+    where: { id_userId: { id, userId } },
     select: {
       id: true,
       date: true,
@@ -117,9 +117,15 @@ export function createTransaction({
           ) => ({
             type,
             sortOrder: index,
-            account: accountId ? { connect: { id: accountId } } : undefined,
+            account: accountId
+              ? { connect: { id_userId: { id: accountId, userId } } }
+              : undefined,
             incomeExpenseCategory: incomeExpenseCategoryId
-              ? { connect: { id: incomeExpenseCategoryId } }
+              ? {
+                  connect: {
+                    id_userId: { id: incomeExpenseCategoryId, userId },
+                  },
+                }
               : undefined,
             currency,
             note,
@@ -131,13 +137,6 @@ export function createTransaction({
       user: { connect: { id: userId } },
     },
   });
-}
-
-export async function transactionExists({
-  id,
-  userId,
-}: Pick<Transaction, "id" | "userId">) {
-  return (await prisma.transaction.count({ where: { id, userId } })) > 0;
 }
 
 export async function updateTransaction({
@@ -158,11 +157,8 @@ export async function updateTransaction({
   >[];
   userId: User["id"];
 }) {
-  if (!(await transactionExists({ id, userId })))
-    throw new Error("Transaction not found");
-
   return await prisma.transaction.update({
-    where: { id },
+    where: { id_userId: { id, userId } },
     data: {
       date,
       note,
@@ -182,9 +178,15 @@ export async function updateTransaction({
           ) => ({
             type,
             sortOrder: index,
-            account: accountId ? { connect: { id: accountId } } : undefined,
+            account: accountId
+              ? { connect: { id_userId: { id: accountId, userId } } }
+              : undefined,
             incomeExpenseCategory: incomeExpenseCategoryId
-              ? { connect: { id: incomeExpenseCategoryId } }
+              ? {
+                  connect: {
+                    id_userId: { id: incomeExpenseCategoryId, userId },
+                  },
+                }
               : undefined,
             currency,
             note,
@@ -202,7 +204,7 @@ export function deleteTransaction({
   id,
   userId,
 }: Pick<Transaction, "id" | "userId">) {
-  return prisma.transaction.deleteMany({ where: { id, userId } });
+  return prisma.transaction.delete({ where: { id_userId: { id, userId } } });
 }
 
 export type TransactionValues = {
