@@ -1,9 +1,13 @@
-import { Link, Outlet, useFetcher, useLoaderData } from "@remix-run/react";
+import { Link, useFetcher, useLoaderData } from "@remix-run/react";
 import type { LoaderFunction } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import { getExpenseCategoryListItems } from "~/models/income-expense-categories.server";
 import { requireUserId } from "~/session.server";
 import { Button } from "~/components/button";
+import { FormModal, useFormModal } from "~/components/forms";
+import type { IncomeExpenseCategoryFormLoaderData } from "~/components/income-expense-categories";
+import { IncomeExpenseCategoryForm } from "~/components/income-expense-categories";
+import { IncomeExpenseCategoryType } from "@prisma/client";
 
 type LoaderData = {
   categories: Awaited<ReturnType<typeof getExpenseCategoryListItems>>;
@@ -18,8 +22,20 @@ export const loader: LoaderFunction = async ({ request }) => {
 };
 
 export default function ExpenseCategoriesPage() {
+  const formModal = useFormModal<IncomeExpenseCategoryFormLoaderData>((mode) =>
+    mode.type === "new"
+      ? {
+          title: "New Expense Category",
+          url: "/settings/income-expense-categories/new",
+        }
+      : {
+          title: "Edit Expense Category",
+          url: `/settings/income-expense-categories/${mode.id}/edit`,
+        }
+  );
+
   const { categories } = useLoaderData<LoaderData>();
-  const fetcher = useFetcher();
+  const deleteAction = useFetcher();
   return (
     <div className="px-4 sm:px-6 lg:px-8">
       <div className="sm:flex">
@@ -33,7 +49,10 @@ export default function ExpenseCategoriesPage() {
           </p>
         </div>
         <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
-          <Button as={Link} to="new" variant="primary">
+          <Button
+            onClick={() => formModal.open({ type: "new" })}
+            variant="primary"
+          >
             Add expense category
           </Button>
         </div>
@@ -66,20 +85,22 @@ export default function ExpenseCategoriesPage() {
                         {category.name}
                       </td>
                       <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                        <Link
-                          to={category.id}
+                        <button
+                          type="button"
+                          onClick={() =>
+                            formModal.open({ type: "edit", id: category.id })
+                          }
                           className="text-indigo-600 hover:text-indigo-900"
                         >
                           Edit
                           <span className="sr-only">, {category.name}</span>
-                        </Link>{" "}
+                        </button>{" "}
                         &middot;{" "}
-                        <fetcher.Form
+                        <deleteAction.Form
                           className="inline"
-                          action="delete"
+                          action={`/settings/income-expense-categories/${category.id}/delete`}
                           method="post"
                         >
-                          <input type="hidden" name="id" value={category.id} />
                           <button
                             type="submit"
                             className="text-indigo-600 hover:text-indigo-900"
@@ -87,7 +108,7 @@ export default function ExpenseCategoriesPage() {
                             Delete
                             <span className="sr-only">, {category.name}</span>
                           </button>
-                        </fetcher.Form>
+                        </deleteAction.Form>
                       </td>
                     </tr>
                   ))}
@@ -97,7 +118,11 @@ export default function ExpenseCategoriesPage() {
           </div>
         </div>
       </div>
-      <Outlet />
+      <FormModal
+        modal={formModal}
+        form={IncomeExpenseCategoryForm}
+        type={IncomeExpenseCategoryType.EXPENSE}
+      />
     </div>
   );
 }

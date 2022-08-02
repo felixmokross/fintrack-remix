@@ -5,8 +5,9 @@ import { getIncomeCategoryListItems } from "~/models/income-expense-categories.s
 import { requireUserId } from "~/session.server";
 import { Button } from "~/components/button";
 import { FormModal, useFormModal } from "~/components/forms";
-import type { IncomeCategoryFormLoaderData } from "~/components/income-categories";
-import { IncomeCategoryForm } from "~/components/income-categories";
+import type { IncomeExpenseCategoryFormLoaderData } from "~/components/income-expense-categories";
+import { IncomeExpenseCategoryForm } from "~/components/income-expense-categories";
+import { IncomeExpenseCategoryType } from "@prisma/client";
 
 type LoaderData = {
   categories: Awaited<ReturnType<typeof getIncomeCategoryListItems>>;
@@ -21,12 +22,15 @@ export const loader: LoaderFunction = async ({ request }) => {
 };
 
 export default function IncomeCategoriesPage() {
-  const formModal = useFormModal<IncomeCategoryFormLoaderData>((mode) =>
+  const formModal = useFormModal<IncomeExpenseCategoryFormLoaderData>((mode) =>
     mode.type === "new"
-      ? { title: "New Income Category", url: "/settings/income-categories/new" }
+      ? {
+          title: "New Income Category",
+          url: "/settings/income-expense-categories/new",
+        }
       : {
           title: "Edit Income Category",
-          url: `/settings/income-categories/${mode.id}/edit`,
+          url: `/settings/income-expense-categories/${mode.id}/edit`,
         }
   );
 
@@ -94,7 +98,7 @@ export default function IncomeCategoriesPage() {
                         &middot;{" "}
                         <deleteAction.Form
                           className="inline"
-                          action={`${category.id}/delete`}
+                          action={`/settings/income-expense-categories/${category.id}/delete`}
                           method="post"
                         >
                           <button
@@ -114,7 +118,11 @@ export default function IncomeCategoriesPage() {
           </div>
         </div>
       </div>
-      <FormModal modal={formModal} form={IncomeCategoryForm} />
+      <FormModal
+        modal={formModal}
+        form={IncomeExpenseCategoryForm}
+        type={IncomeExpenseCategoryType.INCOME}
+      />
     </div>
   );
 }

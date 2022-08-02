@@ -1,3 +1,4 @@
+import type { IncomeExpenseCategoryType } from "@prisma/client";
 import type {
   getIncomeExpenseCategory,
   IncomeExpenseCategoryValues,
@@ -5,20 +6,22 @@ import type {
 import type { FormActionData, FormProps } from "./forms";
 import { Input } from "./forms";
 
-export type IncomeCategoryFormActionData =
+export type IncomeExpenseCategoryFormActionData =
   FormActionData<IncomeExpenseCategoryValues>;
 
-export type IncomeCategoryFormLoaderData = {
+export type IncomeExpenseCategoryFormLoaderData = {
   category?: NonNullable<Awaited<ReturnType<typeof getIncomeExpenseCategory>>>;
 };
 
-export function IncomeCategoryForm({
+export function IncomeExpenseCategoryForm({
   values,
   errors,
   data: { category },
-}: IncomeCategoryFormProps) {
+  type,
+}: IncomeExpenseCategoryFormProps) {
   return (
     <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+      <input type="hidden" name="type" value={type} />
       <Input
         label="Name"
         name="name"
@@ -30,7 +33,9 @@ export function IncomeCategoryForm({
   );
 }
 
-export type IncomeCategoryFormProps = FormProps<
+export type IncomeExpenseCategoryFormProps = FormProps<
   IncomeExpenseCategoryValues,
-  IncomeCategoryFormLoaderData
->;
+  IncomeExpenseCategoryFormLoaderData
+> & {
+  type: IncomeExpenseCategoryType;
+};

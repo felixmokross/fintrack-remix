@@ -46,35 +46,17 @@ export function getIncomeExpenseCategory({
   });
 }
 
-export function createIncomeCategory({
+export function createIncomeExpenseCategory({
   name,
+  type,
   userId,
-}: Pick<IncomeExpenseCategory, "name"> & {
+}: Pick<IncomeExpenseCategory, "name" | "type"> & {
   userId: User["id"];
 }) {
   return prisma.incomeExpenseCategory.create({
     data: {
       name,
-      type: IncomeExpenseCategoryType.INCOME,
-      user: {
-        connect: {
-          id: userId,
-        },
-      },
-    },
-  });
-}
-
-export function createExpenseCategory({
-  name,
-  userId,
-}: Pick<IncomeExpenseCategory, "name"> & {
-  userId: User["id"];
-}) {
-  return prisma.incomeExpenseCategory.create({
-    data: {
-      name,
-      type: IncomeExpenseCategoryType.EXPENSE,
+      type,
       user: {
         connect: {
           id: userId,

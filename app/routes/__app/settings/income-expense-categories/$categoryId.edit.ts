@@ -8,9 +8,9 @@ import {
 } from "~/models/income-expense-categories.server";
 import { requireUserId } from "~/session.server";
 import type {
-  IncomeCategoryFormActionData,
-  IncomeCategoryFormLoaderData,
-} from "~/components/income-categories";
+  IncomeExpenseCategoryFormActionData,
+  IncomeExpenseCategoryFormLoaderData,
+} from "~/components/income-expense-categories";
 import { hasErrors } from "~/utils.server";
 
 export const loader: LoaderFunction = async ({ request, params }) => {
@@ -23,7 +23,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   if (!category) {
     throw new Response("Not Found", { status: 404 });
   }
-  return json<IncomeCategoryFormLoaderData>({ category });
+  return json<IncomeExpenseCategoryFormLoaderData>({ category });
 };
 
 export const action: ActionFunction = async ({ request, params }) => {
@@ -39,7 +39,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   const errors = validateIncomeExpenseCategory({ name });
 
   if (hasErrors(errors)) {
-    return json<IncomeCategoryFormActionData>(
+    return json<IncomeExpenseCategoryFormActionData>(
       { ok: false, errors, values: { name } },
       { status: 400 }
     );
@@ -51,5 +51,5 @@ export const action: ActionFunction = async ({ request, params }) => {
     userId,
   });
 
-  return json<IncomeCategoryFormActionData>({ ok: true });
+  return json<IncomeExpenseCategoryFormActionData>({ ok: true });
 };
