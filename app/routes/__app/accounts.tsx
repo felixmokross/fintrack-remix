@@ -8,7 +8,7 @@ import { currenciesByCode } from "~/currencies";
 import { getAccountListItemsWithCurrentBalance } from "~/models/accounts.server";
 import { requireUserId } from "~/session.server";
 import { Button } from "~/components/button";
-import { getTitle } from "~/utils";
+import { formatDate, formatValue, getTitle } from "~/utils";
 import { FormModal, useFormModal } from "~/components/forms";
 
 type LoaderData = {
@@ -82,15 +82,21 @@ export default function AccountsPage() {
                     </th>
                     <th
                       scope="col"
-                      className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6"
+                      className="py-3.5 pl-4 pr-3 text-right text-sm font-semibold text-gray-900 sm:pl-6"
                     >
                       Balance at start / opening date
                     </th>
                     <th
                       scope="col"
-                      className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6"
+                      className="py-3.5 pl-4 pr-3 text-right text-sm font-semibold text-gray-900 sm:pl-6"
                     >
                       Current balance
+                    </th>
+                    <th
+                      scope="col"
+                      className="py-3.5 pl-4 pr-3 text-right text-sm font-semibold text-gray-900 sm:pl-6"
+                    >
+                      Current balance in ref. ccy.
                     </th>
                     <th
                       scope="col"
@@ -128,13 +134,16 @@ export default function AccountsPage() {
                           account.stock?.symbol
                         )}
                       </td>
-                      <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
+                      <td className="whitespace-nowrap py-4 pl-4 pr-3 text-right text-sm font-medium text-gray-900 sm:pl-6">
                         {account.preExisting
-                          ? account.balanceAtStart
-                          : account.openingDate}
+                          ? formatValue(account.balanceAtStart!)
+                          : formatDate(account.openingDate!)}
                       </td>
-                      <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
-                        {account.currentBalance}
+                      <td className="whitespace-nowrap py-4 pl-4 pr-3 text-right text-sm font-medium text-gray-900 sm:pl-6">
+                        {formatValue(account.currentBalance)}
+                      </td>
+                      <td className="whitespace-nowrap py-4 pl-4 pr-3 text-right text-sm font-medium text-gray-900 sm:pl-6">
+                        {formatValue(account.currentBalanceInRefCurrency)}
                       </td>
                       <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                         <Link

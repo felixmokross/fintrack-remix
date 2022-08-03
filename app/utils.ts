@@ -1,4 +1,5 @@
 import { useMatches } from "@remix-run/react";
+import { format, isThisYear, isToday, isTomorrow, isYesterday } from "date-fns";
 import type { ComponentPropsWithoutRef, ElementType } from "react";
 import { useMemo } from "react";
 
@@ -101,3 +102,26 @@ export declare type SerializeType<T> = T extends JsonPrimitives
         : k]: SerializeType<T[k]>;
     }
   : never;
+
+// TODO make local configurable
+const valueFormat = new Intl.NumberFormat("de-CH", {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+});
+
+export function formatValue(value: string | number) {
+  if (typeof value === "string") value = parseFloat(value);
+
+  return valueFormat.format(value);
+}
+
+export function formatDate(value: Date | string) {
+  if (typeof value === "string") value = new Date(value);
+
+  if (isTomorrow(value)) return "Tomorrow";
+  if (isToday(value)) return "Today";
+  if (isYesterday(value)) return "Yesterday";
+  if (isThisYear(value)) return format(value, "dd MMM");
+
+  return format(value, "dd MMM yyyy");
+}

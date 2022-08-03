@@ -4,7 +4,11 @@ import { RemixServer } from "@remix-run/react";
 import { Response } from "@remix-run/node";
 import type { EntryContext, Headers } from "@remix-run/node";
 import isbot from "isbot";
-import "./dayjs.server";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+
+// TODO check this, does not seem to work if moved into separate file
+dayjs.extend(utc);
 
 const ABORT_DELAY = 5000;
 

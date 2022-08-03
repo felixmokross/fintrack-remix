@@ -2,7 +2,6 @@ import { AccountUnit, BookingType } from "@prisma/client";
 import { useFetcher, useLoaderData } from "@remix-run/react";
 import type { LoaderFunction } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
-import { format, isThisYear, isToday, isTomorrow, isYesterday } from "date-fns";
 import { Fragment } from "react";
 import invariant from "tiny-invariant";
 import { currenciesByCode } from "~/currencies";
@@ -15,6 +14,7 @@ import type { TransactionFormLoaderData } from "~/components/transactions";
 import { TransactionForm } from "~/components/transactions";
 import { FormModal, useFormModal } from "~/components/forms";
 import { ModalSize } from "~/components/modal";
+import { formatDate, formatValue } from "~/utils";
 
 type LoaderData = {
   account: NonNullable<Awaited<ReturnType<typeof getAccount>>>;
@@ -243,27 +243,4 @@ export default function AccountDetailPage() {
       />
     </div>
   );
-}
-
-// TODO make local configurable
-const valueFormat = new Intl.NumberFormat("de-CH", {
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2,
-});
-
-function formatValue(value: string | number) {
-  if (typeof value === "string") value = parseFloat(value);
-
-  return valueFormat.format(value);
-}
-
-function formatDate(value: Date | string) {
-  if (typeof value === "string") value = new Date(value);
-
-  if (isTomorrow(value)) return "Tomorrow";
-  if (isToday(value)) return "Today";
-  if (isYesterday(value)) return "Yesterday";
-  if (isThisYear(value)) return format(value, "dd MMM");
-
-  return format(value, "dd MMM yyyy");
 }
