@@ -5,17 +5,21 @@ import { json } from "@remix-run/server-runtime";
 import type { AccountFormLoaderData } from "~/components/accounts";
 import { AccountForm } from "~/components/accounts";
 import { currenciesByCode } from "~/currencies";
-import { getAccountListItems } from "~/models/accounts.server";
+import { getAccountListItemsWithCurrentBalance } from "~/models/accounts.server";
 import { requireUserId } from "~/session.server";
 import { Button } from "~/components/button";
 import { getTitle } from "~/utils";
 import { FormModal, useFormModal } from "~/components/forms";
 
-type LoaderData = { accounts: Awaited<ReturnType<typeof getAccountListItems>> };
+type LoaderData = {
+  accounts: Awaited<ReturnType<typeof getAccountListItemsWithCurrentBalance>>;
+};
 
 export const loader: LoaderFunction = async ({ request }) => {
   const userId = await requireUserId(request);
-  return json<LoaderData>({ accounts: await getAccountListItems({ userId }) });
+  return json<LoaderData>({
+    accounts: await getAccountListItemsWithCurrentBalance({ userId }),
+  });
 };
 
 export const meta: MetaFunction = () => ({ title: getTitle("Accounts") });
@@ -84,6 +88,12 @@ export default function AccountsPage() {
                     </th>
                     <th
                       scope="col"
+                      className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6"
+                    >
+                      Current balance
+                    </th>
+                    <th
+                      scope="col"
                       className="relative py-3.5 pl-3 pr-4 sm:pr-6"
                     >
                       <span className="sr-only">Action</span>
@@ -122,6 +132,9 @@ export default function AccountsPage() {
                         {account.preExisting
                           ? account.balanceAtStart
                           : account.openingDate}
+                      </td>
+                      <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
+                        {account.currentBalance}
                       </td>
                       <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                         <Link

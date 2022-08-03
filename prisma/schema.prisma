@@ -14,14 +14,14 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  password              Password?
-  accounts              Account[]
-  assetClass            AssetClass[]
-  accountGroup          AccountGroup[]
-  stock                 Stock[]
-  incomeExpenseCategory IncomeExpenseCategory[]
-  transaction           Transaction[]
-  booking               Booking[]
+  password                Password?
+  accounts                Account[]
+  assetClasses            AssetClass[]
+  accountGroups           AccountGroup[]
+  stocks                  Stock[]
+  incomeExpenseCategories IncomeExpenseCategory[]
+  transactions            Transaction[]
+  bookings                Booking[]
 }
 
 model Password {
@@ -64,7 +64,7 @@ model Account {
   user   User   @relation(fields: [userId], references: [id], onDelete: Restrict)
   userId String
 
-  booking Booking[]
+  bookings Booking[]
 
   @@id([id, userId])
 }
@@ -83,7 +83,7 @@ model AssetClass {
   id        String    @default(cuid())
   name      String
   sortOrder Int       @default(0)
-  account   Account[]
+  accounts  Account[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -95,9 +95,9 @@ model AssetClass {
 }
 
 model AccountGroup {
-  id      String    @default(cuid())
-  name    String
-  account Account[]
+  id       String    @default(cuid())
+  name     String
+  accounts Account[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -112,7 +112,7 @@ model Stock {
   id              String    @default(cuid())
   symbol          String
   tradingCurrency String
-  account         Account[]
+  accounts        Account[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

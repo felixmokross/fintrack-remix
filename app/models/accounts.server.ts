@@ -1,10 +1,13 @@
 import type { Account, User } from "@prisma/client";
+import { BookingType } from "@prisma/client";
 import { AccountUnit } from "@prisma/client";
 import { AccountType } from "@prisma/client";
+import { Decimal } from "@prisma/client/runtime";
+import dayjs from "dayjs";
 import invariant from "tiny-invariant";
 import { prisma } from "~/db.server";
 import type { FormErrors } from "~/utils";
-import { isValidDate, isValidDecimal } from "~/utils.server";
+import { isValidDate, isValidDecimal, sum } from "~/utils.server";
 
 export async function getAccountValues(
   request: Request
@@ -61,21 +64,65 @@ export async function getAccountValues(
 export function getAccountListItems({ userId }: { userId: User["id"] }) {
   return prisma.account.findMany({
     where: { userId },
-    select: {
-      id: true,
-      name: true,
-      group: { select: { name: true } },
-      type: true,
-      assetClass: { select: { name: true } },
-      unit: true,
-      currency: true,
-      stock: { select: { symbol: true } },
-      preExisting: true,
-      balanceAtStart: true,
-      openingDate: true,
-    },
+    select: { id: true, name: true },
     orderBy: { updatedAt: "desc" },
   });
+}
+
+export async function getAccountListItemsWithCurrentBalance({
+  userId,
+}: {
+  userId: User["id"];
+}) {
+  return (
+    await prisma.account.findMany({
+      where: { userId },
+      select: {
+        id: true,
+        name: true,
+        group: { select: { name: true } },
+        type: true,
+        assetClass: { select: { name: true } },
+        unit: true,
+        currency: true,
+        stock: { select: { symbol: true } },
+        preExisting: true,
+        balanceAtStart: true,
+        openingDate: true,
+        bookings: {
+          select: {
+            transaction: { select: { date: true } },
+            amount: true,
+            type: true,
+          },
+          orderBy: { transaction: { date: "desc" } },
+          where: {
+            transaction: { date: { lte: dayjs.utc().startOf("day").toDate() } },
+          },
+        },
+      },
+      orderBy: { updatedAt: "desc" },
+    })
+  ).map((accountItem) => ({
+    ...accountItem,
+    currentBalance: (accountItem.preExisting
+      ? accountItem.balanceAtStart!
+      : new Decimal(0)
+    ).plus(sum(accountItem.bookings.map(getBookingValue))),
+  }));
+
+  function getBookingValue(b: { type: BookingType; amount: Decimal }) {
+    switch (b.type) {
+      case BookingType.CHARGE:
+        return b.amount.negated();
+      case BookingType.DEPOSIT:
+        return b.amount;
+      default:
+        throw new Error(
+          `Booking type not supported in this context: ${b.type}`
+        );
+    }
+  }
 }
 
 export function getAccount({
