@@ -105,12 +105,14 @@ export async function getAccountListItemsWithCurrentBalance({
   const currencies = accountItems
     .filter((accountItem) => accountItem.unit === AccountUnit.CURRENCY)
     .map((account) => account.currency!);
+
   const rates = await fetchRates(currencies);
 
   return accountItems.map((accountItem) => {
     const currentBalance = (
       accountItem.preExisting ? accountItem.balanceAtStart! : new Decimal(0)
     ).plus(sum(accountItem.bookings.map(getBookingValue)));
+
     return {
       ...accountItem,
       currentBalance,
@@ -137,8 +139,14 @@ export async function getAccountListItemsWithCurrentBalance({
 }
 
 const refCurrency = "CHF"; // TODO make ref currency configurable
+
 async function fetchRates(currencies: string[]) {
   currencies = uniq(currencies.concat(refCurrency));
+  if (currencies.length === 1) {
+    console.log("only ref currency found, no need to fetch rates");
+    return new Map<string, Decimal>();
+  }
+
   console.log(`fetching rates for ${currencies.join(", ")}`);
 
   const response = await fetch(
