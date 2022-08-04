@@ -117,9 +117,8 @@ export async function getAccountListItemsWithCurrentBalance({
       ...accountItem,
       currentBalance,
       currentBalanceInRefCurrency:
-        accountItem.unit === AccountUnit.CURRENCY &&
-        accountItem.currency !== refCurrency
-          ? currentBalance.mul(rates.get(accountItem.currency!)!)
+        accountItem.unit === AccountUnit.CURRENCY
+          ? convertToRefCurrency(currentBalance, accountItem.currency!, rates)
           : currentBalance,
     };
   });
@@ -139,15 +138,42 @@ export async function getAccountListItemsWithCurrentBalance({
 }
 
 const refCurrency = "CHF"; // TODO make ref currency configurable
+const baseCurrency = "USD";
 
 async function fetchRates(currencies: string[]) {
   currencies = uniq(currencies.concat(refCurrency));
+
   if (currencies.length === 1) {
-    console.log("only ref currency found, no need to fetch rates");
+    console.log("no rates needed, only ref currency");
     return new Map<string, Decimal>();
   }
 
-  console.log(`fetching rates for ${currencies.join(", ")}`);
+  const currenciesWithoutBaseCurrency = currencies.filter(
+    (c) => c !== baseCurrency
+  );
+
+  const cachedCurrencyRates = new Map(
+    (
+      await prisma.liveCurrencyRate.findMany({
+        where: {
+          code: { in: currenciesWithoutBaseCurrency },
+          timestamp: { gte: dayjs().subtract(1, "hour").toDate() },
+        },
+        select: { code: true, rate: true },
+      })
+    ).map((r) => [r.code, r.rate])
+  );
+
+  const missingCurrencies = difference(currenciesWithoutBaseCurrency, [
+    ...cachedCurrencyRates.keys(),
+  ]);
+
+  if (missingCurrencies.length === 0) {
+    console.log("all rates still cached");
+    return cachedCurrencyRates;
+  }
+
+  console.log(`fetching rates for ${currenciesWithoutBaseCurrency.join(", ")}`);
 
   const response = await fetch(
     `http://api.currencylayer.com/live?access_key=${
@@ -155,26 +181,58 @@ async function fetchRates(currencies: string[]) {
     }&currencies=${currencies.join(",")}`
   );
   if (!response.ok) throw new Error("Could not fetch rates");
-  const rates = new Map<string, number>(
+  const rates = new Map<string, Decimal>(
     Object.entries((await response.json()).quotes).map(([key, value]) => [
       key.substring(3, 6),
-      value as number,
+      new Decimal(value as number),
     ])
   );
 
-  const refCurrencyRate = new Decimal(rates.get(refCurrency)!);
-  rates.delete(refCurrency);
-
-  return new Map(
-    Array.from(rates).map(([currency, rate]) => [
-      currency,
-      refCurrencyRate.dividedBy(rate),
-    ])
+  await prisma.$transaction(
+    [...rates].map(([code, rate]) =>
+      prisma.liveCurrencyRate.upsert({
+        where: { code },
+        update: { rate, timestamp: new Date() },
+        create: { code, rate, timestamp: new Date() },
+      })
+    )
   );
+
+  return rates;
+}
+
+function convertToRefCurrency(
+  value: Decimal,
+  currency: string,
+  rates: Map<string, Decimal>
+) {
+  if (currency === refCurrency) return value;
+
+  const baseCurrencyToRefCurrencyRate = getRate(refCurrency, rates);
+  const baseCurrencyToValueCurrencyRate = getRate(currency, rates);
+
+  const valueCurrencyToRefCurrencyRate =
+    baseCurrencyToRefCurrencyRate.dividedBy(baseCurrencyToValueCurrencyRate);
+
+  return value.mul(valueCurrencyToRefCurrencyRate);
+}
+
+function getRate(currency: string, rates: Map<string, Decimal>) {
+  if (currency === baseCurrency) return new Decimal(1);
+
+  const rate = rates.get(currency);
+  invariant(rate, `rate for ${currency} not found`);
+
+  return rate;
 }
 
 function uniq<T>(array: T[]) {
   return [...new Set(array)];
+}
+
+function difference<T>(arrayA: T[], arrayB: T[]): T[] {
+  const setB = new Set(arrayB);
+  return arrayA.filter((x) => !setB.has(x));
 }
 
 export function getAccount({

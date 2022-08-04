@@ -194,3 +194,9 @@ enum BookingType {
   APPRECIATION
   DEPRECIATION
 }
+
+model LiveCurrencyRate {
+  code      String   @id
+  rate      Decimal
+  timestamp DateTime
+}
