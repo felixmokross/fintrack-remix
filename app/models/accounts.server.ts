@@ -178,7 +178,7 @@ async function fetchRates(currencies: string[]) {
   const response = await fetch(
     `http://api.currencylayer.com/live?access_key=${
       process.env.CURRENCYLAYER_API_KEY
-    }&currencies=${currencies.join(",")}`
+    }&currencies=${currenciesWithoutBaseCurrency.join(",")}`
   );
   if (!response.ok) throw new Error("Could not fetch rates");
   const rates = new Map<string, Decimal>(
