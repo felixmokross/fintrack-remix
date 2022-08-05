@@ -54,3 +54,21 @@ export interface AccountCategory {
   order: number;
   currentBalance: Decimal128;
 }
+
+export interface Stock {
+  _id?: ObjectId;
+  symbol: string;
+  tradingCurrency: string;
+  startDate?: Date;
+  endDate?: Date;
+}
+
+export interface IncomeCategory {
+  _id?: ObjectId;
+  name: string;
+}
+
+export interface ExpenseCategory {
+  _id?: ObjectId;
+  name: string;
+}
