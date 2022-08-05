@@ -181,8 +181,15 @@ async function fetchRates(currencies: string[]) {
     }&currencies=${currenciesWithoutBaseCurrency.join(",")}`
   );
   if (!response.ok) throw new Error("Could not fetch rates");
+
+  const responseObject = await response.json();
+  if (!responseObject.success)
+    throw new Error(
+      `Could not fetch rates: ${JSON.stringify(responseObject, null, 2)}`
+    );
+
   const rates = new Map<string, Decimal>(
-    Object.entries((await response.json()).quotes).map(([key, value]) => [
+    Object.entries(responseObject.quotes).map(([key, value]) => [
       key.substring(3, 6),
       new Decimal(value as number),
     ])
@@ -291,21 +298,15 @@ export function createAccount({
     data: {
       name,
       type,
-      assetClass: assetClassId
-        ? { connect: { id_userId: { id: assetClassId, userId } } }
-        : undefined,
-      group: groupId
-        ? { connect: { id_userId: { id: groupId, userId } } }
-        : undefined,
+      assetClassId: assetClassId || null,
+      groupId: groupId || null,
       unit,
       currency,
-      stock: stockId
-        ? { connect: { id_userId: { id: stockId, userId } } }
-        : undefined,
+      stockId: stockId || null,
       preExisting,
       balanceAtStart,
       openingDate,
-      user: { connect: { id: userId } },
+      userId,
     },
   });
 }
@@ -344,17 +345,11 @@ export async function updateAccount({
     data: {
       name,
       type,
-      assetClass: assetClassId
-        ? { connect: { id_userId: { id: assetClassId, userId } } }
-        : undefined,
-      group: groupId
-        ? { connect: { id_userId: { id: groupId, userId } } }
-        : undefined,
+      assetClassId: assetClassId || null,
+      groupId: groupId || null,
       unit,
       currency,
-      stock: stockId
-        ? { connect: { id_userId: { id: stockId, userId } } }
-        : undefined,
+      stockId: stockId || null,
       preExisting,
       balanceAtStart,
       openingDate,
