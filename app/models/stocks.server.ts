@@ -33,7 +33,7 @@ export function createStock({
     data: {
       symbol: symbol.toUpperCase(),
       tradingCurrency,
-      user: { connect: { id: userId } },
+      userId,
     },
   });
 }

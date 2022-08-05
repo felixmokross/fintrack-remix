@@ -31,7 +31,7 @@ export function createAccountGroup({
   return prisma.accountGroup.create({
     data: {
       name,
-      user: { connect: { id: userId } },
+      userId,
     },
   });
 }

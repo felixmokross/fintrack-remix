@@ -57,7 +57,7 @@ export function createIncomeExpenseCategory({
     data: {
       name,
       type,
-      user: { connect: { id: userId } },
+      userId,
     },
   });
 }

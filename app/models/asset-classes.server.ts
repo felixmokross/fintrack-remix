@@ -32,7 +32,7 @@ export function createAssetClass({
     data: {
       name,
       sortOrder,
-      user: { connect: { id: userId } },
+      userId,
     },
   });
 }
