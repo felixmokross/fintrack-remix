@@ -5,20 +5,25 @@ import { json } from "@remix-run/server-runtime";
 import type { AccountFormLoaderData } from "~/components/accounts";
 import { AccountForm } from "~/components/accounts";
 import { currenciesByCode } from "~/currencies";
-import { getAccountListItemsWithCurrentBalance } from "~/models/accounts.server";
+import { getAccountListItemsWithCurrentBalance as getAccountListItemsWithCurrentBalanceByAssetClass } from "~/models/accounts.server";
 import { requireUserId } from "~/session.server";
 import { Button } from "~/components/button";
 import { formatDate, formatValue, getTitle } from "~/utils";
 import { FormModal, useFormModal } from "~/components/forms";
+import { Fragment } from "react";
+import { cn } from "~/components/classnames";
 
 type LoaderData = {
-  accounts: Awaited<ReturnType<typeof getAccountListItemsWithCurrentBalance>>;
+  accountsByAssetClass: Awaited<
+    ReturnType<typeof getAccountListItemsWithCurrentBalanceByAssetClass>
+  >;
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
   const userId = await requireUserId(request);
   return json<LoaderData>({
-    accounts: await getAccountListItemsWithCurrentBalance({ userId }),
+    accountsByAssetClass:
+      await getAccountListItemsWithCurrentBalanceByAssetClass({ userId }),
   });
 };
 
@@ -33,7 +38,7 @@ export default function AccountsPage() {
 
   const deleteAction = useFetcher();
 
-  const { accounts } = useLoaderData<LoaderData>();
+  const { accountsByAssetClass } = useLoaderData<LoaderData>();
   return (
     <div className="px-4 py-2 sm:px-6 md:py-4 lg:px-8">
       <div className="sm:flex">
@@ -72,12 +77,6 @@ export default function AccountsPage() {
                       scope="col"
                       className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6"
                     >
-                      Type / asset class
-                    </th>
-                    <th
-                      scope="col"
-                      className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6"
-                    >
                       Currency/stock
                     </th>
                     <th
@@ -106,81 +105,103 @@ export default function AccountsPage() {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200 bg-white">
-                  {accounts.map((account) => (
-                    <tr key={account.id}>
-                      <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
-                        {account.name}
-                      </td>
-                      <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
-                        {account.group?.name}
-                      </td>
-                      <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
-                        {account.type === AccountType.ASSET
-                          ? account.assetClass?.name
-                          : "Liability"}
-                      </td>
-                      <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
-                        {account.unit === AccountUnit.CURRENCY ? (
-                          <>
-                            {
-                              currenciesByCode[
-                                account.currency! as keyof typeof currenciesByCode
-                              ]
-                            }{" "}
-                            ({account.currency})
-                          </>
-                        ) : (
-                          account.stock?.symbol
-                        )}
-                      </td>
-                      <td className="whitespace-nowrap py-4 pl-4 pr-3 text-right text-sm font-medium text-gray-900 sm:pl-6">
-                        {account.preExisting
-                          ? formatValue(account.balanceAtStart!)
-                          : formatDate(account.openingDate!)}
-                      </td>
-                      <td className="whitespace-nowrap py-4 pl-4 pr-3 text-right text-sm font-medium text-gray-900 sm:pl-6">
-                        {formatValue(account.currentBalance)}
-                      </td>
-                      <td className="whitespace-nowrap py-4 pl-4 pr-3 text-right text-sm font-medium text-gray-900 sm:pl-6">
-                        {formatValue(account.currentBalanceInRefCurrency)}
-                      </td>
-                      <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                        <Link
-                          to={account.id}
-                          prefetch="intent"
-                          className="text-indigo-600 hover:text-indigo-900"
+                <tbody className="bg-white">
+                  {accountsByAssetClass.map((group) => (
+                    <Fragment key={group.key}>
+                      <tr className="border-t border-gray-200">
+                        <th
+                          colSpan={5}
+                          scope="colgroup"
+                          className="bg-gray-50 px-4 py-2 text-left text-sm font-semibold text-gray-900 sm:px-6"
                         >
-                          View
-                          <span className="sr-only">, {account.name}</span>
-                        </Link>{" "}
-                        &middot;{" "}
-                        <button
-                          type="button"
-                          onClick={() =>
-                            formModal.open({ type: "edit", id: account.id })
-                          }
-                          className="text-indigo-600 hover:text-indigo-900"
+                          {group.type === AccountType.ASSET
+                            ? group.assetClass!.name
+                            : "Liability"}
+                        </th>
+                        <td className="bg-gray-50 px-3 py-2 text-right text-sm text-gray-500">
+                          {formatValue(group.currentBalanceInRefCurrency)}
+                        </td>
+                        <td className="bg-gray-50"></td>
+                      </tr>
+                      {group.accounts.map((account, index) => (
+                        <tr
+                          key={account.id}
+                          className={cn(
+                            index === 0 ? "border-gray-300" : "border-gray-200",
+                            "border-t"
+                          )}
                         >
-                          Edit
-                          <span className="sr-only">, {account.name}</span>
-                        </button>{" "}
-                        &middot;{" "}
-                        <deleteAction.Form
-                          className="inline"
-                          action={`${account.id}/delete`}
-                          method="post"
-                        >
-                          <button
-                            type="submit"
-                            className="text-indigo-600 hover:text-indigo-900"
-                          >
-                            Delete
-                            <span className="sr-only">, {account.name}</span>
-                          </button>
-                        </deleteAction.Form>
-                      </td>
-                    </tr>
+                          <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
+                            {account.name}
+                          </td>
+                          <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
+                            {account.group?.name}
+                          </td>
+                          <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
+                            {account.unit === AccountUnit.CURRENCY ? (
+                              <>
+                                {
+                                  currenciesByCode[
+                                    account.currency! as keyof typeof currenciesByCode
+                                  ]
+                                }{" "}
+                                ({account.currency})
+                              </>
+                            ) : (
+                              account.stock?.symbol
+                            )}
+                          </td>
+                          <td className="whitespace-nowrap py-4 pl-4 pr-3 text-right text-sm font-medium text-gray-900 sm:pl-6">
+                            {account.preExisting
+                              ? formatValue(account.balanceAtStart!)
+                              : formatDate(account.openingDate!)}
+                          </td>
+                          <td className="whitespace-nowrap py-4 pl-4 pr-3 text-right text-sm font-medium text-gray-900 sm:pl-6">
+                            {formatValue(account.currentBalance)}
+                          </td>
+                          <td className="whitespace-nowrap py-4 pl-4 pr-3 text-right text-sm font-medium text-gray-900 sm:pl-6">
+                            {formatValue(account.currentBalanceInRefCurrency)}
+                          </td>
+                          <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+                            <Link
+                              to={account.id}
+                              prefetch="intent"
+                              className="text-indigo-600 hover:text-indigo-900"
+                            >
+                              View
+                              <span className="sr-only">, {account.name}</span>
+                            </Link>{" "}
+                            &middot;{" "}
+                            <button
+                              type="button"
+                              onClick={() =>
+                                formModal.open({ type: "edit", id: account.id })
+                              }
+                              className="text-indigo-600 hover:text-indigo-900"
+                            >
+                              Edit
+                              <span className="sr-only">, {account.name}</span>
+                            </button>{" "}
+                            &middot;{" "}
+                            <deleteAction.Form
+                              className="inline"
+                              action={`${account.id}/delete`}
+                              method="post"
+                            >
+                              <button
+                                type="submit"
+                                className="text-indigo-600 hover:text-indigo-900"
+                              >
+                                Delete
+                                <span className="sr-only">
+                                  , {account.name}
+                                </span>
+                              </button>
+                            </deleteAction.Form>
+                          </td>
+                        </tr>
+                      ))}
+                    </Fragment>
                   ))}
                 </tbody>
               </table>

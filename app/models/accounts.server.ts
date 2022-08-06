@@ -74,54 +74,85 @@ export async function getAccountListItemsWithCurrentBalance({
 }: {
   userId: User["id"];
 }) {
-  const accountItems = await prisma.account.findMany({
-    where: { userId },
-    select: {
-      id: true,
-      name: true,
-      group: { select: { name: true } },
-      type: true,
-      assetClass: { select: { name: true } },
-      unit: true,
-      currency: true,
-      stock: { select: { symbol: true } },
-      preExisting: true,
-      balanceAtStart: true,
-      openingDate: true,
-      bookings: {
-        select: {
-          transaction: { select: { date: true } },
-          amount: true,
-          type: true,
-        },
-        orderBy: { transaction: { date: "desc" } },
-        where: {
-          transaction: { date: { lte: dayjs.utc().startOf("day").toDate() } },
-        },
-      },
-    },
-    orderBy: { updatedAt: "desc" },
-  });
+  const accountItems = await getAccountItemsWithBookings(userId);
+
   const currencies = accountItems
     .filter((accountItem) => accountItem.unit === AccountUnit.CURRENCY)
     .map((account) => account.currency!);
 
   const rates = await fetchRates(currencies);
 
-  return accountItems.map((accountItem) => {
-    const currentBalance = (
-      accountItem.preExisting ? accountItem.balanceAtStart! : new Decimal(0)
-    ).plus(sum(accountItem.bookings.map(getBookingValue)));
+  const accountItemsWithCurrentBalance = accountItems.map(withCurrentBalance);
 
-    return {
-      ...accountItem,
-      currentBalance,
-      currentBalanceInRefCurrency:
-        accountItem.unit === AccountUnit.CURRENCY
-          ? convertToRefCurrency(currentBalance, accountItem.currency!, rates)
-          : currentBalance,
-    };
-  });
+  const accountItemsByAssetClass = new Map<
+    string,
+    {
+      key: string;
+      type: AccountType;
+      assetClass: Awaited<
+        ReturnType<typeof getAccountItemsWithBookings>
+      >[number]["assetClass"];
+      currentBalanceInRefCurrency: Decimal;
+      accounts: ReturnType<typeof withCurrentBalance>[];
+    }
+  >();
+
+  for (const accountItem of accountItemsWithCurrentBalance) {
+    const assetClassKey =
+      accountItem.type === AccountType.ASSET
+        ? `${AccountType.ASSET}-${accountItem.assetClass!.id}`
+        : AccountType.LIABILITY;
+
+    const group = accountItemsByAssetClass.get(assetClassKey);
+    if (group) {
+      group.currentBalanceInRefCurrency =
+        group.currentBalanceInRefCurrency.plus(
+          accountItem.currentBalanceInRefCurrency
+        );
+      group.accounts.push(accountItem);
+    } else {
+      accountItemsByAssetClass.set(assetClassKey, {
+        key: assetClassKey,
+        type: accountItem.type,
+        assetClass: accountItem.assetClass,
+        currentBalanceInRefCurrency: accountItem.currentBalanceInRefCurrency,
+        accounts: [accountItem],
+      });
+    }
+  }
+
+  return Array.from(accountItemsByAssetClass.values());
+
+  async function getAccountItemsWithBookings(userId: User["id"]) {
+    return await prisma.account.findMany({
+      where: { userId },
+      select: {
+        id: true,
+        name: true,
+        group: { select: { name: true } },
+        type: true,
+        assetClass: { select: { id: true, name: true } },
+        unit: true,
+        currency: true,
+        stock: { select: { symbol: true } },
+        preExisting: true,
+        balanceAtStart: true,
+        openingDate: true,
+        bookings: {
+          select: {
+            transaction: { select: { date: true } },
+            amount: true,
+            type: true,
+          },
+          orderBy: { transaction: { date: "desc" } },
+          where: {
+            transaction: { date: { lte: dayjs.utc().startOf("day").toDate() } },
+          },
+        },
+      },
+      orderBy: [{ assetClass: { sortOrder: "asc" } }, { name: "asc" }],
+    });
+  }
 
   function getBookingValue(b: { type: BookingType; amount: Decimal }) {
     switch (b.type) {
@@ -134,6 +165,23 @@ export async function getAccountListItemsWithCurrentBalance({
           `Booking type not supported in this context: ${b.type}`
         );
     }
+  }
+
+  function withCurrentBalance(
+    accountItem: Awaited<ReturnType<typeof getAccountItemsWithBookings>>[number]
+  ) {
+    const currentBalance = (
+      accountItem.preExisting ? accountItem.balanceAtStart! : new Decimal(0)
+    ).plus(sum(accountItem.bookings.map(getBookingValue)));
+
+    return {
+      ...accountItem,
+      currentBalance,
+      currentBalanceInRefCurrency:
+        accountItem.unit === AccountUnit.CURRENCY
+          ? convertToRefCurrency(currentBalance, accountItem.currency!, rates)
+          : currentBalance,
+    };
   }
 }
 
