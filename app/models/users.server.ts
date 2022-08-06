@@ -5,6 +5,17 @@ import { prisma } from "~/db.server";
 
 export type { User } from "@prisma/client";
 
+export async function getUsersWithNumberOfAccounts() {
+  return prisma.user.findMany({
+    select: {
+      _count: { select: { accounts: true } },
+      id: true,
+      email: true,
+      createdAt: true,
+    },
+  });
+}
+
 export async function getUserById(id: User["id"]) {
   return prisma.user.findUnique({ where: { id } });
 }

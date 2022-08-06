@@ -10,6 +10,7 @@ const navigation = [
   { name: "Income Categories", to: "income-categories" },
   { name: "Expense Categories", to: "expense-categories" },
   { name: "Import", to: "import" },
+  { name: "Users", to: "users" },
 ];
 
 export const meta: MetaFunction = () => ({ title: getTitle("Settings") });
