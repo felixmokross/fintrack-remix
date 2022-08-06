@@ -125,7 +125,13 @@ export async function getAccountListItemsWithCurrentBalance({
 
   async function getAccountItemsWithBookings(userId: User["id"]) {
     return await prisma.account.findMany({
-      where: { userId },
+      where: {
+        userId,
+        OR: [
+          { closingDate: null },
+          { closingDate: { gte: dayjs.utc().startOf("day").toDate() } },
+        ],
+      },
       select: {
         id: true,
         name: true,
