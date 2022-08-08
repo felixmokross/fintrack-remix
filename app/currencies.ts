@@ -1,4 +1,4 @@
-export const currenciesByCode = {
+export const currenciesByCode: Record<string, string> = {
   AED: "United Arab Emirates Dirham",
   AFN: "Afghan Afghani",
   ALL: "Albanian Lek",

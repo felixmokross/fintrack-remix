@@ -69,7 +69,7 @@ export function getAccountListItems({ userId }: { userId: User["id"] }) {
   });
 }
 
-export async function getAccountListItemsWithCurrentBalance({
+export async function getAccountListItemsWithCurrentBalanceByAssetClass({
   userId,
 }: {
   userId: User["id"];

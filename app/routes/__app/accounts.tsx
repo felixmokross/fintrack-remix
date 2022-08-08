@@ -5,7 +5,7 @@ import { json } from "@remix-run/server-runtime";
 import type { AccountFormLoaderData } from "~/components/accounts";
 import { AccountForm } from "~/components/accounts";
 import { currenciesByCode } from "~/currencies";
-import { getAccountListItemsWithCurrentBalance as getAccountListItemsWithCurrentBalanceByAssetClass } from "~/models/accounts.server";
+import { getAccountListItemsWithCurrentBalanceByAssetClass } from "~/models/accounts.server";
 import { requireUserId } from "~/session.server";
 import { Button } from "~/components/button";
 import { formatDate, formatValue, getTitle } from "~/utils";
