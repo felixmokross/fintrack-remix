@@ -1,3 +1,5 @@
+import { useIsClientRendered } from "~/utils";
+
 export function Money({
   value,
   currency,
@@ -9,6 +11,8 @@ export function Money({
   showCompact?: boolean;
   locale: string;
 }) {
+  if (!useIsClientRendered()) return <>&#8203;</>;
+
   const formattedValue = getFormat(currency, showCompact, locale).format(value);
   return <>{formattedValue}</>;
 }

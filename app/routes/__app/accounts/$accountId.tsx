@@ -14,7 +14,7 @@ import type { TransactionFormLoaderData } from "~/components/transactions";
 import { TransactionForm } from "~/components/transactions";
 import { FormModal, useFormModal } from "~/components/forms";
 import { ModalSize } from "~/components/modal";
-import { formatDate, useUser } from "~/utils";
+import { DateDisplay, useUser } from "~/utils";
 import { Money } from "~/components/money";
 
 type LoaderData = {
@@ -90,7 +90,7 @@ export default function AccountDetailPage() {
               <Fragment key={group.date}>
                 <tr className="border-t border-slate-200">
                   <th className="bg-slate-50 px-4 py-2 text-left text-sm font-semibold text-slate-900 sm:px-6">
-                    {formatDate(group.date, preferredLocale)}
+                    <DateDisplay value={group.date} locale={preferredLocale} />
                   </th>
                   <td className="bg-slate-50 px-3 py-2 text-right text-sm text-slate-500">
                     {account.currency ? (
