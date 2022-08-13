@@ -14,7 +14,8 @@ import type { TransactionFormLoaderData } from "~/components/transactions";
 import { TransactionForm } from "~/components/transactions";
 import { FormModal, useFormModal } from "~/components/forms";
 import { ModalSize } from "~/components/modal";
-import { formatDate, formatValue } from "~/utils";
+import { formatDate } from "~/utils";
+import { Money } from "~/components/money";
 
 type LoaderData = {
   account: NonNullable<Awaited<ReturnType<typeof getAccount>>>;
@@ -49,8 +50,8 @@ export default function AccountDetailPage() {
 
   const { account, ledgerDateGroups } = useLoaderData<LoaderData>();
   return (
-    <div className="overflow-auto p-6">
-      <div className="sm:flex sm:items-center">
+    <div className="overflow-y-auto pt-6">
+      <div className="px-6 sm:flex sm:items-center">
         <div className="sm:flex-auto">
           <h1 className="text-xl font-semibold text-slate-900">
             {account.name}
@@ -81,103 +82,72 @@ export default function AccountDetailPage() {
         </div>
       </div>
       <div className="mt-8 flex flex-col">
-        <div className="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
-          <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
-            <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
-              <table className="min-w-full">
-                <thead className="bg-white">
-                  <tr>
-                    <th
-                      scope="col"
-                      className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-slate-900 sm:pl-6"
-                    >
-                      Date/Type
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-3 py-3.5 text-left text-sm font-semibold text-slate-900"
-                    >
-                      Bookings
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-3 py-3.5 text-left text-sm font-semibold text-slate-900"
-                    >
-                      Note
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-3 py-3.5 text-right text-sm font-semibold text-slate-900"
-                    >
-                      Balance
-                    </th>
-                    <th
-                      scope="col"
-                      className="relative py-3.5 pl-3 pr-4 sm:pr-6"
-                    >
-                      <span className="sr-only">Edit</span>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white">
-                  {ledgerDateGroups.map((group) => (
-                    <Fragment key={group.date}>
-                      <tr className="border-t border-slate-200">
-                        <th
-                          colSpan={3}
-                          scope="colgroup"
-                          className="bg-slate-50 px-4 py-2 text-left text-sm font-semibold text-slate-900 sm:px-6"
-                        >
-                          {formatDate(group.date)}
-                        </th>
-                        <td className="bg-slate-50 px-3 py-2 text-right text-sm text-slate-500">
-                          {formatValue(group.balance)}
-                        </td>
-                        <td className="bg-slate-50"></td>
-                      </tr>
-                      {group.lines.map((line, index) => (
-                        <tr
-                          key={line.id}
-                          className={cn(
-                            index === 0
-                              ? "border-slate-300"
-                              : "border-slate-200",
-                            "border-t"
-                          )}
-                        >
-                          <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm text-slate-500 sm:pl-6">
-                            {line.type}
-                          </td>
-                          <td className="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
-                            {line.transaction.bookings
-                              .filter((b) => b.id !== line.id)
-                              .map((b) => {
-                                switch (b.type) {
-                                  case BookingType.CHARGE:
-                                  case BookingType.DEPOSIT:
-                                    return `${b.type} ${b.account?.name}${
-                                      b.note ? ` (${b.note})` : ""
-                                    }`;
-                                  case BookingType.INCOME:
-                                  case BookingType.EXPENSE:
-                                    return `${b.type} ${
-                                      b.incomeExpenseCategory?.name
-                                    }${b.note ? ` (${b.note})` : ""}`;
-                                  default:
-                                    return `${b.type}${
-                                      b.note ? ` (${b.note})` : ""
-                                    }`;
-                                }
-                              })
-                              .join(", ")}
-                          </td>
-                          <td className="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
-                            {line.transaction.note}
-                          </td>
-                          <td className="whitespace-nowrap px-3 py-4 text-right text-sm text-slate-500">
-                            {formatValue(line.amount)}
-                          </td>
-                          <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+        <table className="w-full">
+          <tbody className="bg-white">
+            {ledgerDateGroups.map((group) => (
+              <Fragment key={group.date}>
+                <tr className="border-t border-slate-200">
+                  <th className="bg-slate-50 px-4 py-2 text-left text-sm font-semibold text-slate-900 sm:px-6">
+                    {formatDate(group.date)}
+                  </th>
+                  <td className="bg-slate-50 px-3 py-2 text-right text-sm text-slate-500">
+                    {account.currency ? (
+                      <Money
+                        value={parseFloat(group.balance)}
+                        currency={account.currency}
+                      />
+                    ) : (
+                      <>Qty. {group.balance}</>
+                    )}
+                  </td>
+                  {/* <td className="bg-slate-50"></td> */}
+                </tr>
+                {group.lines.map((line, index) => (
+                  <tr
+                    key={line.id}
+                    className={cn(
+                      index === 0 ? "border-slate-300" : "border-slate-200",
+                      "border-t"
+                    )}
+                  >
+                    <td className="py-4 pl-4 pr-3 text-sm text-slate-500 sm:pl-6">
+                      <div>{line.type}</div>
+                      <div>
+                        {line.transaction.bookings
+                          .filter((b) => b.id !== line.id)
+                          .map((b) => {
+                            switch (b.type) {
+                              case BookingType.CHARGE:
+                              case BookingType.DEPOSIT:
+                                return `${b.type} ${b.account?.name}${
+                                  b.note ? ` (${b.note})` : ""
+                                }`;
+                              case BookingType.INCOME:
+                              case BookingType.EXPENSE:
+                                return `${b.type} ${
+                                  b.incomeExpenseCategory?.name
+                                }${b.note ? ` (${b.note})` : ""}`;
+                              default:
+                                return `${b.type}${
+                                  b.note ? ` (${b.note})` : ""
+                                }`;
+                            }
+                          })
+                          .join(", ")}
+                      </div>
+                      <div>{line.transaction.note}</div>
+                    </td>
+                    <td className="whitespace-nowrap px-3 py-4 text-right text-sm text-slate-500">
+                      {account.currency ? (
+                        <Money
+                          value={parseFloat(line.amount)}
+                          currency={account.currency}
+                        />
+                      ) : (
+                        <>Qty. {line.amount}</>
+                      )}
+                    </td>
+                    {/* <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                             <button
                               type="button"
                               onClick={() =>
@@ -211,31 +181,36 @@ export default function AccountDetailPage() {
                                 </span>
                               </button>
                             </deleteAction.Form>
-                          </td>
-                        </tr>
-                      ))}
-                    </Fragment>
-                  ))}
-                  <tr className="border-t border-slate-200">
-                    <th
-                      colSpan={3}
-                      scope="colgroup"
-                      className="bg-slate-50 px-4 py-2 text-left text-sm font-semibold text-slate-900 sm:px-6"
-                    ></th>
-                    <td className="bg-slate-50 px-3 py-2 text-right text-sm text-slate-500">
-                      {formatValue(
-                        account.preExisting && account.balanceAtStart
-                          ? account.balanceAtStart
-                          : "0"
-                      )}
-                    </td>
-                    <td className="bg-slate-50"></td>
+                          </td> */}
                   </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
+                ))}
+              </Fragment>
+            ))}
+            <tr className="border-t border-slate-200">
+              <th className="bg-slate-50 px-4 py-2 text-left text-sm font-semibold text-slate-900 sm:px-6"></th>
+              <td className="bg-slate-50 px-3 py-2 text-right text-sm text-slate-500">
+                {account.currency ? (
+                  <Money
+                    value={parseFloat(
+                      account.preExisting && account.balanceAtStart
+                        ? account.balanceAtStart
+                        : "0"
+                    )}
+                    currency={account.currency}
+                  />
+                ) : (
+                  <>
+                    Qty.{" "}
+                    {account.preExisting && account.balanceAtStart
+                      ? account.balanceAtStart
+                      : "0"}
+                  </>
+                )}
+              </td>
+              {/* <td className="bg-slate-50"></td> */}
+            </tr>
+          </tbody>
+        </table>
       </div>
       <FormModal
         size={ModalSize.EXTRA_LARGE}

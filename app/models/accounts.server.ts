@@ -6,7 +6,7 @@ import { Decimal } from "@prisma/client/runtime";
 import dayjs from "dayjs";
 import invariant from "tiny-invariant";
 import { prisma } from "~/db.server";
-import type { FormErrors } from "~/utils";
+import { baseCurrency, FormErrors, refCurrency } from "~/utils";
 import { isValidDate, isValidDecimal, sum } from "~/utils.server";
 
 export async function getAccountValues(
@@ -190,9 +190,6 @@ export async function getAccountListItemsWithCurrentBalanceByAssetClass({
     };
   }
 }
-
-const refCurrency = "CHF"; // TODO make ref currency configurable
-const baseCurrency = "USD";
 
 async function fetchRates(currencies: string[]) {
   currencies = uniq(currencies.concat(refCurrency));

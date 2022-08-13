@@ -1,3 +1,5 @@
+import { locale } from "~/utils";
+
 export function Money({
   value,
   currency,
@@ -7,7 +9,7 @@ export function Money({
   currency: string;
   showCompact?: boolean;
 }) {
-  const formattedValue = new Intl.NumberFormat("en-CH", {
+  const formattedValue = new Intl.NumberFormat(locale, {
     style: "currency",
     currency,
     maximumFractionDigits: showCompact ? 0 : undefined,

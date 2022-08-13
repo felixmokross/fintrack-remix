@@ -6,7 +6,7 @@ import { AccountForm } from "~/components/accounts";
 import { getAccountListItemsWithCurrentBalanceByAssetClass } from "~/models/accounts.server";
 import { requireUserId } from "~/session.server";
 import { Button } from "~/components/button";
-import { getTitle } from "~/utils";
+import { getTitle, refCurrency } from "~/utils";
 import { FormModal, useFormModal } from "~/components/forms";
 import { cn } from "~/components/classnames";
 import { Money } from "~/components/money";
@@ -27,8 +27,6 @@ export const loader: LoaderFunction = async ({ request }) => {
 };
 
 export const meta: MetaFunction = () => ({ title: getTitle("Accounts") });
-
-const refCurrency = "CHF";
 
 export default function AccountsPage() {
   const formModal = useFormModal<AccountFormLoaderData>((mode) =>

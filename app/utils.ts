@@ -1,9 +1,12 @@
 import { useMatches } from "@remix-run/react";
-import { format, isThisYear, isToday, isTomorrow, isYesterday } from "date-fns";
+import { isToday, isTomorrow, isYesterday } from "date-fns";
 import type { ComponentPropsWithoutRef, ElementType } from "react";
 import { useMemo } from "react";
 
 import type { User } from "~/models/users.server";
+
+export const refCurrency = "CHF"; // TODO make ref currency configurable
+export const baseCurrency = "USD";
 
 /**
  * This base hook is used in other hooks to quickly search for specific data
@@ -103,8 +106,10 @@ export declare type SerializeType<T> = T extends JsonPrimitives
     }
   : never;
 
-// TODO make local configurable
-const valueFormat = new Intl.NumberFormat("de-CH", {
+// TODO make locale configurable
+export const locale = "en-CH";
+
+const valueFormat = new Intl.NumberFormat(locale, {
   minimumFractionDigits: 2,
   maximumFractionDigits: 2,
 });
@@ -121,7 +126,6 @@ export function formatDate(value: Date | string) {
   if (isTomorrow(value)) return "Tomorrow";
   if (isToday(value)) return "Today";
   if (isYesterday(value)) return "Yesterday";
-  if (isThisYear(value)) return format(value, "dd MMM");
 
-  return format(value, "dd MMM yyyy");
+  return new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(value);
 }
