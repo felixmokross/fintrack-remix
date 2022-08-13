@@ -5,7 +5,6 @@ import { useMemo } from "react";
 
 import type { User } from "~/models/users.server";
 
-export const refCurrency = "CHF"; // TODO make ref currency configurable
 export const baseCurrency = "USD";
 
 /**

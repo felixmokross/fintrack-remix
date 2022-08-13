@@ -6,7 +6,8 @@ import { Decimal } from "@prisma/client/runtime";
 import dayjs from "dayjs";
 import invariant from "tiny-invariant";
 import { prisma } from "~/db.server";
-import { baseCurrency, FormErrors, refCurrency } from "~/utils";
+import type { FormErrors } from "~/utils";
+import { baseCurrency } from "~/utils";
 import { isValidDate, isValidDecimal, sum } from "~/utils.server";
 
 export async function getAccountValues(
@@ -80,7 +81,12 @@ export async function getAccountListItemsWithCurrentBalanceByAssetClass({
     .filter((accountItem) => accountItem.unit === AccountUnit.CURRENCY)
     .map((account) => account.currency!);
 
-  const rates = await fetchRates(currencies);
+  const { refCurrency } = await prisma.user.findUniqueOrThrow({
+    where: { id: userId },
+    select: { refCurrency: true },
+  });
+
+  const rates = await fetchRates(currencies, refCurrency);
 
   const accountItemsWithCurrentBalance = accountItems.map(withCurrentBalance);
 
@@ -185,13 +191,18 @@ export async function getAccountListItemsWithCurrentBalanceByAssetClass({
       currentBalance,
       currentBalanceInRefCurrency:
         accountItem.unit === AccountUnit.CURRENCY
-          ? convertToRefCurrency(currentBalance, accountItem.currency!, rates)
+          ? convertToRefCurrency(
+              currentBalance,
+              accountItem.currency!,
+              rates,
+              refCurrency
+            )
           : currentBalance,
     };
   }
 }
 
-async function fetchRates(currencies: string[]) {
+async function fetchRates(currencies: string[], refCurrency: string) {
   currencies = uniq(currencies.concat(refCurrency));
 
   if (currencies.length === 1) {
@@ -262,7 +273,8 @@ async function fetchRates(currencies: string[]) {
 function convertToRefCurrency(
   value: Decimal,
   currency: string,
-  rates: Map<string, Decimal>
+  rates: Map<string, Decimal>,
+  refCurrency: string
 ) {
   if (currency === refCurrency) return value;
 

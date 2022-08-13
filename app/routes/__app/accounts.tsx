@@ -6,7 +6,7 @@ import { AccountForm } from "~/components/accounts";
 import { getAccountListItemsWithCurrentBalanceByAssetClass } from "~/models/accounts.server";
 import { requireUserId } from "~/session.server";
 import { Button } from "~/components/button";
-import { getTitle, refCurrency } from "~/utils";
+import { getTitle, useUser } from "~/utils";
 import { FormModal, useFormModal } from "~/components/forms";
 import { cn } from "~/components/classnames";
 import { Money } from "~/components/money";
@@ -37,6 +37,7 @@ export default function AccountsPage() {
 
   const deleteAction = useFetcher();
 
+  const { refCurrency } = useUser();
   const { accountsByAssetClass } = useLoaderData<LoaderData>();
   return (
     <div className="flex-1 overflow-hidden md:grid md:grid-cols-accounts-1 md:divide-x md:divide-slate-200 lg:grid-cols-accounts-2 xl:grid-cols-accounts-3 2xl:grid-cols-accounts-4">
