@@ -1,5 +1,5 @@
 import { AccountUnit, BookingType } from "@prisma/client";
-import { useFetcher, useLoaderData } from "@remix-run/react";
+import { useLoaderData } from "@remix-run/react";
 import type { LoaderFunction } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import { Fragment } from "react";
@@ -46,7 +46,7 @@ export default function AccountDetailPage() {
       : { title: "Edit Transaction", url: `/transactions/${mode.id}/edit` }
   );
 
-  const deleteAction = useFetcher();
+  // const deleteAction = useFetcher();
 
   const { preferredLocale } = useUser();
 
