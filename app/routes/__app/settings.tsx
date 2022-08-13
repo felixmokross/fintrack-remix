@@ -17,7 +17,7 @@ export const meta: MetaFunction = () => ({ title: getTitle("Settings") });
 
 export default function SettingsPage() {
   return (
-    <div className="mx-auto flex max-w-7xl flex-col sm:px-4 md:flex-row lg:px-8">
+    <div className="mx-auto flex w-full max-w-7xl flex-col sm:px-4 md:flex-row lg:px-8">
       <nav
         className="flex-none space-y-1 py-2 md:w-52 md:py-4"
         aria-label="Sidebar"

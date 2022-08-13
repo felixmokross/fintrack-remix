@@ -109,16 +109,7 @@ export declare type SerializeType<T> = T extends JsonPrimitives
 // TODO make locale configurable
 export const locale = "en-CH";
 
-const valueFormat = new Intl.NumberFormat(locale, {
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2,
-});
-
-export function formatValue(value: string | number) {
-  if (typeof value === "string") value = parseFloat(value);
-
-  return valueFormat.format(value);
-}
+const dateFormat = new Intl.DateTimeFormat(locale, { dateStyle: "medium" });
 
 export function formatDate(value: Date | string) {
   if (typeof value === "string") value = new Date(value);
@@ -127,5 +118,5 @@ export function formatDate(value: Date | string) {
   if (isToday(value)) return "Today";
   if (isYesterday(value)) return "Yesterday";
 
-  return new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(value);
+  return dateFormat.format(value);
 }
