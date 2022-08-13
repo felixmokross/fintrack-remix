@@ -105,17 +105,28 @@ export declare type SerializeType<T> = T extends JsonPrimitives
     }
   : never;
 
-// TODO make locale configurable
-export const locale = "en-CH";
-
-const dateFormat = new Intl.DateTimeFormat(locale, { dateStyle: "medium" });
-
-export function formatDate(value: Date | string) {
+export function formatDate(value: Date | string, locale: string) {
   if (typeof value === "string") value = new Date(value);
 
   if (isTomorrow(value)) return "Tomorrow";
   if (isToday(value)) return "Today";
   if (isYesterday(value)) return "Yesterday";
 
-  return dateFormat.format(value);
+  return getFormat(locale).format(value);
+}
+
+type DateFormatCache = {
+  locale: string;
+  format: Intl.DateTimeFormat;
+};
+let dateFormatCache: DateFormatCache | null = null;
+
+function getFormat(locale: string) {
+  if (dateFormatCache && dateFormatCache.locale === locale)
+    return dateFormatCache.format;
+
+  const format = new Intl.DateTimeFormat(locale, { dateStyle: "medium" });
+  dateFormatCache = { locale, format };
+
+  return format;
 }

@@ -14,7 +14,7 @@ import type { TransactionFormLoaderData } from "~/components/transactions";
 import { TransactionForm } from "~/components/transactions";
 import { FormModal, useFormModal } from "~/components/forms";
 import { ModalSize } from "~/components/modal";
-import { formatDate } from "~/utils";
+import { formatDate, useUser } from "~/utils";
 import { Money } from "~/components/money";
 
 type LoaderData = {
@@ -47,6 +47,8 @@ export default function AccountDetailPage() {
   );
 
   const deleteAction = useFetcher();
+
+  const { preferredLocale } = useUser();
 
   const { account, ledgerDateGroups } = useLoaderData<LoaderData>();
   return (
@@ -88,13 +90,14 @@ export default function AccountDetailPage() {
               <Fragment key={group.date}>
                 <tr className="border-t border-slate-200">
                   <th className="bg-slate-50 px-4 py-2 text-left text-sm font-semibold text-slate-900 sm:px-6">
-                    {formatDate(group.date)}
+                    {formatDate(group.date, preferredLocale)}
                   </th>
                   <td className="bg-slate-50 px-3 py-2 text-right text-sm text-slate-500">
                     {account.currency ? (
                       <Money
                         value={parseFloat(group.balance)}
                         currency={account.currency}
+                        locale={preferredLocale}
                       />
                     ) : (
                       <>Qty. {group.balance}</>
@@ -142,6 +145,7 @@ export default function AccountDetailPage() {
                         <Money
                           value={parseFloat(line.amount)}
                           currency={account.currency}
+                          locale={preferredLocale}
                         />
                       ) : (
                         <>Qty. {line.amount}</>
@@ -197,6 +201,7 @@ export default function AccountDetailPage() {
                         : "0"
                     )}
                     currency={account.currency}
+                    locale={preferredLocale}
                   />
                 ) : (
                   <>

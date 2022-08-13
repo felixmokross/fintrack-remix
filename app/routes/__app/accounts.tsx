@@ -37,7 +37,7 @@ export default function AccountsPage() {
 
   const deleteAction = useFetcher();
 
-  const { refCurrency } = useUser();
+  const { refCurrency, preferredLocale } = useUser();
   const { accountsByAssetClass } = useLoaderData<LoaderData>();
   return (
     <div className="flex-1 overflow-hidden md:grid md:grid-cols-accounts-1 md:divide-x md:divide-slate-200 lg:grid-cols-accounts-2 xl:grid-cols-accounts-3 2xl:grid-cols-accounts-4">
@@ -70,6 +70,7 @@ export default function AccountsPage() {
                       value={total}
                       currency={refCurrency}
                       showCompact={true}
+                      locale={preferredLocale}
                     />
                   </div>
                 </div>
@@ -142,6 +143,7 @@ export default function AccountsPage() {
                                   value={balance}
                                   currency={a.currency}
                                   showCompact={true}
+                                  locale={preferredLocale}
                                 />
                               ) : (
                                 `Qty. ${balance}`
@@ -153,6 +155,7 @@ export default function AccountsPage() {
                                   value={balanceInRefCurrency}
                                   currency={refCurrency}
                                   showCompact={true}
+                                  locale={preferredLocale}
                                 />
                               </div>
                             )}
