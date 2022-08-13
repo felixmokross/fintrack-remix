@@ -79,6 +79,7 @@ export default function AccountsPage() {
                     const balanceInRefCurrency = parseFloat(
                       a.currentBalanceInRefCurrency
                     );
+                    const balance = parseFloat(a.currentBalance);
                     return (
                       <li key={a.id}>
                         <Link
@@ -133,26 +134,27 @@ export default function AccountsPage() {
                           <div className="self-end text-right">
                             <div
                               className={cn("text-lg", {
-                                "text-emerald-600": balanceInRefCurrency >= 0,
-                                "text-rose-600": balanceInRefCurrency < 0,
+                                "text-emerald-600": balance >= 0,
+                                "text-rose-600": balance < 0,
                               })}
                             >
-                              <Money
-                                value={balanceInRefCurrency}
-                                currency={refCurrency}
-                                showCompact={true}
-                              />
+                              {a.currency ? (
+                                <Money
+                                  value={balance}
+                                  currency={a.currency}
+                                  showCompact={true}
+                                />
+                              ) : (
+                                `Qty. ${balance}`
+                              )}
                             </div>
                             {a.currency !== refCurrency && (
                               <div className="text-sm text-slate-400">
-                                {a.currency ? (
-                                  <Money
-                                    value={parseFloat(a.currentBalance)}
-                                    currency={a.currency}
-                                  />
-                                ) : (
-                                  `Stock ${a.currentBalance}`
-                                )}
+                                <Money
+                                  value={balanceInRefCurrency}
+                                  currency={refCurrency}
+                                  showCompact={true}
+                                />
                               </div>
                             )}
                           </div>
