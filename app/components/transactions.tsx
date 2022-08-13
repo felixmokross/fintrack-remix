@@ -142,7 +142,7 @@ export function TransactionForm({
             <button
               type="button"
               onClick={() => dispatch({ type: "remove", index })}
-              className="text-gray-400 hover:text-gray-500"
+              className="text-slate-400 hover:text-slate-500"
             >
               <TrashIcon className="h-5 w-5" />
             </button>
@@ -256,7 +256,7 @@ function AddBookingMenuItem({
             })
           }
           className={cn(
-            active ? "bg-gray-100 text-gray-900" : "text-gray-700",
+            active ? "bg-slate-100 text-slate-900" : "text-slate-700",
             "block w-full px-4 py-2 text-left text-sm"
           )}
         >

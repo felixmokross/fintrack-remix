@@ -287,16 +287,16 @@ export default function ImportPage() {
       className="flex h-full flex-col items-center justify-center gap-4"
     >
       {loaderData.message && (
-        <div className="rounded-md bg-green-50 p-4">
+        <div className="rounded-md bg-emerald-50 p-4">
           <div className="flex">
             <div className="flex-shrink-0">
               <CheckCircleIcon
-                className="h-5 w-5 text-green-400"
+                className="h-5 w-5 text-emerald-400"
                 aria-hidden="true"
               />
             </div>
             <div className="ml-3">
-              <p className="text-sm font-medium text-green-800">
+              <p className="text-sm font-medium text-emerald-800">
                 {loaderData.message}
               </p>
             </div>

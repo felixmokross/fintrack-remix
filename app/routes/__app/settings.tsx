@@ -30,8 +30,8 @@ export default function SettingsPage() {
             className={({ isActive }) =>
               cn(
                 isActive
-                  ? "bg-gray-100 text-gray-900"
-                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900",
+                  ? "bg-slate-100 text-slate-900"
+                  : "text-slate-600 hover:bg-slate-50 hover:text-slate-900",
                 "flex items-center px-3 py-2 text-sm font-medium sm:rounded-md"
               )
             }

@@ -35,10 +35,10 @@ export default function AccountGroupsPage() {
     <div className="px-4 sm:px-6 lg:px-8">
       <div className="sm:flex">
         <div className="sm:flex-auto">
-          <h1 className="text-xl font-semibold text-gray-900">
+          <h1 className="text-xl font-semibold text-slate-900">
             Account Groups
           </h1>
-          <p className="mt-2 text-sm text-gray-700">
+          <p className="mt-2 text-sm text-slate-700">
             Accounts can be organized into groups, e.g. by financial
             institution, banking app, or type of account.
           </p>
@@ -56,12 +56,12 @@ export default function AccountGroupsPage() {
         <div className="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
           <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
             <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
-              <table className="min-w-full divide-y divide-gray-300">
-                <thead className="bg-gray-50">
+              <table className="min-w-full divide-y divide-slate-300">
+                <thead className="bg-slate-50">
                   <tr>
                     <th
                       scope="col"
-                      className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6"
+                      className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-slate-900 sm:pl-6"
                     >
                       Name
                     </th>
@@ -73,10 +73,10 @@ export default function AccountGroupsPage() {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200 bg-white">
+                <tbody className="divide-y divide-slate-200 bg-white">
                   {accountGroups.map((accountGroup) => (
                     <tr key={accountGroup.id}>
-                      <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
+                      <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-slate-900 sm:pl-6">
                         {accountGroup.name}
                       </td>
                       <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
@@ -87,7 +87,7 @@ export default function AccountGroupsPage() {
                               id: accountGroup.id,
                             })
                           }
-                          className="text-indigo-600 hover:text-indigo-900"
+                          className="text--600 hover:text--900"
                         >
                           Edit
                           <span className="sr-only">, {accountGroup.name}</span>
@@ -100,7 +100,7 @@ export default function AccountGroupsPage() {
                         >
                           <button
                             type="submit"
-                            className="text-indigo-600 hover:text-indigo-900"
+                            className="text--600 hover:text--900"
                           >
                             Delete
                             <span className="sr-only">

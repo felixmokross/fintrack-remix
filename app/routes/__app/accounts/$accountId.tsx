@@ -52,10 +52,10 @@ export default function AccountDetailPage() {
     <div className="overflow-auto p-6">
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
-          <h1 className="text-xl font-semibold text-gray-900">
+          <h1 className="text-xl font-semibold text-slate-900">
             {account.name}
           </h1>
-          <p className="mt-2 text-sm text-gray-700">
+          <p className="mt-2 text-sm text-slate-700">
             {account.unit === AccountUnit.CURRENCY ? (
               <>
                 Currency:{" "}
@@ -89,25 +89,25 @@ export default function AccountDetailPage() {
                   <tr>
                     <th
                       scope="col"
-                      className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6"
+                      className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-slate-900 sm:pl-6"
                     >
                       Date/Type
                     </th>
                     <th
                       scope="col"
-                      className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+                      className="px-3 py-3.5 text-left text-sm font-semibold text-slate-900"
                     >
                       Bookings
                     </th>
                     <th
                       scope="col"
-                      className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+                      className="px-3 py-3.5 text-left text-sm font-semibold text-slate-900"
                     >
                       Note
                     </th>
                     <th
                       scope="col"
-                      className="px-3 py-3.5 text-right text-sm font-semibold text-gray-900"
+                      className="px-3 py-3.5 text-right text-sm font-semibold text-slate-900"
                     >
                       Balance
                     </th>
@@ -122,31 +122,33 @@ export default function AccountDetailPage() {
                 <tbody className="bg-white">
                   {ledgerDateGroups.map((group) => (
                     <Fragment key={group.date}>
-                      <tr className="border-t border-gray-200">
+                      <tr className="border-t border-slate-200">
                         <th
                           colSpan={3}
                           scope="colgroup"
-                          className="bg-gray-50 px-4 py-2 text-left text-sm font-semibold text-gray-900 sm:px-6"
+                          className="bg-slate-50 px-4 py-2 text-left text-sm font-semibold text-slate-900 sm:px-6"
                         >
                           {formatDate(group.date)}
                         </th>
-                        <td className="bg-gray-50 px-3 py-2 text-right text-sm text-gray-500">
+                        <td className="bg-slate-50 px-3 py-2 text-right text-sm text-slate-500">
                           {formatValue(group.balance)}
                         </td>
-                        <td className="bg-gray-50"></td>
+                        <td className="bg-slate-50"></td>
                       </tr>
                       {group.lines.map((line, index) => (
                         <tr
                           key={line.id}
                           className={cn(
-                            index === 0 ? "border-gray-300" : "border-gray-200",
+                            index === 0
+                              ? "border-slate-300"
+                              : "border-slate-200",
                             "border-t"
                           )}
                         >
-                          <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm text-gray-500 sm:pl-6">
+                          <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm text-slate-500 sm:pl-6">
                             {line.type}
                           </td>
-                          <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                          <td className="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
                             {line.transaction.bookings
                               .filter((b) => b.id !== line.id)
                               .map((b) => {
@@ -169,10 +171,10 @@ export default function AccountDetailPage() {
                               })
                               .join(", ")}
                           </td>
-                          <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                          <td className="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
                             {line.transaction.note}
                           </td>
-                          <td className="whitespace-nowrap px-3 py-4 text-right text-sm text-gray-500">
+                          <td className="whitespace-nowrap px-3 py-4 text-right text-sm text-slate-500">
                             {formatValue(line.amount)}
                           </td>
                           <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
@@ -184,7 +186,7 @@ export default function AccountDetailPage() {
                                   id: line.transaction.id,
                                 })
                               }
-                              className="text-indigo-600 hover:text-indigo-900"
+                              className="text--600 hover:text--900"
                             >
                               Edit
                               <span className="sr-only">
@@ -200,7 +202,7 @@ export default function AccountDetailPage() {
                             >
                               <button
                                 type="submit"
-                                className="text-indigo-600 hover:text-indigo-900"
+                                className="text--600 hover:text--900"
                               >
                                 Delete
                                 <span className="sr-only">
@@ -214,20 +216,20 @@ export default function AccountDetailPage() {
                       ))}
                     </Fragment>
                   ))}
-                  <tr className="border-t border-gray-200">
+                  <tr className="border-t border-slate-200">
                     <th
                       colSpan={3}
                       scope="colgroup"
-                      className="bg-gray-50 px-4 py-2 text-left text-sm font-semibold text-gray-900 sm:px-6"
+                      className="bg-slate-50 px-4 py-2 text-left text-sm font-semibold text-slate-900 sm:px-6"
                     ></th>
-                    <td className="bg-gray-50 px-3 py-2 text-right text-sm text-gray-500">
+                    <td className="bg-slate-50 px-3 py-2 text-right text-sm text-slate-500">
                       {formatValue(
                         account.preExisting && account.balanceAtStart
                           ? account.balanceAtStart
                           : "0"
                       )}
                     </td>
-                    <td className="bg-gray-50"></td>
+                    <td className="bg-slate-50"></td>
                   </tr>
                 </tbody>
               </table>

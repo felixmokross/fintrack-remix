@@ -26,7 +26,7 @@ import type { ModalSize } from "./modal";
 import { Modal } from "./modal";
 import type { FormErrors, SerializeType } from "~/utils";
 
-const labelClassName = "block text-sm font-medium text-gray-700";
+const labelClassName = "block text-sm font-medium text-slate-700";
 
 function Label({ htmlFor, children }: PropsWithChildren<LabelProps>) {
   return (
@@ -43,7 +43,7 @@ type LabelProps = {
 function ErrorMessage({ error, errorId }: ErrorMessageProps) {
   if (!error) return null;
   return (
-    <p className="mt-2 text-sm text-red-600" id={errorId}>
+    <p className="mt-2 text-sm text-rose-600" id={errorId}>
       {error}
     </p>
   );
@@ -69,7 +69,7 @@ export const Input = function Input({
         type={type || "text"}
         name={name}
         id={id}
-        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:opacity-50 sm:text-sm"
+        className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:opacity-50 sm:text-sm"
         aria-invalid={error ? "true" : undefined}
         aria-describedby={error ? errorId : undefined}
         defaultValue={defaultValue}
@@ -110,7 +110,7 @@ export function Select({
       <select
         id={id}
         name={name}
-        className="mt-1 block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:opacity-50 sm:text-sm"
+        className="mt-1 block w-full rounded-md border-slate-300 py-2 pl-3 pr-10 text-base focus:border-sky-500 focus:outline-none focus:ring-sky-500 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:opacity-50 sm:text-sm"
         defaultValue={defaultValue}
         disabled={disabled}
         aria-invalid={error ? "true" : undefined}
@@ -172,13 +172,13 @@ export function Combobox({
       <div className="relative mt-1">
         <HeadlessCombobox.Input
           onChange={(event) => setQuery(event.target.value)}
-          className="w-full rounded-md border border-gray-300 bg-white py-2 pl-3 pr-10 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:opacity-50 sm:text-sm"
+          className="w-full rounded-md border border-slate-300 bg-white py-2 pl-3 pr-10 shadow-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:opacity-50 sm:text-sm"
           displayValue={getDisplayName}
           aria-invalid={error ? "true" : undefined}
           aria-describedby={error ? errorId : undefined}
         />
         <HeadlessCombobox.Button className="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50">
-          <SelectorIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+          <SelectorIcon className="h-5 w-5 text-slate-400" aria-hidden="true" />
         </HeadlessCombobox.Button>
         {filteredOptions.length > 0 && (
           <HeadlessCombobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
@@ -189,7 +189,7 @@ export function Combobox({
                 className={({ active }) =>
                   cn(
                     "relative cursor-default select-none py-2 pl-3 pr-9",
-                    active ? "bg-indigo-600 text-white" : "text-gray-900"
+                    active ? "bg-sky-600 text-white" : "text-slate-900"
                   )
                 }
               >
@@ -204,8 +204,8 @@ export function Combobox({
                       {option.secondaryText && (
                         <span
                           className={cn(
-                            "ml-2 truncate text-gray-500",
-                            active ? "text-indigo-200" : "text-gray-500"
+                            "ml-2 truncate text-slate-500",
+                            active ? "text-sky-200" : "text-slate-500"
                           )}
                         >
                           {option.secondaryText}
@@ -217,7 +217,7 @@ export function Combobox({
                       <span
                         className={cn(
                           "absolute inset-y-0 right-0 flex items-center pr-4",
-                          active ? "text-white" : "text-indigo-600"
+                          active ? "text-white" : "text-sky-600"
                         )}
                       >
                         <CheckIcon className="h-5 w-5" aria-hidden="true" />
@@ -325,14 +325,14 @@ export function RadioGroup<TValue extends string | undefined>({
             className={({ active, checked }) =>
               cn(
                 "focus:outline-none",
-                active ? "ring-2 ring-indigo-500 ring-offset-2" : "",
+                active ? "ring-2 ring-sky-500 ring-offset-2" : "",
                 checked
-                  ? "border-transparent bg-indigo-600 text-white"
-                  : "border-gray-200 bg-white text-gray-900",
+                  ? "border-transparent bg-sky-600 text-white"
+                  : "border-slate-200 bg-white text-slate-900",
                 "flex items-center justify-center rounded-md border py-2 px-3 text-sm font-medium sm:flex-1",
                 disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer",
-                !disabled && checked && "hover:bg-indigo-700",
-                !disabled && !checked && "hover:bg-gray-50"
+                !disabled && checked && "hover:bg-sky-700",
+                !disabled && !checked && "hover:bg-slate-50"
               )
             }
           >
@@ -391,8 +391,8 @@ export function DetailedRadioGroup<TValue extends string | undefined>({
             value={option.value}
             className={({ checked, active }) =>
               cn(
-                checked ? "border-transparent" : "border-gray-300",
-                active ? "border-indigo-500 ring-2 ring-indigo-500" : "",
+                checked ? "border-transparent" : "border-slate-300",
+                active ? "border-sky-500 ring-2 ring-sky-500" : "",
                 "relative flex rounded-lg border bg-white p-4 shadow-sm focus:outline-none",
                 disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"
               )
@@ -404,13 +404,13 @@ export function DetailedRadioGroup<TValue extends string | undefined>({
                   <span className="flex flex-col">
                     <HeadlessRadioGroup.Label
                       as="span"
-                      className="block text-sm font-medium text-gray-900"
+                      className="block text-sm font-medium text-slate-900"
                     >
                       {option.label}
                     </HeadlessRadioGroup.Label>
                     <HeadlessRadioGroup.Description
                       as="span"
-                      className="mt-1 flex items-center text-sm text-gray-500"
+                      className="mt-1 flex items-center text-sm text-slate-500"
                     >
                       {option.description}
                     </HeadlessRadioGroup.Description>
@@ -419,14 +419,14 @@ export function DetailedRadioGroup<TValue extends string | undefined>({
                 <CheckCircleIcon
                   className={cn(
                     !checked ? "invisible" : "",
-                    "h-5 w-5 text-indigo-600"
+                    "h-5 w-5 text-sky-600"
                   )}
                   aria-hidden="true"
                 />
                 <span
                   className={cn(
                     active ? "border" : "border-2",
-                    checked ? "border-indigo-500" : "border-transparent",
+                    checked ? "border-sky-500" : "border-transparent",
                     "pointer-events-none absolute -inset-px rounded-lg"
                   )}
                   aria-hidden="true"
@@ -472,8 +472,8 @@ export function Toggle({
         }}
         name={name}
         className={cn(
-          enabled ? "bg-indigo-600" : "bg-gray-200",
-          "relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+          enabled ? "bg-sky-600" : "bg-slate-200",
+          "relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2"
         )}
       >
         <span
@@ -485,10 +485,10 @@ export function Toggle({
         />
       </Switch>
       <div className="ml-4 flex flex-col">
-        <Switch.Label className="text-sm font-medium text-gray-700">
+        <Switch.Label className="text-sm font-medium text-slate-700">
           {label}
         </Switch.Label>
-        <Switch.Description className="mt-1 text-sm text-gray-500">
+        <Switch.Description className="mt-1 text-sm text-slate-500">
           {description}
         </Switch.Description>
       </div>
@@ -588,7 +588,7 @@ export function FormModal<
               Cancel
             </Modal.Button>
             {action.data?.errors?.form && (
-              <p className="flex-grow self-center text-sm text-red-600">
+              <p className="flex-grow self-center text-sm text-rose-600">
                 {action.data.errors.form}
               </p>
             )}

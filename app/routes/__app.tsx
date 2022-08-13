@@ -39,10 +39,10 @@ export default function App() {
                         className={({ isActive }) =>
                           cn(
                             "inline-flex items-center border-b-2  px-1 pt-1 text-sm font-medium ",
-                            "cursor-not-allowed border-transparent text-gray-500 opacity-50"
+                            "cursor-not-allowed border-transparent text-slate-500 opacity-50"
                             // isActive
-                            //   ? "border-indigo-500 text-gray-900"
-                            //   : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
+                            //   ? "border-sky-500 text-slate-900"
+                            //   : "border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700"
                           )
                         }
                       >
@@ -55,8 +55,8 @@ export default function App() {
                           cn(
                             "inline-flex items-center border-b-2  px-1 pt-1 text-sm font-medium",
                             isActive
-                              ? "border-indigo-500 text-gray-900"
-                              : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
+                              ? "border-sky-500 text-slate-900"
+                              : "border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700"
                           )
                         }
                       >
@@ -69,8 +69,8 @@ export default function App() {
                           cn(
                             "inline-flex items-center border-b-2  px-1 pt-1 text-sm font-medium",
                             isActive
-                              ? "border-indigo-500 text-gray-900"
-                              : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
+                              ? "border-sky-500 text-slate-900"
+                              : "border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700"
                           )
                         }
                       >
@@ -86,14 +86,14 @@ export default function App() {
                       <div className="relative">
                         <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                           <SearchIcon
-                            className="h-5 w-5 text-gray-400"
+                            className="h-5 w-5 text-slate-400"
                             aria-hidden="true"
                           />
                         </div>
                         <input
                           id="search"
                           name="search"
-                          className="block w-full rounded-md border border-gray-300 bg-white py-2 pl-10 pr-3 leading-5 placeholder-gray-500 focus:border-indigo-500 focus:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm"
+                          className="block w-full rounded-md border border-slate-300 bg-white py-2 pl-10 pr-3 leading-5 placeholder-slate-500 focus:border-sky-500 focus:placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
                           placeholder="Search"
                           type="search"
                         />
@@ -102,7 +102,7 @@ export default function App() {
                   </div>
                   <div className="flex items-center lg:hidden">
                     {/* Mobile menu button */}
-                    <Disclosure.Button className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
+                    <Disclosure.Button className="inline-flex items-center justify-center rounded-md p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-sky-500">
                       <span className="sr-only">Open main menu</span>
                       {open ? (
                         <XIcon className="block h-6 w-6" aria-hidden="true" />
@@ -118,7 +118,7 @@ export default function App() {
                     <Link
                       to="settings"
                       prefetch="intent"
-                      className="flex-shrink-0 rounded-full bg-white p-1 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                      className="flex-shrink-0 rounded-full bg-white p-1 text-slate-400 hover:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2"
                     >
                       <span className="sr-only">Go to settings</span>
                       <CogIcon className="h-6 w-6" aria-hidden="true" />
@@ -127,7 +127,7 @@ export default function App() {
                     {/* Profile dropdown */}
                     <Menu as="div" className="relative ml-4 flex-shrink-0">
                       <div>
-                        <Menu.Button className="flex rounded-full bg-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                        <Menu.Button className="flex rounded-full bg-white text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2">
                           <span className="sr-only">Open user menu</span>
                           <img
                             className="h-8 w-8 rounded-full"
@@ -151,8 +151,8 @@ export default function App() {
                               <a
                                 href="/profile"
                                 className={cn(
-                                  active ? "bg-gray-100" : "",
-                                  "block px-4 py-2 text-sm text-gray-700"
+                                  active ? "bg-slate-100" : "",
+                                  "block px-4 py-2 text-sm text-slate-700"
                                 )}
                               >
                                 Your Profile
@@ -165,8 +165,8 @@ export default function App() {
                                 action="/logout"
                                 method="post"
                                 className={cn(
-                                  active ? "bg-gray-100" : "",
-                                  "block px-4 py-2 text-sm text-gray-700"
+                                  active ? "bg-slate-100" : "",
+                                  "block px-4 py-2 text-sm text-slate-700"
                                 )}
                               >
                                 <button
@@ -187,12 +187,12 @@ export default function App() {
 
               <Disclosure.Panel className="lg:hidden">
                 <div className="space-y-1 pt-2 pb-3">
-                  {/* Current: "bg-indigo-50 border-indigo-500 text-indigo-700", Default: "border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800" */}
+                  {/* Current: "bg-sky-50 border-sky-500 text-sky-700", Default: "border-transparent text-slate-600 hover:bg-slate-50 hover:border-slate-300 hover:text-slate-800" */}
                   <NavLink
                     to="#"
                     // onClick={() => closeWithoutFocus()}
                     aria-disabled="true"
-                    className="block cursor-not-allowed border-l-4 border-transparent py-2 pl-3 pr-4 text-base font-medium text-gray-600 opacity-50"
+                    className="block cursor-not-allowed border-l-4 border-transparent py-2 pl-3 pr-4 text-base font-medium text-slate-600 opacity-50"
                   >
                     Dashboard
                   </NavLink>
@@ -204,8 +204,8 @@ export default function App() {
                       cn(
                         "block border-l-4 py-2 pl-3 pr-4 text-base font-medium",
                         isActive
-                          ? "border-indigo-500 bg-indigo-50 text-indigo-700"
-                          : "border-transparent text-gray-600 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-800"
+                          ? "border-sky-500 bg-sky-50 text-sky-700"
+                          : "border-transparent text-slate-600 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-800"
                       )
                     }
                   >
@@ -219,15 +219,15 @@ export default function App() {
                       cn(
                         "block border-l-4 py-2 pl-3 pr-4 text-base font-medium",
                         isActive
-                          ? "border-indigo-500 bg-indigo-50 text-indigo-700"
-                          : "border-transparent text-gray-600 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-800"
+                          ? "border-sky-500 bg-sky-50 text-sky-700"
+                          : "border-transparent text-slate-600 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-800"
                       )
                     }
                   >
                     Transactions
                   </NavLink>
                 </div>
-                <div className="border-t border-gray-200 pt-4 pb-3">
+                <div className="border-t border-slate-200 pt-4 pb-3">
                   <div className="flex items-center px-4">
                     <div className="flex-shrink-0">
                       <img
@@ -237,10 +237,10 @@ export default function App() {
                       />
                     </div>
                     <div className="ml-3">
-                      <div className="text-base font-medium text-gray-800">
+                      <div className="text-base font-medium text-slate-800">
                         Tom Cook
                       </div>
-                      <div className="text-sm font-medium text-gray-500">
+                      <div className="text-sm font-medium text-slate-500">
                         {user.email}
                       </div>
                     </div>
@@ -248,7 +248,7 @@ export default function App() {
                       to="settings"
                       prefetch="intent"
                       onClick={() => closeWithoutFocus()}
-                      className="ml-auto flex-shrink-0 rounded-full bg-white p-1 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                      className="ml-auto flex-shrink-0 rounded-full bg-white p-1 text-slate-400 hover:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2"
                     >
                       <span className="sr-only">Go to settings</span>
                       <CogIcon className="h-6 w-6" aria-hidden="true" />
@@ -258,7 +258,7 @@ export default function App() {
                     <a
                       href="/profile"
                       onClick={() => closeWithoutFocus()}
-                      className="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+                      className="block px-4 py-2 text-base font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-800"
                     >
                       Your Profile
                     </a>
@@ -266,7 +266,7 @@ export default function App() {
                       action="/logout"
                       method="post"
                       onSubmit={() => closeWithoutFocus()}
-                      className="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+                      className="block px-4 py-2 text-base font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-800"
                     >
                       <button type="submit" className="w-full text-left">
                         Sign out

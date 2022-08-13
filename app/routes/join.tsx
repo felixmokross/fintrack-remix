@@ -95,7 +95,7 @@ export default function Join() {
           <div>
             <label
               htmlFor="email"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-slate-700"
             >
               Email address
             </label>
@@ -110,10 +110,10 @@ export default function Join() {
                 autoComplete="email"
                 aria-invalid={actionData?.errors?.email ? true : undefined}
                 aria-describedby="email-error"
-                className="w-full rounded border border-gray-500 px-2 py-1 text-lg"
+                className="w-full rounded border border-slate-500 px-2 py-1 text-lg"
               />
               {actionData?.errors?.email && (
-                <div className="pt-1 text-red-700" id="email-error">
+                <div className="pt-1 text-rose-700" id="email-error">
                   {actionData.errors.email}
                 </div>
               )}
@@ -123,7 +123,7 @@ export default function Join() {
           <div>
             <label
               htmlFor="password"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-slate-700"
             >
               Password
             </label>
@@ -136,10 +136,10 @@ export default function Join() {
                 autoComplete="new-password"
                 aria-invalid={actionData?.errors?.password ? true : undefined}
                 aria-describedby="password-error"
-                className="w-full rounded border border-gray-500 px-2 py-1 text-lg"
+                className="w-full rounded border border-slate-500 px-2 py-1 text-lg"
               />
               {actionData?.errors?.password && (
-                <div className="pt-1 text-red-700" id="password-error">
+                <div className="pt-1 text-rose-700" id="password-error">
                   {actionData.errors.password}
                 </div>
               )}
@@ -154,7 +154,7 @@ export default function Join() {
             Create Account
           </button>
           <div className="flex items-center justify-center">
-            <div className="text-center text-sm text-gray-500">
+            <div className="text-center text-sm text-slate-500">
               Already have an account?{" "}
               <Link
                 className="text-blue-500 underline"

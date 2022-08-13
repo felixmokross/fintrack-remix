@@ -36,7 +36,7 @@ function ModalRoot({
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+          <div className="fixed inset-0 bg-slate-500 bg-opacity-75 transition-opacity" />
         </Transition.Child>
 
         <div className="fixed inset-0 z-10 overflow-y-auto">
@@ -91,7 +91,7 @@ function Button<T extends ElementType>({
 
 function Footer({ children }: PropsWithChildren<{}>) {
   return (
-    <div className="rounded-b-lg bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+    <div className="rounded-b-lg bg-slate-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
       {children}
     </div>
   );
@@ -104,13 +104,13 @@ function Body({
 }: PropsWithChildren<ModalBodyProps>) {
   return (
     <div className="rounded-t-lg bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
-        <Icon className="h-6 w-6 text-green-600" aria-hidden="true" />
+      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100">
+        <Icon className="h-6 w-6 text-emerald-600" aria-hidden="true" />
       </div>
       <div className="mt-3 sm:mt-5">
         <Dialog.Title
           as="h3"
-          className="text-center text-lg font-medium leading-6 text-gray-900"
+          className="text-center text-lg font-medium leading-6 text-slate-900"
         >
           {title}
         </Dialog.Title>
