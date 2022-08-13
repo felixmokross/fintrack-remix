@@ -4,6 +4,7 @@ import { cn } from "~/components/classnames";
 import { getTitle } from "~/utils";
 
 const navigation = [
+  { name: "Preferences", to: "preferences" },
   { name: "Asset Classes", to: "asset-classes" },
   { name: "Account Groups", to: "account-groups" },
   { name: "Stocks", to: "stocks" },
