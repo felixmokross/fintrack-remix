@@ -117,12 +117,20 @@ export function createTransaction({
           ) => ({
             type,
             sortOrder: index,
-            accountId: accountId || null,
-            incomeExpenseCategoryId: incomeExpenseCategoryId || null,
+            account: accountId
+              ? { connect: { id_userId: { id: accountId, userId } } }
+              : undefined,
+            incomeExpenseCategory: incomeExpenseCategoryId
+              ? {
+                  connect: {
+                    id_userId: { id: incomeExpenseCategoryId, userId },
+                  },
+                }
+              : undefined,
             currency,
             note,
             amount,
-            userId,
+            user: { connect: { id: userId } },
           })
         ),
       },
@@ -170,12 +178,20 @@ export async function updateTransaction({
           ) => ({
             type,
             sortOrder: index,
-            accountId: accountId || null,
-            incomeExpenseCategoryId: incomeExpenseCategoryId || null,
+            account: accountId
+              ? { connect: { id_userId: { id: accountId, userId } } }
+              : undefined,
+            incomeExpenseCategory: incomeExpenseCategoryId
+              ? {
+                  connect: {
+                    id_userId: { id: incomeExpenseCategoryId, userId },
+                  },
+                }
+              : undefined,
             currency,
             note,
             amount,
-            userId,
+            user: { connect: { id: userId } },
           })
         ),
       },
