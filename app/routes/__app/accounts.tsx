@@ -9,7 +9,6 @@ import { Button } from "~/components/button";
 import { getTitle, useUser } from "~/utils";
 import { FormModal, useFormModal } from "~/components/forms";
 import { cn } from "~/components/classnames";
-import { Money } from "~/components/money";
 import { PencilIcon, TrashIcon } from "~/components/icons";
 
 type LoaderData = {
@@ -37,7 +36,7 @@ export default function AccountsPage() {
 
   const deleteAction = useFetcher();
 
-  const { refCurrency, preferredLocale } = useUser();
+  const { refCurrency } = useUser();
   const { accountsByAssetClass } = useLoaderData<LoaderData>();
   return (
     <div className="flex-1 overflow-hidden md:grid md:grid-cols-accounts-1 md:divide-x md:divide-slate-200 lg:grid-cols-accounts-2 xl:grid-cols-accounts-3 2xl:grid-cols-accounts-4">
@@ -66,19 +65,11 @@ export default function AccountsPage() {
                       "text-rose-600": total < 0,
                     })}
                   >
-                    <Money
-                      value={total}
-                      currency={refCurrency}
-                      showCompact={true}
-                      locale={preferredLocale}
-                    />
+                    {group.currentBalanceInRefCurrencyFormatted}
                   </div>
                 </div>
                 <ul className="content-start gap-6 sm:grid sm:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
                   {group.accounts.map((a) => {
-                    const balanceInRefCurrency = parseFloat(
-                      a.currentBalanceInRefCurrency
-                    );
                     const balance = parseFloat(a.currentBalance);
                     return (
                       <li key={a.id}>
@@ -138,25 +129,11 @@ export default function AccountsPage() {
                                 "text-rose-600": balance < 0,
                               })}
                             >
-                              {a.currency ? (
-                                <Money
-                                  value={balance}
-                                  currency={a.currency}
-                                  showCompact={true}
-                                  locale={preferredLocale}
-                                />
-                              ) : (
-                                `Qty. ${balance}`
-                              )}
+                              {a.currentBalanceFormatted}
                             </div>
                             {a.currency !== refCurrency && (
                               <div className="text-sm text-slate-400">
-                                <Money
-                                  value={balanceInRefCurrency}
-                                  currency={refCurrency}
-                                  showCompact={true}
-                                  locale={preferredLocale}
-                                />
+                                {a.currentBalanceInRefCurrencyFormatted}
                               </div>
                             )}
                           </div>

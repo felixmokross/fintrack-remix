@@ -1,19 +1,10 @@
 import { useMatches } from "@remix-run/react";
-import { isToday, isTomorrow, isYesterday } from "date-fns";
 import type { ComponentPropsWithoutRef, ElementType } from "react";
-import { useEffect, useState } from "react";
 import { useMemo } from "react";
 
 import type { User } from "~/models/users.server";
 
 export const baseCurrency = "USD";
-
-export function useIsClientRendered() {
-  const [isClientRendered, setIsClientRendered] = useState(false);
-  useEffect(() => setIsClientRendered(true), []);
-
-  return isClientRendered;
-}
 
 /**
  * This base hook is used in other hooks to quickly search for specific data
@@ -112,37 +103,3 @@ export declare type SerializeType<T> = T extends JsonPrimitives
         : k]: SerializeType<T[k]>;
     }
   : never;
-
-export function DateDisplay({
-  value,
-  locale,
-}: {
-  value: string;
-  locale: string;
-}) {
-  if (!useIsClientRendered()) return <>&#8203;</>;
-
-  const valueAsDate = new Date(value);
-
-  if (isTomorrow(valueAsDate)) return "Tomorrow";
-  if (isToday(valueAsDate)) return "Today";
-  if (isYesterday(valueAsDate)) return "Yesterday";
-
-  return <>{getFormat(locale).format(valueAsDate)}</>;
-}
-
-type DateFormatCache = {
-  locale: string;
-  format: Intl.DateTimeFormat;
-};
-let dateFormatCache: DateFormatCache | null = null;
-
-function getFormat(locale: string) {
-  if (dateFormatCache && dateFormatCache.locale === locale)
-    return dateFormatCache.format;
-
-  const format = new Intl.DateTimeFormat(locale, { dateStyle: "medium" });
-  dateFormatCache = { locale, format };
-
-  return format;
-}

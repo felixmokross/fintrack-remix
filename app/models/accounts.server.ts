@@ -6,6 +6,7 @@ import { Decimal } from "@prisma/client/runtime";
 import dayjs from "dayjs";
 import invariant from "tiny-invariant";
 import { prisma } from "~/db.server";
+import { formatMoney } from "~/formatting.server";
 import type { FormErrors } from "~/utils";
 import { baseCurrency } from "~/utils";
 import { isValidDate, isValidDecimal, sum } from "~/utils.server";
@@ -81,9 +82,9 @@ export async function getAccountListItemsWithCurrentBalanceByAssetClass({
     .filter((accountItem) => accountItem.unit === AccountUnit.CURRENCY)
     .map((account) => account.currency!);
 
-  const { refCurrency } = await prisma.user.findUniqueOrThrow({
+  const { refCurrency, preferredLocale } = await prisma.user.findUniqueOrThrow({
     where: { id: userId },
-    select: { refCurrency: true },
+    select: { refCurrency: true, preferredLocale: true },
   });
 
   const rates = await fetchRates(currencies, refCurrency);
@@ -127,7 +128,30 @@ export async function getAccountListItemsWithCurrentBalanceByAssetClass({
     }
   }
 
-  return Array.from(accountItemsByAssetClass.values());
+  return Array.from(accountItemsByAssetClass.values()).map((group) => ({
+    ...group,
+    accounts: group.accounts.map((a) => ({
+      ...a,
+      currentBalanceFormatted: formatMoney(
+        a.currentBalance,
+        a.currency,
+        preferredLocale,
+        true
+      ),
+      currentBalanceInRefCurrencyFormatted: formatMoney(
+        a.currentBalanceInRefCurrency,
+        refCurrency,
+        preferredLocale,
+        true
+      ),
+    })),
+    currentBalanceInRefCurrencyFormatted: formatMoney(
+      group.currentBalanceInRefCurrency,
+      refCurrency,
+      preferredLocale,
+      true
+    ),
+  }));
 
   async function getAccountItemsWithBookings(userId: User["id"]) {
     return await prisma.account.findMany({
@@ -328,6 +352,29 @@ export function getAccount({
       openingDate: true,
     },
   });
+}
+
+export async function getAccountWithInitialBalance({
+  id,
+  userId,
+  preferredLocale,
+}: Pick<Account, "id"> & {
+  userId: User["id"];
+  preferredLocale: User["preferredLocale"];
+}) {
+  const account = await getAccount({ id, userId });
+  if (!account) return null;
+
+  return {
+    ...account,
+    initialBalanceFormatted: formatMoney(
+      account.preExisting && account.balanceAtStart
+        ? account.balanceAtStart
+        : new Decimal(0),
+      account.currency,
+      preferredLocale
+    ),
+  };
 }
 
 export function createAccount({

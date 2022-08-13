@@ -5,7 +5,7 @@ import { json } from "@remix-run/server-runtime";
 import { Fragment } from "react";
 import invariant from "tiny-invariant";
 import { currenciesByCode } from "~/currencies";
-import { getAccount } from "~/models/accounts.server";
+import { getAccountWithInitialBalance } from "~/models/accounts.server";
 import { getReverseLedgerDateGroups } from "~/models/ledger-lines.server";
 import { requireUserId } from "~/session.server";
 import { Button } from "~/components/button";
@@ -14,11 +14,12 @@ import type { TransactionFormLoaderData } from "~/components/transactions";
 import { TransactionForm } from "~/components/transactions";
 import { FormModal, useFormModal } from "~/components/forms";
 import { ModalSize } from "~/components/modal";
-import { DateDisplay, useUser } from "~/utils";
-import { Money } from "~/components/money";
+import { getUserById } from "~/models/users.server";
 
 type LoaderData = {
-  account: NonNullable<Awaited<ReturnType<typeof getAccount>>>;
+  account: NonNullable<
+    Awaited<ReturnType<typeof getAccountWithInitialBalance>>
+  >;
   ledgerDateGroups: NonNullable<
     Awaited<ReturnType<typeof getReverseLedgerDateGroups>>
   >;
@@ -27,8 +28,13 @@ type LoaderData = {
 export const loader: LoaderFunction = async ({ request, params }) => {
   const userId = await requireUserId(request);
   invariant(params.accountId, "accountId not found");
+  const user = await getUserById(userId);
 
-  const account = await getAccount({ id: params.accountId, userId });
+  const account = await getAccountWithInitialBalance({
+    id: params.accountId,
+    userId,
+    preferredLocale: user!.preferredLocale,
+  });
   if (!account) return new Response("Not found", { status: 404 });
 
   const ledgerDateGroups = await getReverseLedgerDateGroups({
@@ -47,8 +53,6 @@ export default function AccountDetailPage() {
   );
 
   // const deleteAction = useFetcher();
-
-  const { preferredLocale } = useUser();
 
   const { account, ledgerDateGroups } = useLoaderData<LoaderData>();
   return (
@@ -90,18 +94,10 @@ export default function AccountDetailPage() {
               <Fragment key={group.date}>
                 <tr className="border-t border-slate-200">
                   <th className="bg-slate-50 px-4 py-2 text-left text-sm font-semibold text-slate-900 sm:px-6">
-                    <DateDisplay value={group.date} locale={preferredLocale} />
+                    {group.dateFormatted}
                   </th>
                   <td className="bg-slate-50 px-3 py-2 text-right text-sm text-slate-500">
-                    {account.currency ? (
-                      <Money
-                        value={parseFloat(group.balance)}
-                        currency={account.currency}
-                        locale={preferredLocale}
-                      />
-                    ) : (
-                      <>Qty. {group.balance}</>
-                    )}
+                    {group.balanceFormatted}
                   </td>
                   {/* <td className="bg-slate-50"></td> */}
                 </tr>
@@ -141,15 +137,7 @@ export default function AccountDetailPage() {
                       <div>{line.transaction.note}</div>
                     </td>
                     <td className="whitespace-nowrap px-3 py-4 text-right text-sm text-slate-500">
-                      {account.currency ? (
-                        <Money
-                          value={parseFloat(line.amount)}
-                          currency={account.currency}
-                          locale={preferredLocale}
-                        />
-                      ) : (
-                        <>Qty. {line.amount}</>
-                      )}
+                      {line.amountFormatted}
                     </td>
                     {/* <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                             <button
@@ -193,24 +181,7 @@ export default function AccountDetailPage() {
             <tr className="border-t border-slate-200">
               <th className="bg-slate-50 px-4 py-2 text-left text-sm font-semibold text-slate-900 sm:px-6"></th>
               <td className="bg-slate-50 px-3 py-2 text-right text-sm text-slate-500">
-                {account.currency ? (
-                  <Money
-                    value={parseFloat(
-                      account.preExisting && account.balanceAtStart
-                        ? account.balanceAtStart
-                        : "0"
-                    )}
-                    currency={account.currency}
-                    locale={preferredLocale}
-                  />
-                ) : (
-                  <>
-                    Qty.{" "}
-                    {account.preExisting && account.balanceAtStart
-                      ? account.balanceAtStart
-                      : "0"}
-                  </>
-                )}
+                {account.initialBalanceFormatted}
               </td>
               {/* <td className="bg-slate-50"></td> */}
             </tr>

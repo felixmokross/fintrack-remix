@@ -2,6 +2,7 @@ import type { Account, User } from "@prisma/client";
 import { BookingType } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime";
 import { prisma } from "~/db.server";
+import { formatDate, formatMoney } from "~/formatting.server";
 import type { getAccount } from "./accounts.server";
 
 export async function getReverseLedgerDateGroups({
@@ -11,6 +12,10 @@ export async function getReverseLedgerDateGroups({
   account: NonNullable<Awaited<ReturnType<typeof getAccount>>>;
   userId: User["id"];
 }) {
+  const { preferredLocale } = await prisma.user.findUniqueOrThrow({
+    where: { id: userId },
+    select: { preferredLocale: true },
+  });
   const ledgerLines = await getLedgerLines({ account, userId });
   ledgerLines.reverse();
 
@@ -30,7 +35,23 @@ export async function getReverseLedgerDateGroups({
     }
   }
 
-  return Array.from(groupByDate.values());
+  return Array.from(groupByDate.values()).map((group) => ({
+    ...group,
+    dateFormatted: formatDate(group.date, preferredLocale),
+    lines: group.lines.map((line) => ({
+      ...line,
+      amountFormatted: formatMoney(
+        line.amount,
+        account.currency,
+        preferredLocale
+      ),
+    })),
+    balanceFormatted: formatMoney(
+      group.balance,
+      account.currency,
+      preferredLocale
+    ),
+  }));
 }
 
 export type LedgerDateGroup = {
