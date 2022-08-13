@@ -17,18 +17,18 @@ export default function App() {
         {({ open, close }) => {
           return (
             <>
-              <div className="mx-auto max-w-7xl px-2 sm:px-4 lg:px-8">
+              <div className="mx-auto px-2 sm:px-4 lg:px-8">
                 <div className="flex h-16 justify-between">
                   <div className="flex px-2 lg:px-0">
                     <div className="flex flex-shrink-0 items-center">
                       <img
                         className="block h-8 w-auto lg:hidden"
-                        src="https://tailwindui.com/img/logos/workflow-mark-indigo-600.svg"
+                        src="/logo-small.svg"
                         alt="Workflow"
                       />
                       <img
                         className="hidden h-8 w-auto lg:block"
-                        src="https://tailwindui.com/img/logos/workflow-logo-indigo-600-mark-gray-800-text.svg"
+                        src="/logo-large.svg"
                         alt="Workflow"
                       />
                     </div>
