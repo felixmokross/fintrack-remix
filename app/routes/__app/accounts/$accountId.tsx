@@ -49,7 +49,7 @@ export default function AccountDetailPage() {
 
   const { account, ledgerDateGroups } = useLoaderData<LoaderData>();
   return (
-    <div className="mt-8">
+    <div className="overflow-auto p-6">
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
           <h1 className="text-xl font-semibold text-gray-900">

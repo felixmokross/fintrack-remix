@@ -1,17 +1,16 @@
-import { AccountType, AccountUnit } from "@prisma/client";
 import { Link, Outlet, useFetcher, useLoaderData } from "@remix-run/react";
 import type { LoaderFunction, MetaFunction } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import type { AccountFormLoaderData } from "~/components/accounts";
 import { AccountForm } from "~/components/accounts";
-import { currenciesByCode } from "~/currencies";
 import { getAccountListItemsWithCurrentBalanceByAssetClass } from "~/models/accounts.server";
 import { requireUserId } from "~/session.server";
 import { Button } from "~/components/button";
-import { formatDate, formatValue, getTitle } from "~/utils";
+import { getTitle } from "~/utils";
 import { FormModal, useFormModal } from "~/components/forms";
-import { Fragment } from "react";
 import { cn } from "~/components/classnames";
+import { Money } from "~/components/money";
+import { PencilIcon, TrashIcon } from "~/components/icons";
 
 type LoaderData = {
   accountsByAssetClass: Awaited<
@@ -29,6 +28,8 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 export const meta: MetaFunction = () => ({ title: getTitle("Accounts") });
 
+const refCurrency = "CHF";
+
 export default function AccountsPage() {
   const formModal = useFormModal<AccountFormLoaderData>((mode) =>
     mode.type === "new"
@@ -40,174 +41,130 @@ export default function AccountsPage() {
 
   const { accountsByAssetClass } = useLoaderData<LoaderData>();
   return (
-    <div className="px-4 py-2 sm:px-6 md:py-4 lg:px-8">
-      <div className="sm:flex">
-        <div className="sm:flex-auto">
-          <h1 className="text-xl font-semibold text-gray-900">Accounts</h1>
-        </div>
-        <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
-          <Button
-            onClick={() => formModal.open({ type: "new" })}
-            variant="secondary"
-          >
-            Add account
+    <div className="h-screen md:grid md:grid-cols-accounts-1 md:divide-x md:divide-slate-200 lg:grid-cols-accounts-2 xl:grid-cols-accounts-3 2xl:grid-cols-accounts-4">
+      <div className="hidden overflow-auto md:block">
+        <div className="flex justify-end py-10 px-6">
+          <Button onClick={() => formModal.open({ type: "new" })}>
+            New Account
           </Button>
         </div>
-      </div>
-      <div className="mt-8 flex flex-col">
-        <div className="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
-          <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
-            <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
-              <table className="min-w-full divide-y divide-gray-300">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th
-                      scope="col"
-                      className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6"
-                    >
-                      Name
-                    </th>
-                    <th
-                      scope="col"
-                      className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6"
-                    >
-                      Group
-                    </th>
-                    <th
-                      scope="col"
-                      className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6"
-                    >
-                      Currency/stock
-                    </th>
-                    <th
-                      scope="col"
-                      className="py-3.5 pl-4 pr-3 text-right text-sm font-semibold text-gray-900 sm:pl-6"
-                    >
-                      Balance at start / opening date
-                    </th>
-                    <th
-                      scope="col"
-                      className="py-3.5 pl-4 pr-3 text-right text-sm font-semibold text-gray-900 sm:pl-6"
-                    >
-                      Current balance
-                    </th>
-                    <th
-                      scope="col"
-                      className="py-3.5 pl-4 pr-3 text-right text-sm font-semibold text-gray-900 sm:pl-6"
-                    >
-                      Current balance in ref. ccy.
-                    </th>
-                    <th
-                      scope="col"
-                      className="relative py-3.5 pl-3 pr-4 sm:pr-6"
-                    >
-                      <span className="sr-only">Action</span>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white">
-                  {accountsByAssetClass.map((group) => (
-                    <Fragment key={group.key}>
-                      <tr className="border-t border-gray-200">
-                        <th
-                          colSpan={5}
-                          scope="colgroup"
-                          className="bg-gray-50 px-4 py-2 text-left text-sm font-semibold text-gray-900 sm:px-6"
+
+        <ul className="space-y-10">
+          {accountsByAssetClass.map((group) => {
+            const total = parseFloat(group.currentBalanceInRefCurrency);
+            return (
+              <li
+                key={group.key}
+                className="space-y-6 border-t border-b border-slate-200 bg-slate-50 px-6 pt-5 pb-6 shadow-sm"
+              >
+                <div className="flex items-center justify-between space-x-3 px-4">
+                  <h2 className="text-lg font-medium text-slate-600">
+                    {group.assetClass ? group.assetClass.name : "Liabilities"}
+                  </h2>
+                  <div
+                    className={cn("text-lg", {
+                      "text-emerald-600": total >= 0,
+                      "text-rose-600": total < 0,
+                    })}
+                  >
+                    <Money
+                      value={total}
+                      currency={refCurrency}
+                      showCompact={true}
+                    />
+                  </div>
+                </div>
+                <ul className="content-start gap-6 sm:grid sm:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+                  {group.accounts.map((a) => {
+                    const balanceInRefCurrency = parseFloat(
+                      a.currentBalanceInRefCurrency
+                    );
+                    return (
+                      <li key={a.id}>
+                        <Link
+                          to={a.id}
+                          prefetch="intent"
+                          className="group flex h-32 flex-col-reverse justify-between rounded-lg border border-slate-50 bg-white p-4 text-slate-700 shadow hover:border-slate-200 hover:text-slate-500 hover:shadow-inner"
                         >
-                          {group.type === AccountType.ASSET
-                            ? group.assetClass!.name
-                            : "Liability"}
-                        </th>
-                        <td className="bg-gray-50 px-3 py-2 text-right text-sm text-gray-500">
-                          {formatValue(group.currentBalanceInRefCurrency)}
-                        </td>
-                        <td className="bg-gray-50"></td>
-                      </tr>
-                      {group.accounts.map((account, index) => (
-                        <tr
-                          key={account.id}
-                          className={cn(
-                            index === 0 ? "border-gray-300" : "border-gray-200",
-                            "border-t"
-                          )}
-                        >
-                          <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
-                            {account.name}
-                          </td>
-                          <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
-                            {account.group?.name}
-                          </td>
-                          <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
-                            {account.unit === AccountUnit.CURRENCY ? (
-                              <>
-                                {
-                                  currenciesByCode[
-                                    account.currency! as keyof typeof currenciesByCode
-                                  ]
-                                }{" "}
-                                ({account.currency})
-                              </>
-                            ) : (
-                              account.stock?.symbol
-                            )}
-                          </td>
-                          <td className="whitespace-nowrap py-4 pl-4 pr-3 text-right text-sm font-medium text-gray-900 sm:pl-6">
-                            {account.preExisting
-                              ? formatValue(account.balanceAtStart!)
-                              : formatDate(account.openingDate!)}
-                          </td>
-                          <td className="whitespace-nowrap py-4 pl-4 pr-3 text-right text-sm font-medium text-gray-900 sm:pl-6">
-                            {formatValue(account.currentBalance)}
-                          </td>
-                          <td className="whitespace-nowrap py-4 pl-4 pr-3 text-right text-sm font-medium text-gray-900 sm:pl-6">
-                            {formatValue(account.currentBalanceInRefCurrency)}
-                          </td>
-                          <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                            <Link
-                              to={account.id}
-                              prefetch="intent"
-                              className="text-indigo-600 hover:text-indigo-900"
-                            >
-                              View
-                              <span className="sr-only">, {account.name}</span>
-                            </Link>{" "}
-                            &middot;{" "}
-                            <button
-                              type="button"
-                              onClick={() =>
-                                formModal.open({ type: "edit", id: account.id })
-                              }
-                              className="text-indigo-600 hover:text-indigo-900"
-                            >
-                              Edit
-                              <span className="sr-only">, {account.name}</span>
-                            </button>{" "}
-                            &middot;{" "}
-                            <deleteAction.Form
-                              className="inline"
-                              action={`${account.id}/delete`}
-                              method="post"
-                            >
+                          <div className="flex items-end justify-between">
+                            <h3 className="overflow-hidden text-ellipsis whitespace-nowrap text-sm font-medium">
+                              {a.name}
+                            </h3>
+                            <div className="hidden items-center gap-2 group-hover:flex">
                               <button
-                                type="submit"
-                                className="text-indigo-600 hover:text-indigo-900"
+                                type="button"
+                                className="text-slate-400 hover:text-slate-600"
+                                onClick={(e) => {
+                                  formModal.open({
+                                    type: "edit",
+                                    id: a.id,
+                                  });
+                                  e.preventDefault();
+                                }}
                               >
-                                Delete
-                                <span className="sr-only">
-                                  , {account.name}
-                                </span>
+                                <PencilIcon className="h-4 w-4" />
+                                <span className="sr-only">Edit {a.name}</span>
                               </button>
-                            </deleteAction.Form>
-                          </td>
-                        </tr>
-                      ))}
-                    </Fragment>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
+                              {/* TODO figure out why normal form submit does not work (form within an a?) */}
+                              <deleteAction.Form
+                                action={`${a.id}/delete`}
+                                className="flex"
+                                method="post"
+                              >
+                                <button
+                                  type="submit"
+                                  className="text-slate-400 hover:text-slate-600"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    deleteAction.submit(
+                                      e.currentTarget
+                                        .parentElement as HTMLFormElement
+                                    );
+                                  }}
+                                >
+                                  <TrashIcon className="h-4 w-4" />
+                                  <span className="sr-only">
+                                    Delete {a.name}
+                                  </span>
+                                </button>
+                              </deleteAction.Form>
+                            </div>
+                          </div>
+                          <div className="self-end text-right">
+                            <div
+                              className={cn("text-lg", {
+                                "text-emerald-600": balanceInRefCurrency >= 0,
+                                "text-rose-600": balanceInRefCurrency < 0,
+                              })}
+                            >
+                              <Money
+                                value={balanceInRefCurrency}
+                                currency={refCurrency}
+                                showCompact={true}
+                              />
+                            </div>
+                            {a.currency !== refCurrency && (
+                              <div className="text-sm text-slate-400">
+                                {a.currency ? (
+                                  <Money
+                                    value={parseFloat(a.currentBalance)}
+                                    currency={a.currency}
+                                  />
+                                ) : (
+                                  `Stock ${a.currentBalance}`
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </li>
+            );
+          })}
+        </ul>
       </div>
       <Outlet />
       <FormModal modal={formModal} form={AccountForm} />
