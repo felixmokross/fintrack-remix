@@ -372,29 +372,6 @@ export function getAccount({
   });
 }
 
-export async function getAccountWithInitialBalance({
-  id,
-  userId,
-  preferredLocale,
-}: Pick<Account, "id"> & {
-  userId: User["id"];
-  preferredLocale: User["preferredLocale"];
-}) {
-  const account = await getAccount({ id, userId });
-  if (!account) return null;
-
-  return {
-    ...account,
-    initialBalanceFormatted: formatMoney(
-      account.preExisting && account.balanceAtStart
-        ? account.balanceAtStart
-        : new Decimal(0),
-      account.currency,
-      preferredLocale
-    ),
-  };
-}
-
 export async function createAccount({
   name,
   type,

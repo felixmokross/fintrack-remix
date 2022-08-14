@@ -5,7 +5,7 @@ import { json } from "@remix-run/server-runtime";
 import { Fragment } from "react";
 import invariant from "tiny-invariant";
 import { currenciesByCode } from "~/currencies";
-import { getAccountWithInitialBalance } from "~/models/accounts.server";
+import { getAccount } from "~/models/accounts.server";
 import { getReverseLedgerDateGroups } from "~/models/ledger-lines.server";
 import { requireUserId } from "~/session.server";
 import { Button } from "~/components/button";
@@ -14,14 +14,11 @@ import type { TransactionFormLoaderData } from "~/components/transactions";
 import { TransactionForm } from "~/components/transactions";
 import { FormModal, useFormModal } from "~/components/forms";
 import { ModalSize } from "~/components/modal";
-import { getUserById } from "~/models/users.server";
 import { Menu, Transition } from "@headlessui/react";
 import { DotsVerticalIcon } from "~/components/icons";
 
 type LoaderData = {
-  account: NonNullable<
-    Awaited<ReturnType<typeof getAccountWithInitialBalance>>
-  >;
+  account: NonNullable<Awaited<ReturnType<typeof getAccount>>>;
   ledgerDateGroups: NonNullable<
     Awaited<ReturnType<typeof getReverseLedgerDateGroups>>
   >;
@@ -30,18 +27,21 @@ type LoaderData = {
 export const loader: LoaderFunction = async ({ request, params }) => {
   const userId = await requireUserId(request);
   invariant(params.accountId, "accountId not found");
-  const user = await getUserById(userId);
 
-  const account = await getAccountWithInitialBalance({
+  const url = new URL(request.url);
+  const pageString = url.searchParams.get("page");
+  const page = pageString ? parseInt(pageString) : 0;
+
+  const account = await getAccount({
     id: params.accountId,
     userId,
-    preferredLocale: user!.preferredLocale,
   });
   if (!account) return new Response("Not found", { status: 404 });
 
   const ledgerDateGroups = await getReverseLedgerDateGroups({
     account,
     userId,
+    page,
   });
 
   return json({ account, ledgerDateGroups });
@@ -90,9 +90,19 @@ export default function AccountDetailPage() {
         </div>
       </div>
       <div className="mt-8 flex flex-col">
+        {ledgerDateGroups.page > 0 && (
+          <div className="flex justify-center py-8">
+            <Link
+              to={`?page=${ledgerDateGroups.page - 1}`}
+              className="text-sm text-sky-600 hover:underline"
+            >
+              Newer transactions
+            </Link>
+          </div>
+        )}
         <table className="w-full">
           <tbody className="bg-white">
-            {ledgerDateGroups.map((group) => (
+            {ledgerDateGroups.groups.map((group) => (
               <Fragment key={group.date}>
                 <tr className="border-t border-slate-200">
                   <th className="bg-slate-50 px-4 py-2 text-left text-sm font-semibold text-slate-900 sm:px-6">
@@ -122,6 +132,7 @@ export default function AccountDetailPage() {
                                 invariant(b.account, "account not found");
                                 return (
                                   <Link
+                                    key={b.id}
                                     to={`../${b.account.id}`}
                                     className="text-sky-600 hover:underline"
                                   >
@@ -237,12 +248,22 @@ export default function AccountDetailPage() {
             <tr className="border-t border-slate-200">
               <th className="bg-slate-50 px-4 py-2 text-left text-sm font-semibold text-slate-900 sm:px-6"></th>
               <td className="bg-slate-50 py-2 pl-3 pr-1 text-right text-sm text-slate-500">
-                {account.initialBalanceFormatted}
+                {ledgerDateGroups.initialPageBalanceFormatted}
               </td>
               <td className="bg-slate-50"></td>
             </tr>
           </tbody>
         </table>
+        {ledgerDateGroups.page < ledgerDateGroups.pageCount - 1 && (
+          <div className="flex justify-center py-8">
+            <Link
+              to={`?page=${ledgerDateGroups.page + 1}`}
+              className="text-sm text-sky-600 hover:underline"
+            >
+              Older transactions
+            </Link>
+          </div>
+        )}
       </div>
       <FormModal
         size={ModalSize.EXTRA_LARGE}

@@ -6,12 +6,16 @@ import { prisma } from "~/db.server";
 import { formatDate, formatMoney } from "~/formatting.server";
 import type { getAccount } from "./accounts.server";
 
+const pageSize = 50;
+
 export async function getReverseLedgerDateGroups({
   account,
   userId,
+  page,
 }: {
   account: NonNullable<Awaited<ReturnType<typeof getAccount>>>;
   userId: User["id"];
+  page: number;
 }) {
   let ledgerLines = cache.ledgerLines.read(userId, account.id);
 
@@ -22,6 +26,17 @@ export async function getReverseLedgerDateGroups({
   }
 
   ledgerLines = ledgerLines.slice().reverse();
+  const pageCount = Math.max(Math.ceil(ledgerLines.length / pageSize), 1);
+
+  const pageOffset = pageSize * page;
+  const nextPageOffset = pageOffset + pageSize;
+  const pagedLedgerLines = ledgerLines.slice(pageOffset, nextPageOffset);
+  const isLastPage = page === pageCount - 1;
+  const initialPageBalance = isLastPage
+    ? account.preExisting && account.balanceAtStart
+      ? account.balanceAtStart
+      : new Decimal(0)
+    : ledgerLines[nextPageOffset].balance;
 
   const { preferredLocale } = await prisma.user.findUniqueOrThrow({
     where: { id: userId },
@@ -30,7 +45,7 @@ export async function getReverseLedgerDateGroups({
 
   const groupByDate = new Map<number, LedgerDateGroup>();
 
-  for (const line of ledgerLines) {
+  for (const line of pagedLedgerLines) {
     const dateKey = line.transaction.date.valueOf();
 
     if (!groupByDate.has(dateKey)) {
@@ -44,28 +59,38 @@ export async function getReverseLedgerDateGroups({
     }
   }
 
-  return Array.from(groupByDate.values()).map((group) => ({
-    ...group,
-    dateFormatted: formatDate(group.date, preferredLocale),
-    lines: group.lines.map((line) => ({
-      ...line,
-      amountFormatted: formatMoney(
-        line.type === BookingType.DEPOSIT ||
-          line.type === BookingType.INCOME ||
-          line.type === BookingType.APPRECIATION
-          ? line.amount
-          : line.amount.negated(),
-        account.currency,
-        preferredLocale,
-        "sign-always"
-      ),
-    })),
-    balanceFormatted: formatMoney(
-      group.balance,
+  return {
+    page,
+    pageCount,
+    initialPageBalance,
+    initialPageBalanceFormatted: formatMoney(
+      initialPageBalance,
       account.currency,
       preferredLocale
     ),
-  }));
+    groups: Array.from(groupByDate.values()).map((group) => ({
+      ...group,
+      dateFormatted: formatDate(group.date, preferredLocale),
+      lines: group.lines.map((line) => ({
+        ...line,
+        amountFormatted: formatMoney(
+          line.type === BookingType.DEPOSIT ||
+            line.type === BookingType.INCOME ||
+            line.type === BookingType.APPRECIATION
+            ? line.amount
+            : line.amount.negated(),
+          account.currency,
+          preferredLocale,
+          "sign-always"
+        ),
+      })),
+      balanceFormatted: formatMoney(
+        group.balance,
+        account.currency,
+        preferredLocale
+      ),
+    })),
+  };
 }
 
 export type LedgerDateGroup = {
