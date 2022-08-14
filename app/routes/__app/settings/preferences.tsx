@@ -4,14 +4,16 @@ import { redirect } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import invariant from "tiny-invariant";
 import { Button } from "~/components/button";
-import { CurrencyCombobox, Input } from "~/components/forms";
+import { Combobox, CurrencyCombobox } from "~/components/forms";
 import { CheckCircleIcon } from "~/components/icons";
 import { prisma } from "~/db.server";
+import { getLocales } from "~/locales.server";
 import { getSession, requireUserId, sessionStorage } from "~/session.server";
 
 type LoaderData = {
   user: { preferredLocale: string; refCurrency: string };
   message?: string;
+  locales: [string, string][];
 };
 
 export const action: ActionFunction = async ({ request }) => {
@@ -50,14 +52,14 @@ export const loader: LoaderFunction = async ({ request }) => {
   const message = session.get("flashMessage");
 
   return json<LoaderData>(
-    { user, message },
+    { user, message, locales: await getLocales() },
     { headers: { "Set-Cookie": await sessionStorage.commitSession(session) } }
   );
 };
 
 export default function Preferences() {
   const transition = useTransition();
-  const { user, message } = useLoaderData<LoaderData>();
+  const { user, message, locales } = useLoaderData<LoaderData>();
   const disabled = transition.state !== "idle";
   return (
     <Form method="post">
@@ -80,10 +82,15 @@ export default function Preferences() {
               </div>
             </div>
           )}
-          <Input
+          <Combobox
             label="Preferred locale"
             name="preferredLocale"
             defaultValue={user.preferredLocale}
+            options={locales.map(([locale, localeName]) => ({
+              primaryText: localeName,
+              secondaryText: locale,
+              value: locale,
+            }))}
           />
           <CurrencyCombobox
             label="Reference currency"
