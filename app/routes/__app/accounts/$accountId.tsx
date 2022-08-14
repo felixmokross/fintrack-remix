@@ -129,14 +129,15 @@ export default function AccountDetailPage() {
                             switch (b.type) {
                               case BookingType.CHARGE:
                               case BookingType.DEPOSIT:
-                                invariant(b.account, "account not found");
+                                // TODO temporarily disabled invariant until all accounts can be migrated
+                                // invariant(b.account, "account not found");
                                 return (
                                   <Link
                                     key={b.id}
-                                    to={`../${b.account.id}`}
+                                    to={`../${b.account?.id}`}
                                     className="text-sky-600 hover:underline"
                                   >
-                                    {b.account.name}
+                                    {b.account?.name || "--- unavailable ---"}
                                   </Link>
                                 );
                               case BookingType.INCOME:
