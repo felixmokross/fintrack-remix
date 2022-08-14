@@ -1,5 +1,6 @@
 import type { Booking, Transaction, User } from "@prisma/client";
 import invariant from "tiny-invariant";
+import { appCache } from "~/cache.server";
 import { prisma } from "~/db.server";
 
 export async function getTransactionValues(
@@ -81,7 +82,7 @@ export function getTransaction({
   });
 }
 
-export function createTransaction({
+export async function createTransaction({
   date,
   note,
   bookings,
@@ -98,7 +99,7 @@ export function createTransaction({
   >[];
   userId: User["id"];
 }) {
-  return prisma.transaction.create({
+  await prisma.transaction.create({
     data: {
       date,
       note,
@@ -137,6 +138,8 @@ export function createTransaction({
       userId,
     },
   });
+
+  appCache.accountsViewByUser.delete(userId);
 }
 
 export async function updateTransaction({
@@ -157,7 +160,7 @@ export async function updateTransaction({
   >[];
   userId: User["id"];
 }) {
-  return await prisma.transaction.update({
+  await prisma.transaction.update({
     where: { id_userId: { id, userId } },
     data: {
       date,
@@ -198,13 +201,17 @@ export async function updateTransaction({
       userId,
     },
   });
+
+  appCache.accountsViewByUser.delete(userId);
 }
 
-export function deleteTransaction({
+export async function deleteTransaction({
   id,
   userId,
 }: Pick<Transaction, "id" | "userId">) {
-  return prisma.transaction.delete({ where: { id_userId: { id, userId } } });
+  await prisma.transaction.delete({ where: { id_userId: { id, userId } } });
+
+  appCache.accountsViewByUser.delete(userId);
 }
 
 export type TransactionValues = {

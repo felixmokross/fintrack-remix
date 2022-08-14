@@ -5,6 +5,7 @@ import { AccountType } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime";
 import dayjs from "dayjs";
 import invariant from "tiny-invariant";
+import { appCache } from "~/cache.server";
 import { prisma } from "~/db.server";
 import { formatMoney } from "~/formatting.server";
 import type { FormErrors } from "~/utils";
@@ -71,14 +72,25 @@ export function getAccountListItems({ userId }: { userId: User["id"] }) {
   });
 }
 
+export type AccountsView = ReturnType<typeof withCurrentBalance>[];
+
 export async function getAccountListItemsWithCurrentBalanceByAssetClass({
   userId,
 }: {
   userId: User["id"];
 }) {
-  const accountItems = await getAccountItemsWithBookings(userId);
+  let accountItemsWithCurrentBalance = appCache.accountsViewByUser.get(userId);
 
-  const currencies = accountItems
+  if (!accountItemsWithCurrentBalance) {
+    console.log("cache is empty");
+    accountItemsWithCurrentBalance = (
+      await getAccountItemsWithBookings(userId)
+    ).map(withCurrentBalance);
+
+    appCache.accountsViewByUser.set(userId, accountItemsWithCurrentBalance);
+  }
+
+  const currencies = accountItemsWithCurrentBalance
     .filter((accountItem) => accountItem.unit === AccountUnit.CURRENCY)
     .map((account) => account.currency!);
 
@@ -89,7 +101,10 @@ export async function getAccountListItemsWithCurrentBalanceByAssetClass({
 
   const rates = await fetchRates(currencies, refCurrency);
 
-  const accountItemsWithCurrentBalance = accountItems.map(withCurrentBalance);
+  const accountItemsWithCurrentBalanceInRefCurrency =
+    accountItemsWithCurrentBalance.map((accountItem) =>
+      withCurrentBalanceInRefCurrency(accountItem, rates, refCurrency)
+    );
 
   const accountItemsByAssetClass = new Map<
     string,
@@ -100,11 +115,11 @@ export async function getAccountListItemsWithCurrentBalanceByAssetClass({
         ReturnType<typeof getAccountItemsWithBookings>
       >[number]["assetClass"];
       currentBalanceInRefCurrency: Decimal;
-      accounts: ReturnType<typeof withCurrentBalance>[];
+      accounts: ReturnType<typeof withCurrentBalanceInRefCurrency>[];
     }
   >();
 
-  for (const accountItem of accountItemsWithCurrentBalance) {
+  for (const accountItem of accountItemsWithCurrentBalanceInRefCurrency) {
     const assetClassKey =
       accountItem.type === AccountType.ASSET
         ? `${AccountType.ASSET}-${accountItem.assetClass!.id}`
@@ -152,77 +167,84 @@ export async function getAccountListItemsWithCurrentBalanceByAssetClass({
       true
     ),
   }));
+}
 
-  async function getAccountItemsWithBookings(userId: User["id"]) {
-    return await prisma.account.findMany({
-      where: {
-        userId,
-        OR: [
-          { closingDate: null },
-          { closingDate: { gte: dayjs.utc().startOf("day").toDate() } },
-        ],
-      },
-      select: {
-        id: true,
-        name: true,
-        group: { select: { name: true } },
-        type: true,
-        assetClass: { select: { id: true, name: true } },
-        unit: true,
-        currency: true,
-        stock: { select: { symbol: true } },
-        preExisting: true,
-        balanceAtStart: true,
-        openingDate: true,
-        bookings: {
-          select: {
-            transaction: { select: { date: true } },
-            amount: true,
-            type: true,
-          },
-          orderBy: { transaction: { date: "desc" } },
-          where: {
-            transaction: { date: { lte: dayjs.utc().startOf("day").toDate() } },
-          },
+async function getAccountItemsWithBookings(userId: User["id"]) {
+  return await prisma.account.findMany({
+    where: {
+      userId,
+      OR: [
+        { closingDate: null },
+        { closingDate: { gte: dayjs.utc().startOf("day").toDate() } },
+      ],
+    },
+    select: {
+      id: true,
+      name: true,
+      group: { select: { name: true } },
+      type: true,
+      assetClass: { select: { id: true, name: true } },
+      unit: true,
+      currency: true,
+      stock: { select: { symbol: true } },
+      preExisting: true,
+      balanceAtStart: true,
+      openingDate: true,
+      bookings: {
+        select: {
+          transaction: { select: { date: true } },
+          amount: true,
+          type: true,
+        },
+        orderBy: { transaction: { date: "desc" } },
+        where: {
+          transaction: { date: { lte: dayjs.utc().startOf("day").toDate() } },
         },
       },
-      orderBy: [{ assetClass: { sortOrder: "asc" } }, { name: "asc" }],
-    });
-  }
+    },
+    orderBy: [{ assetClass: { sortOrder: "asc" } }, { name: "asc" }],
+  });
+}
 
-  function getBookingValue(b: { type: BookingType; amount: Decimal }) {
-    switch (b.type) {
-      case BookingType.CHARGE:
-        return b.amount.negated();
-      case BookingType.DEPOSIT:
-        return b.amount;
-      default:
-        throw new Error(
-          `Booking type not supported in this context: ${b.type}`
-        );
-    }
-  }
+function withCurrentBalance(
+  accountItem: Awaited<ReturnType<typeof getAccountItemsWithBookings>>[number]
+) {
+  return {
+    ...accountItem,
+    currentBalance: (accountItem.preExisting
+      ? accountItem.balanceAtStart!
+      : new Decimal(0)
+    ).plus(sum(accountItem.bookings.map(getBookingValue))),
+  };
+}
 
-  function withCurrentBalance(
-    accountItem: Awaited<ReturnType<typeof getAccountItemsWithBookings>>[number]
-  ) {
-    const currentBalance = (
-      accountItem.preExisting ? accountItem.balanceAtStart! : new Decimal(0)
-    ).plus(sum(accountItem.bookings.map(getBookingValue)));
+function withCurrentBalanceInRefCurrency(
+  accountItem: Awaited<ReturnType<typeof withCurrentBalance>>,
+  rates: Map<string, Decimal>,
+  refCurrency: string
+) {
+  return {
+    ...accountItem,
+    currentBalanceInRefCurrency:
+      accountItem.unit === AccountUnit.CURRENCY
+        ? convertToRefCurrency(
+            accountItem.currentBalance,
+            accountItem.currency!,
+            rates,
+            refCurrency
+          )
+        : accountItem.currentBalance,
+  };
+}
 
-    return {
-      ...accountItem,
-      currentBalance,
-      currentBalanceInRefCurrency:
-        accountItem.unit === AccountUnit.CURRENCY
-          ? convertToRefCurrency(
-              currentBalance,
-              accountItem.currency!,
-              rates,
-              refCurrency
-            )
-          : currentBalance,
-    };
+function getBookingValue(b: { type: BookingType; amount: Decimal }) {
+  switch (b.type) {
+    case BookingType.CHARGE:
+      return b.amount.negated();
+    case BookingType.DEPOSIT:
+      return b.amount;
+    default:
+      throw new Error(`Booking type not supported in this context: ${b.type}`);
   }
 }
 
@@ -377,7 +399,7 @@ export async function getAccountWithInitialBalance({
   };
 }
 
-export function createAccount({
+export async function createAccount({
   name,
   type,
   assetClassId,
@@ -404,7 +426,7 @@ export function createAccount({
 > & {
   userId: User["id"];
 }) {
-  return prisma.account.create({
+  await prisma.account.create({
     data: {
       name,
       type,
@@ -419,6 +441,8 @@ export function createAccount({
       userId,
     },
   });
+
+  appCache.accountsViewByUser.delete(userId);
 }
 
 export async function updateAccount({
@@ -450,7 +474,7 @@ export async function updateAccount({
 > & {
   userId: User["id"];
 }) {
-  return await prisma.account.update({
+  await prisma.account.update({
     where: { id_userId: { id, userId } },
     data: {
       name,
@@ -465,6 +489,8 @@ export async function updateAccount({
       openingDate,
     },
   });
+
+  appCache.accountsViewByUser.delete(userId);
 }
 
 export type AccountValues = {
@@ -534,6 +560,11 @@ export function validateAccount({
   return errors;
 }
 
-export function deleteAccount({ id, userId }: Pick<Account, "id" | "userId">) {
-  return prisma.account.delete({ where: { id_userId: { id, userId } } });
+export async function deleteAccount({
+  id,
+  userId,
+}: Pick<Account, "id" | "userId">) {
+  await prisma.account.delete({ where: { id_userId: { id, userId } } });
+
+  appCache.accountsViewByUser.delete(userId);
 }

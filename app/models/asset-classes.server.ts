@@ -1,4 +1,5 @@
 import type { AssetClass, User } from "@prisma/client";
+import { appCache } from "~/cache.server";
 import { prisma } from "~/db.server";
 
 export function getAssetClassListItems({ userId }: { userId: User["id"] }) {
@@ -21,14 +22,14 @@ export function getAssetClass({
   });
 }
 
-export function createAssetClass({
+export async function createAssetClass({
   name,
   sortOrder,
   userId,
 }: Pick<AssetClass, "name" | "sortOrder"> & {
   userId: User["id"];
 }) {
-  return prisma.assetClass.create({
+  await prisma.assetClass.create({
     data: {
       name,
       sortOrder,
@@ -45,10 +46,12 @@ export async function updateAssetClass({
 }: Pick<AssetClass, "id" | "name" | "sortOrder"> & {
   userId: User["id"];
 }) {
-  return await prisma.assetClass.update({
+  await prisma.assetClass.update({
     where: { id_userId: { id, userId } },
     data: { name, sortOrder },
   });
+
+  appCache.accountsViewByUser.delete(userId);
 }
 
 export function deleteAssetClass({
