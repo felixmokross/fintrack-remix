@@ -1,5 +1,5 @@
 import { AccountUnit, BookingType } from "@prisma/client";
-import { useLoaderData } from "@remix-run/react";
+import { useFetcher, useLoaderData } from "@remix-run/react";
 import type { LoaderFunction } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import { Fragment } from "react";
@@ -15,6 +15,8 @@ import { TransactionForm } from "~/components/transactions";
 import { FormModal, useFormModal } from "~/components/forms";
 import { ModalSize } from "~/components/modal";
 import { getUserById } from "~/models/users.server";
+import { Menu, Transition } from "@headlessui/react";
+import { DotsVerticalIcon } from "~/components/icons";
 
 type LoaderData = {
   account: NonNullable<
@@ -52,7 +54,7 @@ export default function AccountDetailPage() {
       : { title: "Edit Transaction", url: `/transactions/${mode.id}/edit` }
   );
 
-  // const deleteAction = useFetcher();
+  const deleteAction = useFetcher();
 
   const { account, ledgerDateGroups } = useLoaderData<LoaderData>();
   return (
@@ -96,17 +98,17 @@ export default function AccountDetailPage() {
                   <th className="bg-slate-50 px-4 py-2 text-left text-sm font-semibold text-slate-900 sm:px-6">
                     {group.dateFormatted}
                   </th>
-                  <td className="bg-slate-50 px-3 py-2 text-right text-sm text-slate-500">
+                  <td className="bg-slate-50 py-2 pl-3 pr-1 text-right text-sm text-slate-500">
                     {group.balanceFormatted}
                   </td>
-                  {/* <td className="bg-slate-50"></td> */}
+                  <td className="bg-slate-50"></td>
                 </tr>
                 {group.lines.map((line, index) => (
                   <tr
                     key={line.id}
                     className={cn(
                       index === 0 ? "border-slate-300" : "border-slate-200",
-                      "border-t"
+                      "group border-t"
                     )}
                   >
                     <td className="py-4 pl-4 pr-3 text-sm text-slate-500 sm:pl-6">
@@ -136,54 +138,99 @@ export default function AccountDetailPage() {
                       </div>
                       <div>{line.transaction.note}</div>
                     </td>
-                    <td className="whitespace-nowrap px-3 py-4 text-right text-sm text-slate-500">
+                    <td className="whitespace-nowrap py-4 pl-3 pr-1 text-right text-sm text-slate-500">
                       {line.amountFormatted}
                     </td>
-                    {/* <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                            <button
-                              type="button"
-                              onClick={() =>
-                                formModal.open({
-                                  type: "edit",
-                                  id: line.transaction.id,
-                                })
-                              }
-                              className="text--600 hover:text--900"
-                            >
-                              Edit
-                              <span className="sr-only">
-                                , {line.transaction.date},{" "}
-                                {line.transaction.note}
-                              </span>
-                            </button>{" "}
-                            &middot;{" "}
-                            <deleteAction.Form
-                              className="inline"
-                              action={`/transactions/${line.transaction.id}/delete`}
-                              method="post"
-                            >
-                              <button
-                                type="submit"
-                                className="text--600 hover:text--900"
+                    <td className="items-center py-4 pr-1">
+                      <Menu
+                        as="div"
+                        className="invisible relative inline-block text-left group-hover:visible"
+                      >
+                        <div>
+                          <Menu.Button className="flex h-8 items-center rounded-full text-slate-400 hover:text-slate-600 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 focus:ring-offset-slate-100">
+                            <span className="sr-only">Open options</span>
+                            <DotsVerticalIcon
+                              className="h-5 w-5"
+                              aria-hidden="true"
+                            />
+                          </Menu.Button>
+                        </div>
+
+                        <Transition
+                          as={Fragment}
+                          enter="transition ease-out duration-100"
+                          enterFrom="transform opacity-0 scale-95"
+                          enterTo="transform opacity-100 scale-100"
+                          leave="transition ease-in duration-75"
+                          leaveFrom="transform opacity-100 scale-100"
+                          leaveTo="transform opacity-0 scale-95"
+                        >
+                          <Menu.Items className="absolute right-0 z-20 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                            <div className="py-1">
+                              <Menu.Item>
+                                {({ active }) => (
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      formModal.open({
+                                        type: "edit",
+                                        id: line.transaction.id,
+                                      })
+                                    }
+                                    className={cn(
+                                      active
+                                        ? "bg-slate-100 text-slate-900"
+                                        : "text-slate-700",
+                                      "block w-full px-4  py-2 text-left text-sm"
+                                    )}
+                                  >
+                                    Edit
+                                    <span className="sr-only">
+                                      , {line.transaction.date},{" "}
+                                      {line.transaction.note}
+                                    </span>
+                                  </button>
+                                )}
+                              </Menu.Item>
+                              <deleteAction.Form
+                                action={`/transactions/${line.transaction.id}/delete`}
+                                method="post"
                               >
-                                Delete
-                                <span className="sr-only">
-                                  , {line.transaction.date},{" "}
-                                  {line.transaction.note}
-                                </span>
-                              </button>
-                            </deleteAction.Form>
-                          </td> */}
+                                <Menu.Item>
+                                  {({ active }) => (
+                                    <button
+                                      type="submit"
+                                      className={cn(
+                                        active
+                                          ? "bg-slate-100 text-slate-900"
+                                          : "text-slate-700",
+                                        "block w-full px-4 py-2 text-left text-sm"
+                                      )}
+                                    >
+                                      Delete
+                                      <span className="sr-only">
+                                        , {line.transaction.date},{" "}
+                                        {line.transaction.note}
+                                      </span>
+                                    </button>
+                                  )}
+                                </Menu.Item>
+                              </deleteAction.Form>
+                            </div>
+                          </Menu.Items>
+                        </Transition>
+                      </Menu>
+                    </td>
                   </tr>
                 ))}
               </Fragment>
             ))}
             <tr className="border-t border-slate-200">
               <th className="bg-slate-50 px-4 py-2 text-left text-sm font-semibold text-slate-900 sm:px-6"></th>
-              <td className="bg-slate-50 px-3 py-2 text-right text-sm text-slate-500">
+              <td className="bg-slate-50 py-2 pl-3 pr-1 text-right text-sm text-slate-500">
                 {account.initialBalanceFormatted}
               </td>
-              {/* <td className="bg-slate-50"></td> */}
+              <td className="bg-slate-50"></td>
             </tr>
           </tbody>
         </table>

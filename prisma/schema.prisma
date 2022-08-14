@@ -197,6 +197,7 @@ enum BookingType {
   DEPRECIATION
 }
 
+// TODO consider to move into in-memory cache (and ultimately Redis)
 model LiveCurrencyRate {
   code      String   @id
   rate      Decimal
