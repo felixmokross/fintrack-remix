@@ -1,7 +1,9 @@
 import type { Booking, Transaction, User } from "@prisma/client";
+import { BookingType } from "@prisma/client";
 import invariant from "tiny-invariant";
-import { appCache } from "~/cache.server";
+import { cache } from "~/cache.server";
 import { prisma } from "~/db.server";
+import { uniq } from "~/utils.server";
 
 export async function getTransactionValues(
   request: Request
@@ -139,7 +141,7 @@ export async function createTransaction({
     },
   });
 
-  appCache.accountsViewByUser.delete(userId);
+  cache.invalidate(userId, getAccountIdsFromBookings(bookings));
 }
 
 export async function updateTransaction({
@@ -160,58 +162,70 @@ export async function updateTransaction({
   >[];
   userId: User["id"];
 }) {
-  await prisma.transaction.update({
-    where: { id_userId: { id, userId } },
-    data: {
-      date,
-      note,
-      bookings: {
-        deleteMany: {},
-        create: bookings.map(
-          (
-            {
+  const [originalTransaction] = await prisma.$transaction([
+    prisma.transaction.findUniqueOrThrow({
+      where: { id_userId: { userId, id } },
+      select: { bookings: { select: { type: true, accountId: true } } },
+    }),
+    prisma.transaction.update({
+      where: { id_userId: { id, userId } },
+      data: {
+        date,
+        note,
+        bookings: {
+          deleteMany: {},
+          create: bookings.map(
+            (
+              {
+                type,
+                accountId,
+                incomeExpenseCategoryId,
+                currency,
+                note,
+                amount,
+              },
+              index
+            ) => ({
               type,
-              accountId,
-              incomeExpenseCategoryId,
+              sortOrder: index,
+              account: accountId
+                ? { connect: { id_userId: { id: accountId, userId } } }
+                : undefined,
+              incomeExpenseCategory: incomeExpenseCategoryId
+                ? {
+                    connect: {
+                      id_userId: { id: incomeExpenseCategoryId, userId },
+                    },
+                  }
+                : undefined,
               currency,
               note,
               amount,
-            },
-            index
-          ) => ({
-            type,
-            sortOrder: index,
-            account: accountId
-              ? { connect: { id_userId: { id: accountId, userId } } }
-              : undefined,
-            incomeExpenseCategory: incomeExpenseCategoryId
-              ? {
-                  connect: {
-                    id_userId: { id: incomeExpenseCategoryId, userId },
-                  },
-                }
-              : undefined,
-            currency,
-            note,
-            amount,
-            user: { connect: { id: userId } },
-          })
-        ),
+              user: { connect: { id: userId } },
+            })
+          ),
+        },
+        userId,
       },
-      userId,
-    },
-  });
+    }),
+  ]);
 
-  appCache.accountsViewByUser.delete(userId);
+  cache.invalidate(
+    userId,
+    getAccountIdsFromBookings(originalTransaction.bookings.concat(bookings))
+  );
 }
 
 export async function deleteTransaction({
   id,
   userId,
 }: Pick<Transaction, "id" | "userId">) {
-  await prisma.transaction.delete({ where: { id_userId: { id, userId } } });
+  const transaction = await prisma.transaction.delete({
+    where: { id_userId: { id, userId } },
+    select: { bookings: { select: { type: true, accountId: true } } },
+  });
 
-  appCache.accountsViewByUser.delete(userId);
+  cache.invalidate(userId, getAccountIdsFromBookings(transaction.bookings));
 }
 
 export type TransactionValues = {
@@ -228,3 +242,20 @@ export type BookingValues = {
   note: string | null;
   amount: string;
 };
+
+function getAccountIdsFromBookings(
+  bookings: Pick<Booking, "type" | "accountId">[]
+) {
+  return uniq(
+    bookings
+      .filter(
+        (booking) =>
+          booking.type === BookingType.CHARGE ||
+          booking.type === BookingType.DEPOSIT
+      )
+      .map((booking) => {
+        invariant(booking.accountId, "accountId not found");
+        return booking.accountId;
+      })
+  );
+}

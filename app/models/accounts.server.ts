@@ -5,12 +5,12 @@ import { AccountType } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime";
 import dayjs from "dayjs";
 import invariant from "tiny-invariant";
-import { appCache } from "~/cache.server";
+import { cache } from "~/cache.server";
 import { prisma } from "~/db.server";
 import { formatMoney } from "~/formatting.server";
 import type { FormErrors } from "~/utils";
 import { baseCurrency } from "~/utils";
-import { isValidDate, isValidDecimal, sum } from "~/utils.server";
+import { isValidDate, isValidDecimal, sum, uniq } from "~/utils.server";
 
 export async function getAccountValues(
   request: Request
@@ -79,7 +79,7 @@ export async function getAccountListItemsWithCurrentBalanceByAssetClass({
 }: {
   userId: User["id"];
 }) {
-  let accountItemsWithCurrentBalance = appCache.accountsViewByUser.get(userId);
+  let accountItemsWithCurrentBalance = cache.accountsView.read(userId);
 
   if (!accountItemsWithCurrentBalance) {
     console.log("cache is empty");
@@ -87,7 +87,7 @@ export async function getAccountListItemsWithCurrentBalanceByAssetClass({
       await getAccountItemsWithBookings(userId)
     ).map(withCurrentBalance);
 
-    appCache.accountsViewByUser.set(userId, accountItemsWithCurrentBalance);
+    cache.accountsView.write(userId, accountItemsWithCurrentBalance);
   }
 
   const currencies = accountItemsWithCurrentBalance
@@ -342,10 +342,6 @@ function getRate(currency: string, rates: Map<string, Decimal>) {
   return rate;
 }
 
-function uniq<T>(array: T[]) {
-  return [...new Set(array)];
-}
-
 function difference<T>(arrayA: T[], arrayB: T[]): T[] {
   const setB = new Set(arrayB);
   return arrayA.filter((x) => !setB.has(x));
@@ -442,7 +438,7 @@ export async function createAccount({
     },
   });
 
-  appCache.accountsViewByUser.delete(userId);
+  cache.invalidate(userId, []);
 }
 
 export async function updateAccount({
@@ -490,7 +486,7 @@ export async function updateAccount({
     },
   });
 
-  appCache.accountsViewByUser.delete(userId);
+  cache.invalidate(userId, [id]);
 }
 
 export type AccountValues = {
@@ -566,5 +562,5 @@ export async function deleteAccount({
 }: Pick<Account, "id" | "userId">) {
   await prisma.account.delete({ where: { id_userId: { id, userId } } });
 
-  appCache.accountsViewByUser.delete(userId);
+  cache.invalidate(userId, [id]);
 }

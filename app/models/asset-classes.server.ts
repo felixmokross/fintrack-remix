@@ -1,5 +1,5 @@
 import type { AssetClass, User } from "@prisma/client";
-import { appCache } from "~/cache.server";
+import { cache } from "~/cache.server";
 import { prisma } from "~/db.server";
 
 export function getAssetClassListItems({ userId }: { userId: User["id"] }) {
@@ -51,7 +51,7 @@ export async function updateAssetClass({
     data: { name, sortOrder },
   });
 
-  appCache.accountsViewByUser.delete(userId);
+  cache.invalidate(userId, []);
 }
 
 export function deleteAssetClass({

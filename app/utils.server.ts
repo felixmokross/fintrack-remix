@@ -55,3 +55,7 @@ export function sum(values: readonly Decimal.Value[]): Decimal {
     new Decimal(0)
   );
 }
+
+export function uniq<T>(array: T[]) {
+  return [...new Set(array)];
+}
