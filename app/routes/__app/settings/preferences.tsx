@@ -52,7 +52,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   const message = session.get("flashMessage");
 
   return json<LoaderData>(
-    { user, message, locales: await getLocales() },
+    { user, message, locales: getLocales() },
     { headers: { "Set-Cookie": await sessionStorage.commitSession(session) } }
   );
 };

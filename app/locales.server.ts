@@ -1,12 +1,15 @@
-import { readdir } from "fs/promises";
+import { availableLocales } from "cldr-core/availableLocales.json";
+import { defaultContent } from "cldr-core/defaultContent.json";
 import languages from "cldr-localenames-modern/main/en/languages.json";
 import territories from "cldr-localenames-modern/main/en/territories.json";
+import { difference } from "./utils.server";
 
-export async function getLocales() {
-  const locales = await await readdir(
-    "node_modules/cldr-localenames-modern/main"
-  ); // TODO base locales should be in this list with their territory name (en-US instead of en, de-DE instead of de)
-  return locales
+export function getLocales() {
+  const baseLocales = defaultContent.map((l) =>
+    l.split("-").slice(0, -1).join("-")
+  );
+  return difference(availableLocales.modern, baseLocales)
+    .concat(defaultContent)
     .map((locale) => {
       const [language, territory] = locale.split("-");
       const languageName =

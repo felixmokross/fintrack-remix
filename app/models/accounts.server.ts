@@ -10,7 +10,13 @@ import { prisma } from "~/db.server";
 import { formatMoney } from "~/formatting.server";
 import type { FormErrors } from "~/utils";
 import { baseCurrency } from "~/utils";
-import { isValidDate, isValidDecimal, sum, uniq } from "~/utils.server";
+import {
+  difference,
+  isValidDate,
+  isValidDecimal,
+  sum,
+  uniq,
+} from "~/utils.server";
 
 export async function getAccountValues(
   request: Request
@@ -340,11 +346,6 @@ function getRate(currency: string, rates: Map<string, Decimal>) {
   invariant(rate, `rate for ${currency} not found`);
 
   return rate;
-}
-
-function difference<T>(arrayA: T[], arrayB: T[]): T[] {
-  const setB = new Set(arrayB);
-  return arrayA.filter((x) => !setB.has(x));
 }
 
 export function getAccount({

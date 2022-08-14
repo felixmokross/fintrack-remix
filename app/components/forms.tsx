@@ -237,7 +237,9 @@ export function Combobox({
   function getDisplayName(v: string) {
     if (!v) return "";
 
-    const option = options.find((o) => o.value === v)!;
+    const option = options.find((o) => o.value === v);
+
+    if (!option) return v;
     if (!option.secondaryText) return option.primaryText;
 
     return `${option.primaryText} (${option.secondaryText})`;
