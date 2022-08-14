@@ -141,7 +141,7 @@ export default function AccountDetailPage() {
                     <td className="whitespace-nowrap py-4 pl-3 pr-1 text-right text-sm text-slate-500">
                       {line.amountFormatted}
                     </td>
-                    <td className="items-center py-4 pr-1">
+                    <td className="w-5 items-center py-4 pr-1">
                       <Menu
                         as="div"
                         className="invisible relative inline-block text-left group-hover:visible"
