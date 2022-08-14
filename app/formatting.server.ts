@@ -1,5 +1,6 @@
 import type { Decimal } from "@prisma/client/runtime";
 import { isToday, isTomorrow, isYesterday } from "date-fns";
+import { cache } from "./cache.server";
 
 export function formatDate(value: Date, locale: string) {
   if (isTomorrow(value)) return "Tomorrow";
@@ -33,37 +34,17 @@ export function formatMoney(
 ) {
   if (!currency) return value.toString();
 
-  return getMoneyFormat(currency, style, locale).format(value.toNumber());
+  return getMoneyFormat(locale, currency, style).format(value.toNumber());
 }
 
-type CurrencyFormatStyle = "compact" | "normal" | "sign-always";
-
-type CurrencyFormatCache = { locale?: string } & {
-  [key in CurrencyFormatStyle]: Map<string, Intl.NumberFormat>;
-};
-
-const currencyFormatCache: CurrencyFormatCache = {
-  locale: undefined,
-  normal: new Map<string, Intl.NumberFormat>(),
-  compact: new Map<string, Intl.NumberFormat>(),
-  "sign-always": new Map<string, Intl.NumberFormat>(),
-};
+export type CurrencyFormatStyle = "compact" | "normal" | "sign-always";
 
 function getMoneyFormat(
+  locale: string,
   currency: string,
-  style: CurrencyFormatStyle,
-  locale: string
+  style: CurrencyFormatStyle
 ) {
-  // TODO does not make sense server-side (multi-user)
-  if (currencyFormatCache.locale !== locale) {
-    currencyFormatCache.normal = new Map<string, Intl.NumberFormat>();
-    currencyFormatCache.compact = new Map<string, Intl.NumberFormat>();
-    currencyFormatCache["sign-always"] = new Map<string, Intl.NumberFormat>();
-  }
-
-  const cache = currencyFormatCache[style];
-
-  const cachedFormat = cache.get(currency);
+  const cachedFormat = cache.currencyFormat.read(locale, currency, style);
   if (cachedFormat) return cachedFormat;
 
   const format = new Intl.NumberFormat(locale, {
@@ -73,8 +54,6 @@ function getMoneyFormat(
     signDisplay: style === "sign-always" ? "always" : undefined,
   });
 
-  currencyFormatCache.locale = locale;
-  cache.set(currency, format);
-
+  cache.currencyFormat.write(locale, currency, style, format);
   return format;
 }

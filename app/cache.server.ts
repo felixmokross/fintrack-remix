@@ -1,10 +1,12 @@
+import type { CurrencyFormatStyle } from "./formatting.server";
 import type { AccountsView } from "./models/accounts.server";
 import type { LedgerLine } from "./models/ledger-lines.server";
 
-// TODO move to Redis at some point
+// TODO move to Redis at some point (at least more important data)
 type InternalCache = {
-  accountsViewByUser: Map<string, AccountsView>;
-  ledgerLinesByUserAndAccount: Map<string, LedgerLine[]>;
+  accountsView: Map<string, AccountsView>;
+  ledgerLines: Map<string, LedgerLine[]>;
+  currencyFormat: Map<string, Intl.NumberFormat>;
 };
 
 let internalCache: InternalCache;
@@ -25,16 +27,17 @@ if (process.env.NODE_ENV === "production") {
 
 function getAppCache(): InternalCache {
   return {
-    accountsViewByUser: new Map<string, AccountsView>(),
-    ledgerLinesByUserAndAccount: new Map<string, LedgerLine[]>(),
+    accountsView: new Map<string, AccountsView>(),
+    ledgerLines: new Map<string, LedgerLine[]>(),
+    currencyFormat: new Map<string, Intl.NumberFormat>(),
   };
 }
 
 function invalidate(userId: string, accountIds: string[]) {
-  internalCache.accountsViewByUser.delete(userId);
+  internalCache.accountsView.delete(userId);
 
   for (const accountId of accountIds) {
-    internalCache.ledgerLinesByUserAndAccount.delete(`${userId}.${accountId}`);
+    internalCache.ledgerLines.delete(`${userId}.${accountId}`);
   }
 }
 
@@ -42,27 +45,55 @@ export const cache = {
   invalidate,
   accountsView: {
     read(userId: string) {
-      return internalCache.accountsViewByUser.get(userId);
+      return internalCache.accountsView.get(userId);
     },
     write(userId: string, accountsView: AccountsView) {
-      internalCache.accountsViewByUser.set(userId, accountsView);
+      internalCache.accountsView.set(userId, accountsView);
     },
   },
   ledgerLines: {
     read(userId: string, accountId: string) {
-      return internalCache.ledgerLinesByUserAndAccount.get(
-        keyFor(userId, accountId)
-      );
+      return internalCache.ledgerLines.get(ledgerLinesKey(userId, accountId));
     },
     write(userId: string, accountId: string, ledgerLines: LedgerLine[]) {
-      internalCache.ledgerLinesByUserAndAccount.set(
-        keyFor(userId, accountId),
+      internalCache.ledgerLines.set(
+        ledgerLinesKey(userId, accountId),
         ledgerLines
+      );
+    },
+  },
+  currencyFormat: {
+    read(locale: string, currency: string, style: CurrencyFormatStyle) {
+      return internalCache.currencyFormat.get(
+        currencyFormatKey(locale, currency, style)
+      );
+    },
+    write(
+      locale: string,
+      currency: string,
+      style: CurrencyFormatStyle,
+      currencyFormat: Intl.NumberFormat
+    ) {
+      internalCache.currencyFormat.set(
+        currencyFormatKey(locale, currency, style),
+        currencyFormat
       );
     },
   },
 };
 
-function keyFor(userId: string, accountId: string) {
-  return `${userId}.${accountId}`;
+function ledgerLinesKey(userId: string, accountId: string) {
+  return key(userId, accountId);
+}
+
+function currencyFormatKey(
+  locale: string,
+  currency: string,
+  style: CurrencyFormatStyle
+) {
+  return key(locale, currency, style);
+}
+
+function key(...keyItems: string[]) {
+  return keyItems.join(".");
 }
