@@ -151,20 +151,20 @@ export async function getAccountListItemsWithCurrentBalanceByAssetClass({
         a.currentBalance,
         a.currency,
         preferredLocale,
-        true
+        "compact"
       ),
       currentBalanceInRefCurrencyFormatted: formatMoney(
         a.currentBalanceInRefCurrency,
         refCurrency,
         preferredLocale,
-        true
+        "compact"
       ),
     })),
     currentBalanceInRefCurrencyFormatted: formatMoney(
       group.currentBalanceInRefCurrency,
       refCurrency,
       preferredLocale,
-      true
+      "compact"
     ),
   }));
 }

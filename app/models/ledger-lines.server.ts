@@ -50,9 +50,14 @@ export async function getReverseLedgerDateGroups({
     lines: group.lines.map((line) => ({
       ...line,
       amountFormatted: formatMoney(
-        line.amount,
+        line.type === BookingType.DEPOSIT ||
+          line.type === BookingType.INCOME ||
+          line.type === BookingType.APPRECIATION
+          ? line.amount
+          : line.amount.negated(),
         account.currency,
-        preferredLocale
+        preferredLocale,
+        "sign-always"
       ),
     })),
     balanceFormatted: formatMoney(
@@ -133,8 +138,8 @@ async function getBookings({
             select: {
               id: true,
               type: true,
-              account: { select: { name: true } },
-              incomeExpenseCategory: { select: { name: true } },
+              account: { select: { id: true, name: true } },
+              incomeExpenseCategory: { select: { id: true, name: true } },
               note: true,
             },
           },

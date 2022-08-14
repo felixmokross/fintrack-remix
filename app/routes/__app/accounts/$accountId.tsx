@@ -1,5 +1,5 @@
 import { AccountUnit, BookingType } from "@prisma/client";
-import { useFetcher, useLoaderData } from "@remix-run/react";
+import { Link, useFetcher, useLoaderData } from "@remix-run/react";
 import type { LoaderFunction } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import { Fragment } from "react";
@@ -111,34 +111,43 @@ export default function AccountDetailPage() {
                       "group border-t"
                     )}
                   >
-                    <td className="py-4 pl-4 pr-3 text-sm text-slate-500 sm:pl-6">
-                      <div>{line.type}</div>
-                      <div>
+                    <td className="py-4 pl-4 pr-3 text-sm sm:pl-6">
+                      <div className="text-slate-800">
                         {line.transaction.bookings
                           .filter((b) => b.id !== line.id)
                           .map((b) => {
                             switch (b.type) {
                               case BookingType.CHARGE:
                               case BookingType.DEPOSIT:
-                                return `${b.type} ${b.account?.name}${
-                                  b.note ? ` (${b.note})` : ""
-                                }`;
+                                invariant(b.account, "account not found");
+                                return (
+                                  <Link
+                                    to={`../${b.account.id}`}
+                                    className="text-sky-600 hover:underline"
+                                  >
+                                    {b.account.name}
+                                  </Link>
+                                );
                               case BookingType.INCOME:
                               case BookingType.EXPENSE:
-                                return `${b.type} ${
-                                  b.incomeExpenseCategory?.name
-                                }${b.note ? ` (${b.note})` : ""}`;
+                                invariant(
+                                  b.incomeExpenseCategory,
+                                  "incomeExpenseCategory not found"
+                                );
+                                return b.incomeExpenseCategory.name;
                               default:
-                                return `${b.type}${
-                                  b.note ? ` (${b.note})` : ""
-                                }`;
+                                return "";
                             }
                           })
-                          .join(", ")}
+                          .map((element, index) =>
+                            index === 0 ? element : `, ${element}`
+                          )}
                       </div>
-                      <div>{line.transaction.note}</div>
+                      <div className="text-slate-500">
+                        {line.transaction.note}
+                      </div>
                     </td>
-                    <td className="whitespace-nowrap py-4 pl-3 pr-1 text-right text-sm text-slate-500">
+                    <td className="whitespace-nowrap py-4 pl-3 pr-1 text-right text-sm text-slate-800">
                       {line.amountFormatted}
                     </td>
                     <td className="w-5 items-center py-4 pr-1">

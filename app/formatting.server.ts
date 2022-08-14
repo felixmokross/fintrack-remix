@@ -29,38 +29,39 @@ export function formatMoney(
   value: Decimal,
   currency: string | null,
   locale: string,
-  compact = false
+  style: CurrencyFormatStyle = "normal"
 ) {
   if (!currency) return value.toString();
 
-  return getMoneyFormat(currency, compact, locale).format(value.toNumber());
+  return getMoneyFormat(currency, style, locale).format(value.toNumber());
 }
 
-type CurrencyFormatCache = {
-  locale?: string;
-  normal: Map<string, Intl.NumberFormat>;
-  compact: Map<string, Intl.NumberFormat>;
+type CurrencyFormatStyle = "compact" | "normal" | "sign-always";
+
+type CurrencyFormatCache = { locale?: string } & {
+  [key in CurrencyFormatStyle]: Map<string, Intl.NumberFormat>;
 };
 
 const currencyFormatCache: CurrencyFormatCache = {
   locale: undefined,
   normal: new Map<string, Intl.NumberFormat>(),
   compact: new Map<string, Intl.NumberFormat>(),
+  "sign-always": new Map<string, Intl.NumberFormat>(),
 };
 
 function getMoneyFormat(
   currency: string,
-  showCompact: boolean,
+  style: CurrencyFormatStyle,
   locale: string
 ) {
+  // TODO does not make sense server-side (multi-user)
   if (currencyFormatCache.locale !== locale) {
     currencyFormatCache.normal = new Map<string, Intl.NumberFormat>();
     currencyFormatCache.compact = new Map<string, Intl.NumberFormat>();
+    currencyFormatCache["sign-always"] = new Map<string, Intl.NumberFormat>();
   }
 
-  const cache = showCompact
-    ? currencyFormatCache.compact
-    : currencyFormatCache.normal;
+  const cache = currencyFormatCache[style];
 
   const cachedFormat = cache.get(currency);
   if (cachedFormat) return cachedFormat;
@@ -68,7 +69,8 @@ function getMoneyFormat(
   const format = new Intl.NumberFormat(locale, {
     style: "currency",
     currency,
-    maximumFractionDigits: showCompact ? 0 : undefined,
+    maximumFractionDigits: style === "compact" ? 0 : undefined,
+    signDisplay: style === "sign-always" ? "always" : undefined,
   });
 
   currencyFormatCache.locale = locale;
