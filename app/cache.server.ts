@@ -51,14 +51,18 @@ export const cache = {
   ledgerLines: {
     read(userId: string, accountId: string) {
       return internalCache.ledgerLinesByUserAndAccount.get(
-        `${userId}.${accountId}`
+        keyFor(userId, accountId)
       );
     },
     write(userId: string, accountId: string, ledgerLines: LedgerLine[]) {
       internalCache.ledgerLinesByUserAndAccount.set(
-        `${userId}.${accountId}`,
+        keyFor(userId, accountId),
         ledgerLines
       );
     },
   },
 };
+
+function keyFor(userId: string, accountId: string) {
+  return `${userId}.${accountId}`;
+}

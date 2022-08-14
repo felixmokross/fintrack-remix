@@ -21,7 +21,7 @@ export async function getReverseLedgerDateGroups({
     cache.ledgerLines.write(userId, account.id, ledgerLines);
   }
 
-  ledgerLines.reverse();
+  ledgerLines = ledgerLines.slice().reverse();
 
   const { preferredLocale } = await prisma.user.findUniqueOrThrow({
     where: { id: userId },
