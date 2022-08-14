@@ -7,6 +7,7 @@ type InternalCache = {
   accountsView: Map<string, AccountsView>;
   ledgerLines: Map<string, LedgerLine[]>;
   currencyFormat: Map<string, Intl.NumberFormat>;
+  dateFormat: Map<string, Intl.DateTimeFormat>;
 };
 
 let internalCache: InternalCache;
@@ -30,19 +31,18 @@ function getAppCache(): InternalCache {
     accountsView: new Map<string, AccountsView>(),
     ledgerLines: new Map<string, LedgerLine[]>(),
     currencyFormat: new Map<string, Intl.NumberFormat>(),
+    dateFormat: new Map<string, Intl.DateTimeFormat>(),
   };
 }
 
-function invalidate(userId: string, accountIds: string[]) {
-  internalCache.accountsView.delete(userId);
-
-  for (const accountId of accountIds) {
-    internalCache.ledgerLines.delete(`${userId}.${accountId}`);
-  }
-}
-
 export const cache = {
-  invalidate,
+  invalidateAccounts(userId: string, accountIds: string[]) {
+    internalCache.accountsView.delete(userId);
+
+    for (const accountId of accountIds) {
+      internalCache.ledgerLines.delete(`${userId}.${accountId}`);
+    }
+  },
   accountsView: {
     read(userId: string) {
       return internalCache.accountsView.get(userId);
@@ -78,6 +78,14 @@ export const cache = {
         currencyFormatKey(locale, currency, style),
         currencyFormat
       );
+    },
+  },
+  dateFormat: {
+    read(locale: string) {
+      return internalCache.dateFormat.get(locale);
+    },
+    write(locale: string, dateFormat: Intl.DateTimeFormat) {
+      internalCache.dateFormat.set(locale, dateFormat);
     },
   },
 };

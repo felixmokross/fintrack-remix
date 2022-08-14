@@ -10,18 +10,12 @@ export function formatDate(value: Date, locale: string) {
   return getDateFormat(locale).format(value);
 }
 
-type DateFormatCache = {
-  locale: string;
-  format: Intl.DateTimeFormat;
-};
-let dateFormatCache: DateFormatCache | null = null;
-
 function getDateFormat(locale: string) {
-  if (dateFormatCache && dateFormatCache.locale === locale)
-    return dateFormatCache.format;
+  const cachedFormat = cache.dateFormat.read(locale);
+  if (cachedFormat) return cachedFormat;
 
   const format = new Intl.DateTimeFormat(locale, { dateStyle: "medium" });
-  dateFormatCache = { locale, format };
+  cache.dateFormat.write(locale, format);
 
   return format;
 }

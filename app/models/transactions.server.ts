@@ -141,7 +141,7 @@ export async function createTransaction({
     },
   });
 
-  cache.invalidate(userId, getAccountIdsFromBookings(bookings));
+  cache.invalidateAccounts(userId, getAccountIdsFromBookings(bookings));
 }
 
 export async function updateTransaction({
@@ -210,7 +210,7 @@ export async function updateTransaction({
     }),
   ]);
 
-  cache.invalidate(
+  cache.invalidateAccounts(
     userId,
     getAccountIdsFromBookings(originalTransaction.bookings.concat(bookings))
   );
@@ -225,7 +225,10 @@ export async function deleteTransaction({
     select: { bookings: { select: { type: true, accountId: true } } },
   });
 
-  cache.invalidate(userId, getAccountIdsFromBookings(transaction.bookings));
+  cache.invalidateAccounts(
+    userId,
+    getAccountIdsFromBookings(transaction.bookings)
+  );
 }
 
 export type TransactionValues = {

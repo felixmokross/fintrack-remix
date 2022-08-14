@@ -438,7 +438,7 @@ export async function createAccount({
     },
   });
 
-  cache.invalidate(userId, []);
+  cache.invalidateAccounts(userId, []);
 }
 
 export async function updateAccount({
@@ -486,7 +486,7 @@ export async function updateAccount({
     },
   });
 
-  cache.invalidate(userId, [id]);
+  cache.invalidateAccounts(userId, [id]);
 }
 
 export type AccountValues = {
@@ -562,5 +562,5 @@ export async function deleteAccount({
 }: Pick<Account, "id" | "userId">) {
   await prisma.account.delete({ where: { id_userId: { id, userId } } });
 
-  cache.invalidate(userId, [id]);
+  cache.invalidateAccounts(userId, [id]);
 }

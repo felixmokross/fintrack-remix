@@ -51,7 +51,7 @@ export async function updateAssetClass({
     data: { name, sortOrder },
   });
 
-  cache.invalidate(userId, []);
+  cache.invalidateAccounts(userId, []);
 }
 
 export function deleteAssetClass({
