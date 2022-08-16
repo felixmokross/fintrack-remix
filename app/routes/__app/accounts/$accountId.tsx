@@ -1,5 +1,5 @@
 import { AccountUnit, BookingType } from "@prisma/client";
-import { Link, useFetcher, useLoaderData } from "@remix-run/react";
+import { useFetcher, useLoaderData } from "@remix-run/react";
 import type { LoaderFunction } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import { Fragment } from "react";
@@ -16,6 +16,7 @@ import { FormModal, useFormModal } from "~/components/forms";
 import { ModalSize } from "~/components/modal";
 import { Menu, Transition } from "@headlessui/react";
 import { DotsVerticalIcon } from "~/components/icons";
+import { Link } from "~/components/link";
 
 type LoaderData = {
   account: NonNullable<Awaited<ReturnType<typeof getAccount>>>;
@@ -122,11 +123,7 @@ export default function AccountDetailPage() {
                                 // TODO temporarily disabled invariant until all accounts can be migrated
                                 // invariant(b.account, "account not found");
                                 return (
-                                  <Link
-                                    key={b.id}
-                                    to={`../${b.account?.id}`}
-                                    className="text-sky-600 hover:underline"
-                                  >
+                                  <Link key={b.id} to={`../${b.account?.id}`}>
                                     {b.account?.name || "--- unavailable ---"}
                                   </Link>
                                 );
@@ -249,7 +246,7 @@ export default function AccountDetailPage() {
           <div className="flex justify-center py-8">
             <Link
               to={`?page=${ledgerDateGroups.page + 1}`}
-              className="text-sm text-sky-600 hover:underline"
+              className="text-sm"
               replace={true}
             >
               Load more…
