@@ -90,16 +90,6 @@ export default function AccountDetailPage() {
         </div>
       </div>
       <div className="mt-8 flex flex-col">
-        {ledgerDateGroups.page > 0 && (
-          <div className="flex justify-center py-8">
-            <Link
-              to={`?page=${ledgerDateGroups.page - 1}`}
-              className="text-sm text-sky-600 hover:underline"
-            >
-              Newer transactions
-            </Link>
-          </div>
-        )}
         <table className="w-full">
           <tbody className="bg-white">
             {ledgerDateGroups.groups.map((group) => (
@@ -260,8 +250,9 @@ export default function AccountDetailPage() {
             <Link
               to={`?page=${ledgerDateGroups.page + 1}`}
               className="text-sm text-sky-600 hover:underline"
+              replace={true}
             >
-              Older transactions
+              Load more…
             </Link>
           </div>
         )}

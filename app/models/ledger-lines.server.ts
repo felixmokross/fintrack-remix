@@ -6,7 +6,7 @@ import { prisma } from "~/db.server";
 import { formatDate, formatMoney } from "~/formatting.server";
 import type { getAccount } from "./accounts.server";
 
-const pageSize = 50;
+const pageSize = 100;
 
 export async function getReverseLedgerDateGroups({
   account,
@@ -30,7 +30,7 @@ export async function getReverseLedgerDateGroups({
 
   const pageOffset = pageSize * page;
   const nextPageOffset = pageOffset + pageSize;
-  const pagedLedgerLines = ledgerLines.slice(pageOffset, nextPageOffset);
+  const pagedLedgerLines = ledgerLines.slice(0, nextPageOffset);
   const isLastPage = page === pageCount - 1;
   const initialPageBalance = isLastPage
     ? account.preExisting && account.balanceAtStart
