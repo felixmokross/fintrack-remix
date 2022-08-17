@@ -1,8 +1,14 @@
+const defaultTheme = require("tailwindcss/defaultTheme");
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: ["./app/**/*.{ts,tsx,jsx,js}"],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ["Inter", ...defaultTheme.fontFamily.sans],
+        display: ["Lexend", ...defaultTheme.fontFamily.sans],
+      },
       gridTemplateColumns: {
         // cards: width 56 (14rem), gaps and padding: 6 (1.5rem)
         "accounts-1": "calc(1.5rem + 1 * (14rem + 1.5rem)) auto",

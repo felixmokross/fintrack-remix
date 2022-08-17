@@ -23,6 +23,7 @@ export function LoadingIndicator() {
   return null;
 }
 
+// TODO move into component, using refs
 let loading = false;
 let timeout: number | undefined = undefined;
 let toastId: string | undefined;

@@ -607,7 +607,8 @@ function useFormModalAction<T extends FormActionData<TValues>, TValues>(
   const action = useFetcher<T>();
   const [submitting, setSubmitting] = useState(false);
 
-  // need an extra state + useEffect currently to only close the modal if the action
+  // TODO can we make this simpler?
+  // need an extra state + useEffect to only close the modal if the action
   // was submitting before, since fetchers can't be reset in Remix currently
   // see https://github.com/remix-run/remix/pull/3551
   useEffect(() => {
