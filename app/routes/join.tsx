@@ -12,6 +12,10 @@ import { getUserId, createUserSession } from "~/session.server";
 import { createUser, getUserByEmail } from "~/models/users.server";
 import { getTitle, validateEmail } from "~/utils";
 import { safeRedirect } from "~/utils.server";
+import { AuthLayout } from "~/components/auth-layout";
+import { Logo } from "~/components/logo";
+import { NewButton } from "~/components/new-button";
+import { NewCurrencyCombobox, TextField } from "~/components/new-forms";
 
 const defaultRedirectTo = "/accounts";
 
@@ -25,6 +29,7 @@ interface ActionData {
   errors: {
     email?: string;
     password?: string;
+    refCurrency?: string;
   };
 }
 
@@ -32,6 +37,7 @@ export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
   const email = formData.get("email");
   const password = formData.get("password");
+  const refCurrency = formData.get("refCurrency");
   const redirectTo = safeRedirect(
     formData.get("redirectTo"),
     defaultRedirectTo
@@ -51,6 +57,13 @@ export const action: ActionFunction = async ({ request }) => {
     );
   }
 
+  if (typeof refCurrency !== "string" || refCurrency.length === 0) {
+    return json<ActionData>(
+      { errors: { password: "Reference currency is required" } },
+      { status: 400 }
+    );
+  }
+
   if (password.length < 8) {
     return json<ActionData>(
       { errors: { password: "Password is too short" } },
@@ -66,7 +79,7 @@ export const action: ActionFunction = async ({ request }) => {
     );
   }
 
-  const user = await createUser(email, password);
+  const user = await createUser(email, password, refCurrency);
 
   return createUserSession({
     request,
@@ -94,87 +107,73 @@ export default function Join() {
   }, [actionData]);
 
   return (
-    <div className="flex min-h-full flex-col justify-center">
-      <div className="mx-auto w-full max-w-md px-8">
-        <Form method="post" className="space-y-6" noValidate>
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-slate-700"
+    <AuthLayout>
+      <div className="flex flex-col">
+        <Link to="/" aria-label="Home">
+          <Logo className="h-10 w-auto" />
+        </Link>
+        <div className="mt-20">
+          <h2 className="text-lg font-semibold text-gray-900">
+            Get started for free
+          </h2>
+          <p className="mt-2 text-sm text-gray-700">
+            Already registered?{" "}
+            <Link
+              to={{ pathname: "/login", search: searchParams.toString() }}
+              className="font-medium text-sky-600 hover:underline"
             >
-              Email address
-            </label>
-            <div className="mt-1">
-              <input
-                ref={emailRef}
-                id="email"
-                required
-                autoFocus={true}
-                name="email"
-                type="email"
-                autoComplete="email"
-                aria-invalid={actionData?.errors?.email ? true : undefined}
-                aria-describedby="email-error"
-                className="w-full rounded border border-slate-500 px-2 py-1 text-lg"
-              />
-              {actionData?.errors?.email && (
-                <div className="pt-1 text-rose-700" id="email-error">
-                  {actionData.errors.email}
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-slate-700"
-            >
-              Password
-            </label>
-            <div className="mt-1">
-              <input
-                id="password"
-                ref={passwordRef}
-                name="password"
-                type="password"
-                autoComplete="new-password"
-                aria-invalid={actionData?.errors?.password ? true : undefined}
-                aria-describedby="password-error"
-                className="w-full rounded border border-slate-500 px-2 py-1 text-lg"
-              />
-              {actionData?.errors?.password && (
-                <div className="pt-1 text-rose-700" id="password-error">
-                  {actionData.errors.password}
-                </div>
-              )}
-            </div>
-          </div>
-
-          <input type="hidden" name="redirectTo" value={redirectTo} />
-          <button
-            type="submit"
-            className="w-full rounded bg-blue-500  py-2 px-4 text-white hover:bg-blue-600 focus:bg-blue-400"
-          >
-            Create Account
-          </button>
-          <div className="flex items-center justify-center">
-            <div className="text-center text-sm text-slate-500">
-              Already have an account?{" "}
-              <Link
-                className="text-blue-500 underline"
-                prefetch="intent"
-                to={{
-                  pathname: "/login",
-                  search: searchParams.toString(),
-                }}
-              >
-                Log in
-              </Link>
-            </div>
-          </div>
-        </Form>
+              Sign in
+            </Link>{" "}
+            to your account.
+          </p>
+        </div>
       </div>
-    </div>
+      <Form
+        method="post"
+        noValidate
+        className="mt-10 grid grid-cols-1 gap-y-8 gap-x-6 sm:grid-cols-2"
+      >
+        <div className="col-span-full">
+          <TextField
+            label="Email address"
+            ref={emailRef}
+            required
+            autoFocus={true}
+            name="email"
+            type="email"
+            autoComplete="email"
+            error={actionData?.errors?.email}
+          />
+        </div>
+        <div className="col-span-full">
+          <TextField
+            label="Password"
+            ref={passwordRef}
+            name="password"
+            type="password"
+            autoComplete="new-password"
+            error={actionData?.errors?.password}
+          />
+        </div>
+        <NewCurrencyCombobox
+          label="Reference currency"
+          name="refCurrency"
+          groupClassName="col-span-full"
+        />
+        <div className="col-span-full">
+          <input type="hidden" name="redirectTo" value={redirectTo} />
+          <NewButton
+            type="submit"
+            variant="solid"
+            color="sky"
+            className="w-full"
+          >
+            <span>
+              Sign up <span aria-hidden="true">&rarr;</span>
+            </span>
+          </NewButton>
+        </div>
+      </Form>
+    </AuthLayout>
   );
 }

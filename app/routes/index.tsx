@@ -1,10 +1,16 @@
 import { Popover, Transition } from "@headlessui/react";
 import type { LinkProps } from "@remix-run/react";
+import type { MetaFunction } from "@remix-run/server-runtime";
 import type { PropsWithChildren } from "react";
 import { Fragment } from "react";
 import { Link } from "react-router-dom";
 import { cn } from "~/components/classnames";
 import { Logo } from "~/components/logo";
+import { NewButton } from "~/components/new-button";
+
+export const meta: MetaFunction = () => ({
+  title: `Cashfolio · The full picture of your personal finances`,
+});
 
 export default function LandingPage() {
   return (
@@ -73,14 +79,11 @@ function Header() {
             <div className="hidden md:block">
               <NavLink to="/login">Sign in</NavLink>
             </div>
-            {/* <Link
-              to="/join"
-              className="group inline-flex items-center justify-center rounded-full bg-sky-600 py-2 px-4 text-sm font-semibold text-white hover:bg-sky-500 hover:text-slate-100 focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600 active:bg-sky-800 active:text-sky-100"
-            >
+            <NewButton to="/join" variant="solid" color="sky">
               <span>
                 Get started <span className="hidden lg:inline">today</span>
               </span>
-            </Link> */}
+            </NewButton>
             <div className="-mr-1 md:hidden">
               <MobileNavigation />
             </div>

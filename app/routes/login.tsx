@@ -11,9 +11,10 @@ import { verifyLogin } from "~/models/users.server";
 import { getTitle, validateEmail } from "~/utils";
 import { safeRedirect } from "~/utils.server";
 import { Logo } from "~/components/logo";
-import type { PropsWithChildren } from "react";
-import { forwardRef, useEffect, useRef } from "react";
-import { cn } from "~/components/classnames";
+import { useEffect, useRef } from "react";
+import { NewButton } from "~/components/new-button";
+import { AuthLayout } from "~/components/auth-layout";
+import { TextField } from "~/components/new-forms";
 
 const defaultRedirectTo = "/accounts";
 
@@ -78,7 +79,7 @@ export const action: ActionFunction = async ({ request }) => {
   });
 };
 
-export const meta: MetaFunction = () => ({ title: getTitle("Login") });
+export const meta: MetaFunction = () => ({ title: getTitle("Sign In") });
 
 export default function LoginPage() {
   const [searchParams] = useSearchParams();
@@ -108,7 +109,7 @@ export default function LoginPage() {
           <p className="mt-2 text-sm text-gray-700">
             Don’t have an account?{" "}
             <Link
-              to="/join"
+              to={{ pathname: "/join", search: searchParams.toString() }}
               className="font-medium text-sky-600 hover:underline"
             >
               Sign up
@@ -125,37 +126,23 @@ export default function LoginPage() {
             <TextField
               label="Email address"
               ref={emailRef}
-              id="email"
               required
               autoFocus={true}
               name="email"
               type="email"
               autoComplete="email"
-              aria-invalid={actionData?.errors?.email ? true : undefined}
-              aria-describedby="email-error"
+              error={actionData?.errors?.email}
             />
-            {actionData?.errors?.email && (
-              <div className="mt-2 text-sm text-rose-600" id="email-error">
-                {actionData.errors.email}
-              </div>
-            )}
           </div>
           <div>
             <TextField
               label="Password"
-              id="password"
               ref={passwordRef}
               name="password"
               type="password"
               autoComplete="current-password"
-              aria-invalid={actionData?.errors?.password ? true : undefined}
-              aria-describedby="password-error"
+              error={actionData?.errors?.password}
             />
-            {actionData?.errors?.password && (
-              <div className="mt-2 text-sm text-rose-600" id="password-error">
-                {actionData.errors.password}
-              </div>
-            )}
           </div>
           <div className="flex justify-between">
             <div className="flex items-center">
@@ -182,7 +169,7 @@ export default function LoginPage() {
           </div>
           <div>
             <input type="hidden" name="redirectTo" value={redirectTo} />
-            <Button
+            <NewButton
               type="submit"
               variant="solid"
               color="sky"
@@ -191,125 +178,10 @@ export default function LoginPage() {
               <span>
                 Sign in <span aria-hidden="true">&rarr;</span>
               </span>
-            </Button>
+            </NewButton>
           </div>
         </Form>
       </div>
     </AuthLayout>
-    //       <div className="flex items-center justify-between">
-    //         <div className="flex items-center">
-    //
-    //           <label
-    //             htmlFor="remember"
-    //             className="ml-2 block text-sm text-slate-900"
-    //           >
-    //             Remember me
-    //           </label>
-    //         </div>
   );
 }
-
-function AuthLayout({ children }: React.PropsWithChildren<{}>) {
-  return (
-    <div className="relative flex min-h-full justify-center md:px-12 lg:px-0">
-      <div className="relative z-10 flex flex-1 flex-col bg-white py-10 px-4 shadow-2xl sm:justify-center md:flex-none md:px-28">
-        <div className="mx-auto w-full max-w-md sm:px-4 md:w-96 md:max-w-sm md:px-0">
-          {children}
-        </div>
-      </div>
-      <div className="hidden sm:contents lg:relative lg:block lg:flex-1">
-        <img
-          className="absolute inset-0 h-full w-full object-cover"
-          src="/login.jpg"
-          alt=""
-        />
-      </div>
-    </div>
-  );
-}
-
-const formClasses =
-  "block w-full appearance-none rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-slate-900 placeholder-slate-400 focus:border-sky-500 focus:bg-white focus:outline-none focus:ring-sky-500 sm:text-sm";
-
-const TextField = forwardRef(function TextField(
-  { id, label, type = "text", className = "", ...props }: TextFieldProps,
-  ref: React.Ref<HTMLInputElement>
-) {
-  return (
-    <div className={className}>
-      {label && <Label id={id}>{label}</Label>}
-      <input ref={ref} id={id} type={type} {...props} className={formClasses} />
-    </div>
-  );
-});
-
-type TextFieldProps = {
-  id: string;
-  label: string;
-} & React.InputHTMLAttributes<HTMLInputElement>;
-
-function Label({ id, children }: LabelProps) {
-  return (
-    <label
-      htmlFor={id}
-      className="mb-3 block text-sm font-medium text-gray-700"
-    >
-      {children}
-    </label>
-  );
-}
-
-type LabelProps = PropsWithChildren<{ id: string }>;
-
-const baseStyles = {
-  solid:
-    "group inline-flex items-center justify-center rounded-full py-2 px-4 text-sm font-semibold focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2",
-  outline:
-    "group inline-flex ring-1 items-center justify-center rounded-full py-2 px-4 text-sm focus:outline-none",
-};
-
-const variantStyles = {
-  solid: {
-    slate:
-      "bg-slate-900 text-white hover:bg-slate-700 hover:text-slate-100 active:bg-slate-800 active:text-slate-300 focus-visible:outline-slate-900",
-    sky: "bg-sky-600 text-white hover:text-slate-100 hover:bg-sky-500 active:bg-sky-800 active:text-sky-100 focus-visible:outline-sky-600",
-    white:
-      "bg-white text-slate-900 hover:bg-sky-50 active:bg-sky-200 active:text-slate-600 focus-visible:outline-white",
-  },
-  outline: {
-    slate:
-      "ring-slate-200 text-slate-700 hover:text-slate-900 hover:ring-slate-300 active:bg-slate-100 active:text-slate-600 focus-visible:outline-sky-600 focus-visible:ring-slate-300",
-    sky: "",
-    white:
-      "ring-slate-700 text-white hover:ring-slate-500 active:ring-slate-700 active:text-slate-400 focus-visible:outline-white",
-  },
-};
-
-function Button({
-  to,
-  className,
-  variant = "solid",
-  color = "slate",
-  children,
-  type,
-}: ButtonProps) {
-  className = cn(baseStyles[variant], variantStyles[variant][color], className);
-
-  return to ? (
-    <Link to={to} className={className}>
-      {children}
-    </Link>
-  ) : (
-    <button className={className} type={type}>
-      {children}
-    </button>
-  );
-}
-
-type ButtonProps = PropsWithChildren<{
-  variant?: "solid" | "outline";
-  color?: "slate" | "sky" | "white";
-  className?: string;
-  to?: string;
-  type?: React.ButtonHTMLAttributes<HTMLButtonElement>["type"];
-}>;
