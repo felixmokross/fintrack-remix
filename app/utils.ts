@@ -65,7 +65,7 @@ export type PolymorphicComponentProps<T extends ElementType> = {
 } & ComponentPropsWithoutRef<T>;
 
 export function getTitle(pageTitle?: string) {
-  return pageTitle ? `${pageTitle} · Fintrack` : "Fintrack";
+  return pageTitle ? `${pageTitle} · Cashfolio` : "Cashfolio";
 }
 
 // useFetcher currently does not support automatic mapping to the serialzed type, and SerializeType is not exported, therefore copied this from Remix:
