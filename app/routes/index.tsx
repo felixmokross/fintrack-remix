@@ -5,6 +5,8 @@ import type { PropsWithChildren } from "react";
 import { Fragment } from "react";
 import { Link } from "react-router-dom";
 import { cn } from "~/components/classnames";
+import { Container } from "~/components/container";
+import { NavBarLink } from "~/components/link";
 import { Logo } from "~/components/logo";
 import { NewButton } from "~/components/new-button";
 
@@ -50,16 +52,6 @@ function Hero() {
   );
 }
 
-function Container({ className, children }: PropsWithChildren<ContainerProps>) {
-  return (
-    <div className={cn("mx-auto max-w-7xl px-4 sm:px-6 lg:px-8", className)}>
-      {children}
-    </div>
-  );
-}
-
-type ContainerProps = { className?: string };
-
 function Header() {
   return (
     <header className="py-10">
@@ -77,7 +69,7 @@ function Header() {
           </div>
           <div className="flex items-center gap-x-5 md:gap-x-8">
             <div className="hidden md:block">
-              <NavLink to="/login">Sign in</NavLink>
+              <NavBarLink to="/login">Sign in</NavBarLink>
             </div>
             <NewButton to="/join" variant="solid" color="sky">
               <span>
@@ -91,17 +83,6 @@ function Header() {
         </nav>
       </Container>
     </header>
-  );
-}
-
-function NavLink({ children, ...props }: LinkProps) {
-  return (
-    <Link
-      {...props}
-      className="inline-block rounded-lg py-1 px-2 text-sm text-slate-700 hover:bg-slate-100 hover:text-slate-900"
-    >
-      {children}
-    </Link>
   );
 }
 

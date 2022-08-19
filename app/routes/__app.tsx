@@ -6,6 +6,7 @@ import { cn } from "~/components/classnames";
 import { useUser } from "~/utils";
 import { Toaster } from "~/components/toaster";
 import { LoadingIndicator } from "~/components/loading-indicator";
+import { Logo, LogoSmall } from "~/components/logo";
 
 export default function App() {
   const noFocusRef = useRef(null);
@@ -21,16 +22,10 @@ export default function App() {
                 <div className="flex h-16 justify-between">
                   <div className="flex px-2 lg:px-0">
                     <div className="flex flex-shrink-0 items-center">
-                      <img
-                        className="block h-8 w-auto lg:hidden"
-                        src="/logo-small.svg"
-                        alt="Workflow"
-                      />
-                      <img
-                        className="hidden h-8 w-auto lg:block"
-                        src="/logo-large.svg"
-                        alt="Workflow"
-                      />
+                      <Link to="/dashboard" title="Cashfolio">
+                        <LogoSmall className="block h-8 w-auto lg:hidden" />
+                        <Logo className="hidden h-10 w-auto py-1 lg:block" />
+                      </Link>
                     </div>
                     <div className="hidden lg:ml-6 lg:flex lg:space-x-8">
                       <NavLink

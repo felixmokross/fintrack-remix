@@ -5,11 +5,11 @@ import type { AccountFormLoaderData } from "~/components/accounts";
 import { AccountForm } from "~/components/accounts";
 import { getAccountListItemsWithCurrentBalanceByAssetClass } from "~/models/accounts.server";
 import { requireUserId } from "~/session.server";
-import { Button } from "~/components/button";
 import { getTitle, useUser } from "~/utils";
 import { FormModal, useFormModal } from "~/components/forms";
 import { cn } from "~/components/classnames";
 import { PencilIcon, TrashIcon } from "~/components/icons";
+import { NewButton } from "~/components/new-button";
 
 type LoaderData = {
   accountsByAssetClass: Awaited<
@@ -42,9 +42,13 @@ export default function AccountsPage() {
     <div className="flex-1 overflow-hidden md:grid md:grid-cols-accounts-1 md:divide-x md:divide-slate-200 lg:grid-cols-accounts-2 xl:grid-cols-accounts-3 2xl:grid-cols-accounts-4">
       <div className="hidden overflow-auto md:block">
         <div className="flex justify-end py-10 px-6">
-          <Button onClick={() => formModal.open({ type: "new" })}>
+          <NewButton
+            variant="outline"
+            color="slate"
+            onClick={() => formModal.open({ type: "new" })}
+          >
             New Account
-          </Button>
+          </NewButton>
         </div>
 
         <ul className="space-y-10">

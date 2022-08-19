@@ -579,10 +579,12 @@ export function FormModal<
             />
           </Modal.Body>
           <Modal.Footer>
-            <Modal.Button type="submit" variant="primary">
+            <Modal.Button type="submit" variant="solid" color="sky">
               {action.state === "submitting" ? "Saving…" : "Save"}
             </Modal.Button>
             <Modal.Button
+              variant="outline"
+              color="slate"
               type="button"
               onClick={close}
               className="mt-3 sm:mt-0"

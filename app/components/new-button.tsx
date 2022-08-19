@@ -33,6 +33,7 @@ export function NewButton({
   color = "slate",
   children,
   type,
+  onClick,
 }: NewButtonProps) {
   className = cn(baseStyles[variant], variantStyles[variant][color], className);
 
@@ -41,16 +42,17 @@ export function NewButton({
       {children}
     </Link>
   ) : (
-    <button className={className} type={type}>
+    <button className={className} type={type} onClick={onClick}>
       {children}
     </button>
   );
 }
 
-type NewButtonProps = PropsWithChildren<{
+export type NewButtonProps = PropsWithChildren<{
   variant?: "solid" | "outline";
   color?: "slate" | "sky" | "white";
   className?: string;
   to?: string;
   type?: React.ButtonHTMLAttributes<HTMLButtonElement>["type"];
+  onClick?: React.ButtonHTMLAttributes<HTMLButtonElement>["onClick"];
 }>;

@@ -1,10 +1,10 @@
 import { Dialog, Transition } from "@headlessui/react";
-import type { ComponentType, ElementType, PropsWithChildren } from "react";
+import type { ComponentType, PropsWithChildren } from "react";
 import { Fragment } from "react";
 import type { IconProps } from "~/components/icons";
-import type { ButtonProps } from "./button";
-import { Button as StandardButton } from "./button";
 import { cn } from "./classnames";
+import type { NewButtonProps } from "./new-button";
+import { NewButton } from "./new-button";
 
 export enum ModalSize {
   SMALL = "SMALL",
@@ -77,13 +77,15 @@ export type ModalProps = PropsWithChildren<{
   size?: ModalSize;
 }>;
 
-function Button<T extends ElementType>({
-  className,
-  ...props
-}: ButtonProps<T>) {
+function Button({ className, ...props }: NewButtonProps) {
   return (
-    <StandardButton
-      className={cn(className, "w-full text-base sm:ml-3 sm:text-sm")}
+    <NewButton
+      variant="solid"
+      color="slate"
+      className={cn(
+        className,
+        "w-full text-base sm:ml-3 sm:w-24 sm:min-w-max sm:text-sm"
+      )}
       {...props}
     />
   );

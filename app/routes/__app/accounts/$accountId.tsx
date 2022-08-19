@@ -8,7 +8,6 @@ import { currenciesByCode } from "~/currencies";
 import { getAccount } from "~/models/accounts.server";
 import { getReverseLedgerDateGroups } from "~/models/ledger-lines.server";
 import { requireUserId } from "~/session.server";
-import { Button } from "~/components/button";
 import { cn } from "~/components/classnames";
 import type { TransactionFormLoaderData } from "~/components/transactions";
 import { TransactionForm } from "~/components/transactions";
@@ -17,6 +16,7 @@ import { ModalSize } from "~/components/modal";
 import { Menu, Transition } from "@headlessui/react";
 import { DotsVerticalIcon } from "~/components/icons";
 import { Link } from "~/components/link";
+import { NewButton } from "~/components/new-button";
 
 type LoaderData = {
   account: NonNullable<Awaited<ReturnType<typeof getAccount>>>;
@@ -82,12 +82,13 @@ export default function AccountDetailPage() {
           </p>
         </div>
         <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
-          <Button
+          <NewButton
             onClick={() => formModal.open({ type: "new" })}
-            variant="primary"
+            variant="solid"
+            color="sky"
           >
             Add transaction
-          </Button>
+          </NewButton>
         </div>
       </div>
       <div className="mt-8 flex flex-col">
