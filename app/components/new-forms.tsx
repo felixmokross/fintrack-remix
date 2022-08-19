@@ -41,7 +41,14 @@ type SelectFieldProps = {
 } & Omit<React.SelectHTMLAttributes<HTMLSelectElement>, "id">;
 
 export const TextField = forwardRef(function TextField(
-  { label, type = "text", className = "", error, ...props }: TextFieldProps,
+  {
+    label,
+    hint,
+    type = "text",
+    className = "",
+    error,
+    ...props
+  }: TextFieldProps,
   ref: React.Ref<HTMLInputElement>
 ) {
   const id = `input-${useId()}`;
@@ -49,7 +56,11 @@ export const TextField = forwardRef(function TextField(
   return (
     <>
       <div className={className}>
-        {label && <Label id={id}>{label}</Label>}
+        {label && (
+          <Label id={id} hint={hint}>
+            {label}
+          </Label>
+        )}
         <input
           ref={ref}
           id={id}
@@ -67,12 +78,15 @@ export const TextField = forwardRef(function TextField(
 
 type TextFieldProps = {
   label?: string;
+  hint?: string;
   error?: string;
 } & Omit<React.InputHTMLAttributes<HTMLInputElement>, "id">;
 
 export function NewCombobox({
-  groupClassName,
+  className,
   label,
+  hint,
+  helpText,
   name,
   error,
   defaultValue,
@@ -92,80 +106,95 @@ export function NewCombobox({
         });
 
   const errorId = `combobox-error-${useId()}`;
+  const helpTextId = `combobox-help-text-${useId()}`;
   return (
-    <HeadlessCombobox
-      as="div"
-      value={value}
-      onChange={setValue}
-      name={name}
-      className={groupClassName}
-    >
-      <HeadlessCombobox.Label className={labelClassName}>
-        {label}
-      </HeadlessCombobox.Label>
-      <div className="relative">
-        <HeadlessCombobox.Input
-          onChange={(event) => setQuery(event.target.value)}
-          className={cn(formClasses, "pr-8")}
-          displayValue={getDisplayName}
-          aria-invalid={error ? "true" : undefined}
-          aria-describedby={error ? errorId : undefined}
-        />
-        <HeadlessCombobox.Button className="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50">
-          <SelectorIcon className="h-5 w-5 text-slate-400" aria-hidden="true" />
-        </HeadlessCombobox.Button>
-        {filteredOptions.length > 0 && (
-          <HeadlessCombobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-            {filteredOptions.map((option) => (
-              <HeadlessCombobox.Option
-                key={option.value}
-                value={option.value}
-                className={({ active }) =>
-                  cn(
-                    "relative cursor-default select-none py-2 pl-3 pr-9",
-                    active ? "bg-sky-600 text-white" : "text-slate-900"
-                  )
-                }
-              >
-                {({ active, selected }) => (
-                  <>
-                    <div className="flex">
-                      <span
-                        className={cn("truncate", selected && "font-semibold")}
-                      >
-                        {option.primaryText}
-                      </span>
-                      {option.secondaryText && (
+    <>
+      <HeadlessCombobox
+        as="div"
+        value={value}
+        onChange={setValue}
+        name={name}
+        className={className}
+      >
+        <div className="flex justify-between">
+          <HeadlessCombobox.Label className={labelClassName}>
+            {label}
+          </HeadlessCombobox.Label>
+          <Hint hint={hint} />
+        </div>
+        <div className="relative">
+          <HeadlessCombobox.Input
+            onChange={(event) => setQuery(event.target.value)}
+            className={cn(formClasses, "pr-8")}
+            displayValue={getDisplayName}
+            aria-invalid={error ? "true" : undefined}
+            aria-describedby={`${error ? errorId : ""} ${
+              helpText ? helpTextId : ""
+            }`}
+          />
+          <HeadlessCombobox.Button className="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50">
+            <SelectorIcon
+              className="h-5 w-5 text-slate-400"
+              aria-hidden="true"
+            />
+          </HeadlessCombobox.Button>
+          {filteredOptions.length > 0 && (
+            <HeadlessCombobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+              {filteredOptions.map((option) => (
+                <HeadlessCombobox.Option
+                  key={option.value}
+                  value={option.value}
+                  className={({ active }) =>
+                    cn(
+                      "relative cursor-default select-none py-2 pl-3 pr-9",
+                      active ? "bg-sky-600 text-white" : "text-slate-900"
+                    )
+                  }
+                >
+                  {({ active, selected }) => (
+                    <>
+                      <div className="flex">
                         <span
                           className={cn(
-                            "ml-2 truncate text-slate-500",
-                            active ? "text-sky-200" : "text-slate-500"
+                            "truncate",
+                            selected && "font-semibold"
                           )}
                         >
-                          {option.secondaryText}
+                          {option.primaryText}
+                        </span>
+                        {option.secondaryText && (
+                          <span
+                            className={cn(
+                              "ml-2 truncate text-slate-500",
+                              active ? "text-sky-200" : "text-slate-500"
+                            )}
+                          >
+                            {option.secondaryText}
+                          </span>
+                        )}
+                      </div>
+
+                      {selected && (
+                        <span
+                          className={cn(
+                            "absolute inset-y-0 right-0 flex items-center pr-4",
+                            active ? "text-white" : "text-sky-600"
+                          )}
+                        >
+                          <CheckIcon className="h-5 w-5" aria-hidden="true" />
                         </span>
                       )}
-                    </div>
-
-                    {selected && (
-                      <span
-                        className={cn(
-                          "absolute inset-y-0 right-0 flex items-center pr-4",
-                          active ? "text-white" : "text-sky-600"
-                        )}
-                      >
-                        <CheckIcon className="h-5 w-5" aria-hidden="true" />
-                      </span>
-                    )}
-                  </>
-                )}
-              </HeadlessCombobox.Option>
-            ))}
-          </HeadlessCombobox.Options>
-        )}
-      </div>
+                    </>
+                  )}
+                </HeadlessCombobox.Option>
+              ))}
+            </HeadlessCombobox.Options>
+          )}
+        </div>
+      </HeadlessCombobox>
+      <HelpText helpText={helpText} helpTextId={helpTextId} />
       <NewErrorMessage error={error} errorId={errorId} />
-    </HeadlessCombobox>
+    </>
   );
 
   function getDisplayName(v: string) {
@@ -181,8 +210,10 @@ export function NewCombobox({
 }
 
 export type NewComboboxProps = {
-  groupClassName?: string;
+  className?: string;
   label: string;
+  hint?: string;
+  helpText?: string;
   name: string;
   error?: string;
   options: NewComboboxOption[];
@@ -201,8 +232,10 @@ export type NewComboboxOption = {
 };
 
 export function NewCurrencyCombobox({
-  groupClassName,
+  className,
   label,
+  hint,
+  helpText,
   name,
   error,
   defaultValue,
@@ -210,10 +243,12 @@ export function NewCurrencyCombobox({
   return (
     <NewCombobox
       label={label}
+      hint={hint}
+      helpText={helpText}
       name={name}
       error={error}
       defaultValue={defaultValue}
-      groupClassName={groupClassName}
+      className={className}
       options={currencyItems.map((c) => ({
         primaryText: c.name,
         secondaryText: c.code,
@@ -227,15 +262,25 @@ export type NewCurrencyComboboxProps = Omit<NewComboboxProps, "options">;
 
 const labelClassName = "mb-1 block text-sm font-medium text-gray-700";
 
-function Label({ id, children }: LabelProps) {
+function Label({ id, hint, children }: LabelProps) {
   return (
-    <label htmlFor={id} className={labelClassName}>
-      {children}
-    </label>
+    <div className="flex justify-between">
+      <label htmlFor={id} className={labelClassName}>
+        {children}
+      </label>
+      <Hint hint={hint} />
+    </div>
   );
 }
 
-type LabelProps = PropsWithChildren<{ id: string }>;
+function Hint({ hint }: HintProps) {
+  if (!hint) return null;
+  return <span className="text-sm text-slate-500">{hint}</span>;
+}
+
+type HintProps = { hint?: string };
+
+type LabelProps = PropsWithChildren<{ id: string; hint?: string }>;
 
 export function NewErrorMessage({ error, errorId }: NewErrorMessageProps) {
   if (!error) return null;
@@ -247,3 +292,18 @@ export function NewErrorMessage({ error, errorId }: NewErrorMessageProps) {
 }
 
 type NewErrorMessageProps = { error?: string; errorId: string };
+
+function HelpText({
+  helpText,
+  helpTextId,
+}: {
+  helpText?: string;
+  helpTextId: string;
+}) {
+  if (!helpText) return null;
+  return (
+    <p className="mt-2 text-sm text-slate-500" id={helpTextId}>
+      {helpText}
+    </p>
+  );
+}

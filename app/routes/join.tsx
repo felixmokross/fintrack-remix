@@ -61,7 +61,7 @@ export const action: ActionFunction = async ({ request }) => {
 
   if (typeof refCurrency !== "string" || refCurrency.length === 0) {
     return json<ActionData>(
-      { errors: { password: "Reference currency is required" } },
+      { errors: { refCurrency: "Reference currency is required" } },
       { status: 400 }
     );
   }
@@ -169,11 +169,14 @@ export default function Join() {
             error={actionData?.errors?.password}
           />
         </div>
-        <NewCurrencyCombobox
-          label="Reference currency"
-          name="refCurrency"
-          groupClassName="col-span-full"
-        />
+        <div className="col-span-full">
+          <NewCurrencyCombobox
+            label="Main currency"
+            name="refCurrency"
+            helpText="Select the currency which you primarily use. Your net worth and totals will be shown in this currency."
+            error={actionData?.errors?.refCurrency}
+          />
+        </div>
         <div className="col-span-full">
           <input type="hidden" name="redirectTo" value={redirectTo} />
           <NewButton
