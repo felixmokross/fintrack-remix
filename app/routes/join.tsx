@@ -13,9 +13,11 @@ import { createUser, getUserByEmail } from "~/models/users.server";
 import { getTitle, validateEmail } from "~/utils";
 import { safeRedirect } from "~/utils.server";
 
+const defaultRedirectTo = "/accounts";
+
 export const loader: LoaderFunction = async ({ request }) => {
   const userId = await getUserId(request);
-  if (userId) return redirect("/");
+  if (userId) return redirect(defaultRedirectTo);
   return json({});
 };
 
@@ -30,7 +32,10 @@ export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
   const email = formData.get("email");
   const password = formData.get("password");
-  const redirectTo = safeRedirect(formData.get("redirectTo"), "/");
+  const redirectTo = safeRedirect(
+    formData.get("redirectTo"),
+    defaultRedirectTo
+  );
 
   if (!validateEmail(email)) {
     return json<ActionData>(
