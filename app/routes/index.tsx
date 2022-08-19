@@ -61,7 +61,7 @@ function Header() {
         <nav className="relative z-50 flex justify-between">
           <div className="flex items-center md:gap-x-12">
             <Link to="/" aria-label="Home">
-              <Logo className="h-10 w-auto py-1" />
+              <Logo className="h-10 w-auto" />
             </Link>
             {/* <div className="hidden md:flex md:gap-x-6">
               <NavLink to="#features">Features</NavLink>
