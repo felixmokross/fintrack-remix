@@ -7,7 +7,7 @@ import { Button } from "~/components/button";
 import { Combobox, CurrencyCombobox } from "~/components/forms";
 import { CheckCircleIcon } from "~/components/icons";
 import { prisma } from "~/db.server";
-import { getLocales } from "~/locales.server";
+import { getLocalesWithDisplayName } from "~/locales.server";
 import { getSession, requireUserId, sessionStorage } from "~/session.server";
 
 type LoaderData = {
@@ -52,7 +52,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   const message = session.get("flashMessage");
 
   return json<LoaderData>(
-    { user, message, locales: getLocales() },
+    { user, message, locales: getLocalesWithDisplayName() },
     { headers: { "Set-Cookie": await sessionStorage.commitSession(session) } }
   );
 };

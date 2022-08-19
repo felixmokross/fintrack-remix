@@ -8,8 +8,13 @@ export function getLocales() {
   const baseLocales = defaultContent.map((l) =>
     l.split("-").slice(0, -1).join("-")
   );
-  return difference(availableLocales.modern, baseLocales)
-    .concat(defaultContent)
+  return difference(availableLocales.modern, baseLocales).concat(
+    defaultContent
+  );
+}
+
+export function getLocalesWithDisplayName() {
+  return getLocales()
     .map((locale) => {
       const [language, territory] = locale.split("-");
       const languageName =

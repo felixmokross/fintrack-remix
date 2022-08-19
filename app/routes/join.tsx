@@ -16,6 +16,8 @@ import { AuthLayout } from "~/components/auth-layout";
 import { Logo } from "~/components/logo";
 import { NewButton } from "~/components/new-button";
 import { NewCurrencyCombobox, TextField } from "~/components/new-forms";
+import { pick } from "accept-language-parser";
+import { getLocales } from "~/locales.server";
 
 const defaultRedirectTo = "/accounts";
 
@@ -79,7 +81,12 @@ export const action: ActionFunction = async ({ request }) => {
     );
   }
 
-  const user = await createUser(email, password, refCurrency);
+  const user = await createUser(
+    email,
+    password,
+    refCurrency,
+    getPreferredLocale(request)
+  );
 
   return createUserSession({
     request,
@@ -88,6 +95,13 @@ export const action: ActionFunction = async ({ request }) => {
     redirectTo,
   });
 };
+
+function getPreferredLocale(request: Request) {
+  const acceptLanguageHeader = request.headers.get("accept-language");
+  if (!acceptLanguageHeader) return undefined;
+
+  return pick(getLocales(), acceptLanguageHeader) || undefined;
+}
 
 export const meta: MetaFunction = () => ({ title: getTitle("Sign Up") });
 
