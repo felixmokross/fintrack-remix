@@ -62,7 +62,7 @@ export default function AccountDetailPage() {
     <div className="overflow-y-auto pt-6">
       <div className="px-6 sm:flex sm:items-center">
         <div className="sm:flex-auto">
-          <h1 className="text-xl font-semibold text-slate-900">
+          <h1 className="text-lg font-semibold text-gray-900">
             {account.name}
           </h1>
           <p className="mt-2 text-sm text-slate-700">
@@ -100,7 +100,7 @@ export default function AccountDetailPage() {
                   <th className="bg-slate-50 px-4 py-2 text-left text-sm font-semibold text-slate-900 sm:px-6">
                     {group.dateFormatted}
                   </th>
-                  <td className="bg-slate-50 py-2 pl-3 pr-1 text-right text-sm text-slate-500">
+                  <td className="bg-slate-50 py-2 pl-3 pr-1 text-right text-sm font-medium text-slate-500">
                     {group.balanceFormatted}
                   </td>
                   <td className="bg-slate-50"></td>
@@ -147,7 +147,27 @@ export default function AccountDetailPage() {
                         {line.transaction.note}
                       </div>
                     </td>
-                    <td className="whitespace-nowrap py-4 pl-3 pr-1 text-right text-sm text-slate-800">
+                    <td
+                      className={cn(
+                        "whitespace-nowrap py-4 pl-3 pr-1 text-right text-sm font-medium",
+                        {
+                          "text-slate-800": (
+                            [
+                              BookingType.CHARGE,
+                              BookingType.EXPENSE,
+                              BookingType.DEPRECIATION,
+                            ] as BookingType[]
+                          ).includes(line.type),
+                          "text-emerald-600": (
+                            [
+                              BookingType.DEPOSIT,
+                              BookingType.INCOME,
+                              BookingType.APPRECIATION,
+                            ] as BookingType[]
+                          ).includes(line.type),
+                        }
+                      )}
+                    >
                       {line.amountFormatted}
                     </td>
                     <td className="w-5 items-center py-4 pr-1">

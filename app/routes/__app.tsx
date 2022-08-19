@@ -7,6 +7,7 @@ import { useUser } from "~/utils";
 import { Toaster } from "~/components/toaster";
 import { LoadingIndicator } from "~/components/loading-indicator";
 import { Logo, LogoSmall } from "~/components/logo";
+import { formClasses } from "~/components/new-forms";
 
 export default function App() {
   const noFocusRef = useRef(null);
@@ -88,7 +89,7 @@ export default function App() {
                         <input
                           id="search"
                           name="search"
-                          className="block w-full rounded-md border border-slate-300 bg-white py-2 pl-10 pr-3 leading-5 placeholder-slate-500 focus:border-sky-500 focus:placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-sky-500 sm:text-sm"
+                          className={cn(formClasses, "pl-10")}
                           placeholder="Search"
                           type="search"
                         />

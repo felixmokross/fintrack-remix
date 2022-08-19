@@ -65,7 +65,7 @@ export default function AccountsPage() {
                   </h2>
                   <div
                     className={cn("text-lg", {
-                      "text-emerald-600": total >= 0,
+                      "text-slate-800": total >= 0,
                       "text-rose-600": total < 0,
                     })}
                   >
@@ -129,7 +129,7 @@ export default function AccountsPage() {
                           <div className="self-end text-right">
                             <div
                               className={cn("text-lg", {
-                                "text-emerald-600": balance >= 0,
+                                "text-slate-800": balance >= 0,
                                 "text-rose-600": balance < 0,
                               })}
                             >

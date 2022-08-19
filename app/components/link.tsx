@@ -6,7 +6,7 @@ export function Link({ children, className, ...props }: RemixLinkProps) {
   return (
     <RemixLink
       {...props}
-      className={cn("text-sky-600 hover:underline", className)}
+      className={cn("font-medium text-sky-600 hover:underline", className)}
     >
       {children}
     </RemixLink>

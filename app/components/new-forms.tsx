@@ -7,7 +7,7 @@ import { Combobox as HeadlessCombobox } from "@headlessui/react";
 import { CheckIcon, SelectorIcon } from "./icons";
 import { currencyItems } from "~/currencies";
 
-const formClasses =
+export const formClasses =
   "block w-full appearance-none rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-slate-900 placeholder-slate-400 focus:border-sky-500 focus:bg-white focus:outline-none focus:ring-sky-500 sm:text-sm";
 
 export function SelectField({

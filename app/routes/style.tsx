@@ -26,11 +26,7 @@ export default function StylePage() {
         adipiscing elit.
       </p>
       <p className="text-sm text-gray-700">
-        This is some body copy with a{" "}
-        <Link to="/" className="font-medium text-sky-600 hover:underline">
-          link to the home page
-        </Link>
-        .
+        This is some body copy with a <Link to="/">link to the home page</Link>.
       </p>
       <div className="flex gap-8">
         <div>
