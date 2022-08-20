@@ -99,6 +99,11 @@ export default function App() {
   return (
     <html lang="en" className="h-full">
       <head>
+        <script
+          defer
+          data-domain="cashfolio.app"
+          src="https://plausible.io/js/plausible.js"
+        ></script>
         <Meta />
         <Links />
       </head>

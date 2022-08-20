@@ -22,7 +22,7 @@ export function Logo(props: IconProps) {
       <path
         d="M13.7142 49.4286L28.2857 29.7143L41.9999 39.5715L57.8571 19.8572"
         stroke="#0284C7"
-        stroke-width="8"
+        strokeWidth="8"
       />
     </svg>
   );
@@ -41,7 +41,7 @@ export function LogoSmall(props: IconProps) {
       <path
         d="M10 75L35.7476 39.6667L59.9806 57.3333L88 22"
         stroke="#0284C7"
-        stroke-width="12"
+        strokeWidth="12"
       />
     </svg>
   );
