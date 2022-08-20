@@ -1,40 +1,46 @@
 import { useFetcher, useLoaderData } from "@remix-run/react";
 import type { LoaderFunction } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
-import { getStockListItems } from "~/models/stocks.server";
+import { getAssetClassListItems } from "~/models/asset-classes.server";
 import { requireUserId } from "~/session.server";
 import { Button } from "~/components/button";
 import { FormModal, useFormModal } from "~/components/forms";
-import type { StockFormLoaderData } from "~/components/stocks";
-import { StockForm } from "~/components/stocks";
+import type { AssetClassFormLoaderData } from "~/components/asset-classes";
+import { AssetClassForm } from "~/components/asset-classes";
 
 type LoaderData = {
-  stocks: Awaited<ReturnType<typeof getStockListItems>>;
+  assetClasses: Awaited<ReturnType<typeof getAssetClassListItems>>;
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
   const userId = await requireUserId(request);
-  const stocks = await getStockListItems({ userId });
-  return json<LoaderData>({ stocks });
+  const assetClasses = await getAssetClassListItems({ userId });
+  return json<LoaderData>({ assetClasses });
 };
 
-export default function StocksPage() {
-  const formModal = useFormModal<StockFormLoaderData>((mode) =>
+export default function AssetClassesPage() {
+  const formModal = useFormModal<AssetClassFormLoaderData>((mode) =>
     mode.type === "new"
-      ? { title: "New Stock", url: "/settings/stocks/new" }
-      : { title: "Edit Stock", url: `/settings/stocks/${mode.id}/edit` }
+      ? { title: "New Asset Class", url: "/app/settings/asset-classes/new" }
+      : {
+          title: "Edit Asset Class",
+          url: `/app/settings/asset-classes/${mode.id}/edit`,
+        }
   );
 
-  const { stocks } = useLoaderData<LoaderData>();
+  const { assetClasses } = useLoaderData<LoaderData>();
   const deleteAction = useFetcher();
   return (
     <div className="px-4 sm:px-6 lg:px-8">
       <div className="sm:flex">
         <div className="sm:flex-auto">
-          <h1 className="text-xl font-semibold text-slate-900">Stocks</h1>
+          <h1 className="text-xl font-semibold text-slate-900">
+            Asset Classes
+          </h1>
           <p className="mt-2 text-sm text-slate-700">
-            Add stocks you have in your portfolio in order to track their value
-            automatically.
+            Asset classes are groups of assets with similar liquidity, risk, and
+            return. Asset accounts are assigned to the asset classes defined
+            here.
           </p>
         </div>
         <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
@@ -42,7 +48,7 @@ export default function StocksPage() {
             onClick={() => formModal.open({ type: "new" })}
             variant="primary"
           >
-            Add stock
+            Add asset class
           </Button>
         </div>
       </div>
@@ -57,13 +63,13 @@ export default function StocksPage() {
                       scope="col"
                       className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-slate-900 sm:pl-6"
                     >
-                      Symbol
+                      Name
                     </th>
                     <th
                       scope="col"
-                      className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-slate-900 sm:pl-6"
+                      className="py-3.5 pl-4 pr-3 text-right text-sm font-semibold text-slate-900 sm:pl-6"
                     >
-                      Trading Currency
+                      Sort Order
                     </th>
                     <th
                       scope="col"
@@ -74,29 +80,28 @@ export default function StocksPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200 bg-white">
-                  {stocks.map((stock) => (
-                    <tr key={stock.id}>
+                  {assetClasses.map((assetClass) => (
+                    <tr key={assetClass.id}>
                       <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-slate-900 sm:pl-6">
-                        {stock.symbol}
+                        {assetClass.name}
                       </td>
-                      <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-slate-900 sm:pl-6">
-                        {stock.tradingCurrency}
+                      <td className="whitespace-nowrap py-4 pl-4 pr-3 text-right text-sm font-medium text-slate-900 sm:pl-6">
+                        {assetClass.sortOrder}
                       </td>
                       <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                         <button
-                          type="button"
                           onClick={() =>
-                            formModal.open({ type: "edit", id: stock.id })
+                            formModal.open({ type: "edit", id: assetClass.id })
                           }
                           className="text--600 hover:text--900"
                         >
                           Edit
-                          <span className="sr-only">, {stock.symbol}</span>
+                          <span className="sr-only">, {assetClass.name}</span>
                         </button>{" "}
                         &middot;{" "}
                         <deleteAction.Form
                           className="inline"
-                          action={`${stock.id}/delete`}
+                          action={`${assetClass.id}/delete`}
                           method="post"
                         >
                           <button
@@ -104,7 +109,7 @@ export default function StocksPage() {
                             className="text--600 hover:text--900"
                           >
                             Delete
-                            <span className="sr-only">, {stock.id}</span>
+                            <span className="sr-only">, {assetClass.name}</span>
                           </button>
                         </deleteAction.Form>
                       </td>
@@ -116,7 +121,7 @@ export default function StocksPage() {
           </div>
         </div>
       </div>
-      <FormModal modal={formModal} form={StockForm} />
+      <FormModal modal={formModal} form={AssetClassForm} />
     </div>
   );
 }

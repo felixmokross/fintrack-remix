@@ -102,7 +102,8 @@ export default function App() {
         <script
           defer
           data-domain="cashfolio.app"
-          src="https://plausible.io/js/plausible.js"
+          src="https://plausible.io/js/script.exclusions.js"
+          data-exclude="/app/**"
         ></script>
         <Meta />
         <Links />

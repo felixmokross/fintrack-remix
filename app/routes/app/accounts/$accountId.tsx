@@ -51,8 +51,8 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 export default function AccountDetailPage() {
   const formModal = useFormModal<TransactionFormLoaderData>((mode) =>
     mode.type === "new"
-      ? { title: "New Transaction", url: "/transactions/new" }
-      : { title: "Edit Transaction", url: `/transactions/${mode.id}/edit` }
+      ? { title: "New Transaction", url: "/app/transactions/new" }
+      : { title: "Edit Transaction", url: `/app/transactions/${mode.id}/edit` }
   );
 
   const deleteAction = useFetcher();
@@ -222,7 +222,7 @@ export default function AccountDetailPage() {
                                 )}
                               </Menu.Item>
                               <deleteAction.Form
-                                action={`/transactions/${line.transaction.id}/delete`}
+                                action={`/app/transactions/${line.transaction.id}/delete`}
                                 method="post"
                               >
                                 <Menu.Item>

@@ -23,7 +23,7 @@ export default function App() {
                 <div className="flex h-16 justify-between">
                   <div className="flex px-2 lg:px-0">
                     <div className="flex flex-shrink-0 items-center">
-                      <Link to="/dashboard" title="Cashfolio">
+                      <Link to="/app" title="Cashfolio">
                         <LogoSmall className="block h-8 w-auto lg:hidden" />
                         <Logo className="hidden h-10 w-auto py-1 lg:block" />
                       </Link>

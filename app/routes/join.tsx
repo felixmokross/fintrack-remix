@@ -19,7 +19,7 @@ import { NewCurrencyCombobox, TextField } from "~/components/new-forms";
 import { pick } from "accept-language-parser";
 import { getLocales } from "~/locales.server";
 
-const defaultRedirectTo = "/accounts";
+const defaultRedirectTo = "/app";
 
 export const loader: LoaderFunction = async ({ request }) => {
   const userId = await getUserId(request);

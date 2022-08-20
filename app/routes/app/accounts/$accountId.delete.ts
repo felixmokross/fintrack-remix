@@ -11,7 +11,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   await deleteAccount({ id: params.accountId, userId });
 
   const refererUrl = request.headers.get("referer");
-  return refererUrl?.includes(`/accounts/${params.accountId}`)
-    ? redirect("/accounts")
+  return refererUrl?.includes(`/app/accounts/${params.accountId}`)
+    ? redirect("/app/accounts")
     : new Response(null, { status: 204 });
 };

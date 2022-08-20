@@ -4,5 +4,5 @@ import { requireUserId } from "~/session.server";
 
 export const loader: LoaderFunction = async ({ request }) => {
   await requireUserId(request);
-  return redirect("/settings/preferences");
+  return redirect("/app/accounts");
 };

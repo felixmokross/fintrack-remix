@@ -1,46 +1,51 @@
 import { useFetcher, useLoaderData } from "@remix-run/react";
 import type { LoaderFunction } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
-import { getAccountGroupListItems } from "~/models/account-groups.server";
+import { getIncomeCategoryListItems } from "~/models/income-expense-categories.server";
 import { requireUserId } from "~/session.server";
 import { Button } from "~/components/button";
-import type { AccountGroupFormLoaderData } from "~/components/account-groups";
-import { AccountGroupFormModal } from "~/components/account-groups";
 import { FormModal, useFormModal } from "~/components/forms";
+import type { IncomeExpenseCategoryFormLoaderData } from "~/components/income-expense-categories";
+import { IncomeExpenseCategoryForm } from "~/components/income-expense-categories";
+import { IncomeExpenseCategoryType } from "@prisma/client";
 
 type LoaderData = {
-  accountGroups: Awaited<ReturnType<typeof getAccountGroupListItems>>;
+  categories: Awaited<ReturnType<typeof getIncomeCategoryListItems>>;
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
   const userId = await requireUserId(request);
-  const accountGroups = await getAccountGroupListItems({ userId });
-  return json<LoaderData>({ accountGroups });
+  const categories = await getIncomeCategoryListItems({
+    userId,
+  });
+  return json<LoaderData>({ categories });
 };
 
-export default function AccountGroupsPage() {
-  const formModal = useFormModal<AccountGroupFormLoaderData>((mode) =>
+export default function IncomeCategoriesPage() {
+  const formModal = useFormModal<IncomeExpenseCategoryFormLoaderData>((mode) =>
     mode.type === "new"
-      ? { title: "New Account Group", url: "/settings/account-groups/new" }
+      ? {
+          title: "New Income Category",
+          url: "/app/settings/income-expense-categories/new",
+        }
       : {
-          title: "Edit Account Group",
-          url: `/settings/account-groups/${mode.id}/edit`,
+          title: "Edit Income Category",
+          url: `/app/settings/income-expense-categories/${mode.id}/edit`,
         }
   );
 
+  const { categories } = useLoaderData<LoaderData>();
   const deleteAction = useFetcher();
-
-  const { accountGroups } = useLoaderData<LoaderData>();
   return (
     <div className="px-4 sm:px-6 lg:px-8">
       <div className="sm:flex">
         <div className="sm:flex-auto">
           <h1 className="text-xl font-semibold text-slate-900">
-            Account Groups
+            Income Categories
           </h1>
           <p className="mt-2 text-sm text-slate-700">
-            Accounts can be organized into groups, e.g. by financial
-            institution, banking app, or type of account.
+            By categorizing income bookings into categories, you get an overview
+            of where your money is coming from.
           </p>
         </div>
         <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
@@ -48,7 +53,7 @@ export default function AccountGroupsPage() {
             onClick={() => formModal.open({ type: "new" })}
             variant="primary"
           >
-            Add account group
+            Add income category
           </Button>
         </div>
       </div>
@@ -74,28 +79,26 @@ export default function AccountGroupsPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200 bg-white">
-                  {accountGroups.map((accountGroup) => (
-                    <tr key={accountGroup.id}>
+                  {categories.map((category) => (
+                    <tr key={category.id}>
                       <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-slate-900 sm:pl-6">
-                        {accountGroup.name}
+                        {category.name}
                       </td>
                       <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                         <button
+                          type="button"
                           onClick={() =>
-                            formModal.open({
-                              type: "edit",
-                              id: accountGroup.id,
-                            })
+                            formModal.open({ type: "edit", id: category.id })
                           }
                           className="text--600 hover:text--900"
                         >
                           Edit
-                          <span className="sr-only">, {accountGroup.name}</span>
+                          <span className="sr-only">, {category.name}</span>
                         </button>{" "}
                         &middot;{" "}
                         <deleteAction.Form
                           className="inline"
-                          action={`${accountGroup.id}/delete`}
+                          action={`/app/settings/income-expense-categories/${category.id}/delete`}
                           method="post"
                         >
                           <button
@@ -103,9 +106,7 @@ export default function AccountGroupsPage() {
                             className="text--600 hover:text--900"
                           >
                             Delete
-                            <span className="sr-only">
-                              , {accountGroup.name}
-                            </span>
+                            <span className="sr-only">, {category.name}</span>
                           </button>
                         </deleteAction.Form>
                       </td>
@@ -117,7 +118,11 @@ export default function AccountGroupsPage() {
           </div>
         </div>
       </div>
-      <FormModal modal={formModal} form={AccountGroupFormModal} />
+      <FormModal
+        modal={formModal}
+        form={IncomeExpenseCategoryForm}
+        type={IncomeExpenseCategoryType.INCOME}
+      />
     </div>
   );
 }

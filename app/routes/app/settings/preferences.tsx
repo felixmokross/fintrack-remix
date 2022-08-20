@@ -35,7 +35,7 @@ export const action: ActionFunction = async ({ request }) => {
   const session = await getSession(request);
   session.flash("flashMessage", "Preferences have been saved");
 
-  return redirect("/settings/preferences", {
+  return redirect("/app/settings/preferences", {
     headers: { "Set-Cookie": await sessionStorage.commitSession(session) },
   });
 };

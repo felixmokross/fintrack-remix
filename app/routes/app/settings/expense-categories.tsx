@@ -26,11 +26,11 @@ export default function ExpenseCategoriesPage() {
     mode.type === "new"
       ? {
           title: "New Expense Category",
-          url: "/settings/income-expense-categories/new",
+          url: "/app/settings/income-expense-categories/new",
         }
       : {
           title: "Edit Expense Category",
-          url: `/settings/income-expense-categories/${mode.id}/edit`,
+          url: `/app/settings/income-expense-categories/${mode.id}/edit`,
         }
   );
 
@@ -98,7 +98,7 @@ export default function ExpenseCategoriesPage() {
                         &middot;{" "}
                         <deleteAction.Form
                           className="inline"
-                          action={`/settings/income-expense-categories/${category.id}/delete`}
+                          action={`/app/settings/income-expense-categories/${category.id}/delete`}
                           method="post"
                         >
                           <button

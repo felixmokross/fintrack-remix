@@ -255,7 +255,7 @@ export const action: ActionFunction = async ({ request }) => {
     `Imported successful: ${assetClasses.length} asset classes, ${stocks.length} stocks, ${incomeCategories.length} income categories, ${expenseCategories.length} expense categories, ${accounts.length} accounts, ${transactions.length} transactions, ${bookings.length} bookings`
   );
 
-  return redirect("/settings/import", {
+  return redirect("/app/settings/import", {
     headers: {
       "Set-Cookie": await sessionStorage.commitSession(session),
     },

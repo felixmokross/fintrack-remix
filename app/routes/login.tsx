@@ -16,7 +16,7 @@ import { NewButton } from "~/components/new-button";
 import { AuthLayout } from "~/components/auth-layout";
 import { TextField } from "~/components/new-forms";
 
-const defaultRedirectTo = "/accounts";
+const defaultRedirectTo = "/app";
 
 export const loader: LoaderFunction = async ({ request }) => {
   const userId = await getUserId(request);
