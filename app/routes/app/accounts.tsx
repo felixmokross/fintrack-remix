@@ -1,4 +1,10 @@
-import { Link, Outlet, useFetcher, useLoaderData } from "@remix-run/react";
+import {
+  Link,
+  Outlet,
+  useFetcher,
+  useLoaderData,
+  useMatches,
+} from "@remix-run/react";
 import type { LoaderFunction, MetaFunction } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import type { AccountFormLoaderData } from "~/components/accounts";
@@ -36,11 +42,18 @@ export default function AccountsPage() {
 
   const deleteAction = useFetcher();
 
+  const matches = useMatches();
+  const isIndex = matches.some((m) => m.id === "routes/app/accounts/index");
+
   const { refCurrency } = useUser();
   const { accountsByAssetClass } = useLoaderData<LoaderData>();
   return (
-    <div className="flex-1 overflow-hidden md:grid md:grid-cols-accounts-1 md:divide-x md:divide-slate-200 lg:grid-cols-accounts-2 xl:grid-cols-accounts-3 2xl:grid-cols-accounts-4">
-      <div className="hidden overflow-auto md:block">
+    <div className="flex-1 md:grid md:grid-cols-accounts-1 md:divide-x md:divide-slate-200 md:overflow-hidden lg:grid-cols-accounts-2 xl:grid-cols-accounts-3 2xl:grid-cols-accounts-4">
+      <div
+        className={cn("overflow-auto", {
+          "hidden md:block": !isIndex,
+        })}
+      >
         <div className="flex justify-end py-10 px-6">
           <NewButton
             variant="outline"
@@ -64,7 +77,7 @@ export default function AccountsPage() {
                     {group.assetClass ? group.assetClass.name : "Liabilities"}
                   </h2>
                   <div
-                    className={cn("text-lg", {
+                    className={cn("text-lg font-medium", {
                       "text-slate-800": total >= 0,
                       "text-rose-600": total < 0,
                     })}
@@ -72,7 +85,7 @@ export default function AccountsPage() {
                     {group.currentBalanceInRefCurrencyFormatted}
                   </div>
                 </div>
-                <ul className="content-start gap-6 sm:grid sm:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+                <ul className="content-start space-y-6 md:grid md:grid-cols-1 md:gap-6 md:space-y-0 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
                   {group.accounts.map((a) => {
                     const balance = parseFloat(a.currentBalance);
                     return (
@@ -128,7 +141,7 @@ export default function AccountsPage() {
                           </div>
                           <div className="self-end text-right">
                             <div
-                              className={cn("text-lg", {
+                              className={cn("text-lg font-medium", {
                                 "text-slate-800": balance >= 0,
                                 "text-rose-600": balance < 0,
                               })}
