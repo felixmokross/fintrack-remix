@@ -1,4 +1,5 @@
 import { AccountUnit, BookingType } from "@prisma/client";
+import type { LinkProps } from "@remix-run/react";
 import { useFetcher, useLoaderData, useLocation } from "@remix-run/react";
 import type { LoaderFunction } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
@@ -67,13 +68,13 @@ export default function AccountDetailPage() {
   }, [pathname]);
 
   return (
-    <div ref={containerRef} className="overflow-y-auto">
-      <Link
-        to=".."
-        className="block border-b border-slate-200 py-8 text-center hover:bg-slate-50 md:hidden"
-      >
+    <div
+      ref={containerRef}
+      className="divide-y divide-slate-200 overflow-y-auto"
+    >
+      <LedgerLink to=".." className="md:hidden">
         &larr; All accounts
-      </Link>
+      </LedgerLink>
       <div className="pt-6">
         <div className="px-6 sm:flex sm:items-center">
           <div className="sm:flex-auto">
@@ -106,7 +107,7 @@ export default function AccountDetailPage() {
             </NewButton>
           </div>
         </div>
-        <div className="mt-8 flex flex-col">
+        <div className="mt-8 flex flex-col divide-y divide-slate-200">
           <table className="w-full">
             <tbody className="bg-white">
               {ledgerDateGroups.groups.map((group) => (
@@ -279,13 +280,12 @@ export default function AccountDetailPage() {
             </tbody>
           </table>
           {ledgerDateGroups.page < ledgerDateGroups.pageCount - 1 && (
-            <Link
-              className="block border-t border-slate-200 py-8 text-center text-sm hover:bg-slate-50"
+            <LedgerLink
               to={`?page=${ledgerDateGroups.page + 1}`}
               replace={true}
             >
               Load more…
-            </Link>
+            </LedgerLink>
           )}
         </div>
         <FormModal
@@ -296,5 +296,19 @@ export default function AccountDetailPage() {
         />
       </div>
     </div>
+  );
+}
+
+function LedgerLink({ className, children, ...props }: LinkProps) {
+  return (
+    <Link
+      className={cn(
+        "block py-8 text-center text-sm hover:bg-slate-50",
+        className
+      )}
+      {...props}
+    >
+      {children}
+    </Link>
   );
 }
