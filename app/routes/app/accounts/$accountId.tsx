@@ -1,8 +1,8 @@
 import { AccountUnit, BookingType } from "@prisma/client";
-import { useFetcher, useLoaderData } from "@remix-run/react";
+import { useFetcher, useLoaderData, useLocation } from "@remix-run/react";
 import type { LoaderFunction } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
-import { Fragment } from "react";
+import { Fragment, useEffect, useRef } from "react";
 import invariant from "tiny-invariant";
 import { currenciesByCode } from "~/currencies";
 import { getAccount } from "~/models/accounts.server";
@@ -58,15 +58,23 @@ export default function AccountDetailPage() {
   const deleteAction = useFetcher();
 
   const { account, ledgerDateGroups } = useLoaderData<LoaderData>();
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { pathname } = useLocation();
+  useEffect(() => {
+    console.log("pathname changed " + pathname);
+    containerRef.current?.scrollTo(0, 0);
+  }, [pathname]);
+
   return (
-    <>
+    <div ref={containerRef} className="overflow-y-auto">
       <Link
         to=".."
         className="block border-b border-slate-200 py-8 text-center hover:bg-slate-50 md:hidden"
       >
         &larr; All accounts
       </Link>
-      <div className="overflow-y-auto pt-6">
+      <div className="pt-6">
         <div className="px-6 sm:flex sm:items-center">
           <div className="sm:flex-auto">
             <h1 className="text-lg font-semibold text-gray-900">
@@ -287,6 +295,6 @@ export default function AccountDetailPage() {
           prefillAccountId={account.id}
         />
       </div>
-    </>
+    </div>
   );
 }

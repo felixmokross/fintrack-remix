@@ -48,7 +48,7 @@ export default function AccountsPage() {
   const { refCurrency } = useUser();
   const { accountsByAssetClass } = useLoaderData<LoaderData>();
   return (
-    <div className="flex-1 md:grid md:grid-cols-accounts-1 md:divide-x md:divide-slate-200 md:overflow-hidden lg:grid-cols-accounts-2 xl:grid-cols-accounts-3 2xl:grid-cols-accounts-4">
+    <div className="grid flex-1 overflow-hidden md:grid-cols-accounts-1 md:divide-x md:divide-slate-200 lg:grid-cols-accounts-2 xl:grid-cols-accounts-3 2xl:grid-cols-accounts-4">
       <div
         className={cn("overflow-auto", {
           "hidden md:block": !isIndex,
