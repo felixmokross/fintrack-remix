@@ -1,6 +1,7 @@
 import { Popover, Transition } from "@headlessui/react";
 import type { LinkProps } from "@remix-run/react";
-import type { MetaFunction } from "@remix-run/server-runtime";
+import type { LoaderFunction, MetaFunction } from "@remix-run/server-runtime";
+import { redirect } from "@remix-run/server-runtime";
 import type { PropsWithChildren } from "react";
 import { Fragment } from "react";
 import { Link } from "react-router-dom";
@@ -9,10 +10,18 @@ import { Container } from "~/components/container";
 import { NavBarLink } from "~/components/link";
 import { Logo } from "~/components/logo";
 import { NewButton } from "~/components/new-button";
+import { getUserId } from "~/session.server";
 
 export const meta: MetaFunction = () => ({
   title: `Cashfolio · The full picture of your personal finances`,
 });
+
+export const loader: LoaderFunction = async ({ request }) => {
+  const userId = await getUserId(request);
+  if (userId) return redirect("/app");
+
+  return null;
+};
 
 export default function LandingPage() {
   return (
