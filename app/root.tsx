@@ -108,7 +108,7 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body className="flex h-screen flex-col justify-between antialiased h-screen-ios [font-feature-settings:'ss01']">
+      <body className="min-h-screen antialiased min-h-screen-ios [font-feature-settings:'ss01']">
         <Outlet />
         <ScrollRestoration />
         <Scripts />
