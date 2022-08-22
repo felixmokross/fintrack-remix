@@ -1,9 +1,11 @@
 import { AccountUnit, BookingType } from "@prisma/client";
 import type { LinkProps } from "@remix-run/react";
+import { useTransition } from "@remix-run/react";
 import { useFetcher, useLoaderData, useLocation } from "@remix-run/react";
 import type { LoaderFunction } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
-import { Fragment, useEffect, useRef } from "react";
+import type { RefObject } from "react";
+import { Fragment, useEffect, useLayoutEffect, useRef } from "react";
 import invariant from "tiny-invariant";
 import { currenciesByCode } from "~/currencies";
 import { getAccount } from "~/models/accounts.server";
@@ -61,11 +63,7 @@ export default function AccountDetailPage() {
   const { account, ledgerDateGroups } = useLoaderData<LoaderData>();
 
   const containerRef = useRef<HTMLDivElement>(null);
-  const { pathname } = useLocation();
-  useEffect(() => {
-    console.log("pathname changed " + pathname);
-    containerRef.current?.scrollTo(0, 0);
-  }, [pathname]);
+  useContainerScrollRestoration(containerRef);
 
   return (
     <div
@@ -284,6 +282,7 @@ export default function AccountDetailPage() {
               to={`?page=${ledgerDateGroups.page + 1}`}
               replace={true}
             >
+              {/* TODO solve remaining problem with this pagination: now with scroll restoration working properly, this will always jump up as it is a full navigation. better use a fetcher and somehow patch the URL? or add additional scroll position restoration */}
               Load more…
             </LedgerLink>
           )}
@@ -311,4 +310,35 @@ function LedgerLink({ className, children, ...props }: LinkProps) {
       {children}
     </Link>
   );
+}
+
+// inspired by https://github.com/remix-run/remix/blob/main/packages/remix-react/scroll-restoration.tsx, but for scrollable containers
+const positions: { [key: string]: number } = {};
+
+function useContainerScrollRestoration<TElement extends HTMLElement>(
+  containerRef: RefObject<TElement>
+) {
+  const location = useLocation();
+  const transition = useTransition();
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    if (transition.location)
+      positions[location.key] = containerRef.current.scrollTop;
+  }, [transition, location, containerRef]);
+
+  if (typeof document !== "undefined") {
+    // disable useLayoutEffect SSR warning, see for context https://gist.github.com/gaearon/e7d97cdf38a2907924ea12e4ebdf3c85
+    // should be fine since it is not really conditionally within the same environment (server vs. client)
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useLayoutEffect(() => {
+      if (!containerRef.current) return;
+
+      const y = positions[location.key] || 0;
+      console.log("restoring position " + y);
+
+      containerRef.current.scrollTo(0, y);
+    }, [containerRef, location]);
+  }
 }
