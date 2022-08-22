@@ -24,13 +24,13 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 export default function LandingPage() {
   return (
-    <>
+    <div className="flex flex-col justify-between min-h-screen min-h-screen-ios">
       <Header />
       <main>
         <Hero />
       </main>
       <Footer />
-    </>
+    </div>
   );
 }
 
