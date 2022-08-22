@@ -106,7 +106,7 @@ export default function LoginPage() {
           <h2 className="text-lg font-semibold text-gray-900">
             Sign in to your account
           </h2>
-          <p className="mt-2 text-sm text-gray-700">
+          {/* <p className="mt-2 text-sm text-gray-700">
             Don’t have an account?{" "}
             <Link
               to={{ pathname: "/join", search: searchParams.toString() }}
@@ -115,7 +115,7 @@ export default function LoginPage() {
               Sign up
             </Link>{" "}
             for a free trial.
-          </p>
+          </p> */}
         </div>
         <Form
           method="post"

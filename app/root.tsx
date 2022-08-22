@@ -97,7 +97,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 export default function App() {
   return (
-    <html lang="en" className="h-full">
+    <html lang="en">
       <head>
         <script
           defer
@@ -108,7 +108,7 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body className="h-full antialiased [font-feature-settings:'ss01']">
+      <body className="flex h-screen flex-col justify-between antialiased h-screen-ios [font-feature-settings:'ss01']">
         <Outlet />
         <ScrollRestoration />
         <Scripts />
