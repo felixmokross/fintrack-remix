@@ -329,9 +329,9 @@ function Ledger({ ledgerDateGroups, formModal }: LedgerProps) {
         </tbody>
       </table>
       {currentPage < ledgerDateGroups.pageCount - 1 && (
-        <pageLoader.Form className="block py-8 text-center text-sm font-medium text-sky-600 hover:bg-slate-50 hover:underline">
+        <pageLoader.Form className="block text-center text-sm font-medium text-sky-600 hover:bg-slate-50 hover:underline">
           <input type="hidden" name="page" value={currentPage + 1} />
-          <button type="submit" className="h-full w-full">
+          <button type="submit" className="block w-full py-8">
             Load more…
           </button>
         </pageLoader.Form>
