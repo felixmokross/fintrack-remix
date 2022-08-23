@@ -283,7 +283,7 @@ export default function App() {
           }
         }}
       </Disclosure>
-      <main className="relative top-16">
+      <main className="relative top-16 overflow-hidden">
         <Outlet />
       </main>
       <Toaster />
