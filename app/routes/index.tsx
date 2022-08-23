@@ -24,7 +24,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 export default function LandingPage() {
   return (
-    <div className="flex flex-col justify-between min-h-screen min-h-screen-ios">
+    <div className="flex h-full flex-col justify-between">
       <Header />
       <main>
         <Hero />

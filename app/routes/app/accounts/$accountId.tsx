@@ -68,7 +68,7 @@ export default function AccountDetailPage() {
   return (
     <div
       ref={containerRef}
-      className="divide-y divide-slate-200 overflow-y-auto"
+      className="h-app divide-y divide-slate-200 overflow-y-auto"
     >
       <LedgerLink to=".." className="md:hidden">
         &larr; All accounts

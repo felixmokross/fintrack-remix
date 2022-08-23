@@ -13,9 +13,13 @@ export default function App() {
   const noFocusRef = useRef(null);
   const user = useUser();
   return (
-    <div className="flex h-screen flex-col h-screen-ios">
+    <div className="relative">
       {/* noFocusRef: prevent close() calls from focusing the triggering Disclosure.Button by passing a ref to an element which cannot be focused to the close() calls */}
-      <Disclosure as="nav" className="z-10 bg-white shadow" ref={noFocusRef}>
+      <Disclosure
+        as="nav"
+        className="fixed top-0 z-10 w-full bg-white shadow"
+        ref={noFocusRef}
+      >
         {({ open, close }) => {
           return (
             <>
@@ -279,7 +283,9 @@ export default function App() {
           }
         }}
       </Disclosure>
-      <Outlet />
+      <main className="relative top-16">
+        <Outlet />
+      </main>
       <Toaster />
       <LoadingIndicator />
     </div>

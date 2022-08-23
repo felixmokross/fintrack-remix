@@ -34,13 +34,14 @@ module.exports = {
         "accounts-3": "calc(1.5rem + 3 * (14rem + 1.5rem)) auto",
         "accounts-4": "calc(1.5rem + 4 * (14rem + 1.5rem)) auto",
       },
+      height: {
+        // nav bar height: 16 (4rem)
+        app: "calc(100vh - 4rem)",
+      },
       maxWidth: {
         "2xl": "40rem",
       },
     },
   },
-  plugins: [
-    require("@tailwindcss/forms"),
-    require("@rvxlab/tailwind-plugin-ios-full-height"),
-  ],
+  plugins: [require("@tailwindcss/forms")],
 };
