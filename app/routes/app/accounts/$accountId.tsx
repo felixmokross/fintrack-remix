@@ -336,7 +336,6 @@ function useContainerScrollRestoration<TElement extends HTMLElement>(
       if (!containerRef.current) return;
 
       const y = positions[location.key] || 0;
-      console.log("restoring position " + y);
 
       containerRef.current.scrollTo(0, y);
     }, [containerRef, location]);
