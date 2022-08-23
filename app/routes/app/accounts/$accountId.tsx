@@ -5,6 +5,7 @@ import { useFetcher, useLoaderData, useLocation } from "@remix-run/react";
 import type { LoaderFunction } from "@remix-run/server-runtime";
 import { json } from "@remix-run/server-runtime";
 import type { RefObject } from "react";
+import { useState } from "react";
 import { Fragment, useEffect, useLayoutEffect, useRef } from "react";
 import invariant from "tiny-invariant";
 import { currenciesByCode } from "~/currencies";
@@ -14,12 +15,14 @@ import { requireUserId } from "~/session.server";
 import { cn } from "~/components/classnames";
 import type { TransactionFormLoaderData } from "~/components/transactions";
 import { TransactionForm } from "~/components/transactions";
+import type { UseFormModalReturnValue } from "~/components/forms";
 import { FormModal, useFormModal } from "~/components/forms";
 import { ModalSize } from "~/components/modal";
 import { Menu, Transition } from "@headlessui/react";
 import { DotsVerticalIcon } from "~/components/icons";
 import { Link } from "~/components/link";
 import { NewButton } from "~/components/new-button";
+import type { SerializeType } from "~/utils";
 
 type LoaderData = {
   account: NonNullable<Awaited<ReturnType<typeof getAccount>>>;
@@ -57,8 +60,6 @@ export default function AccountDetailPage() {
       ? { title: "New Transaction", url: "/app/transactions/new" }
       : { title: "Edit Transaction", url: `/app/transactions/${mode.id}/edit` }
   );
-
-  const deleteAction = useFetcher();
 
   const { account, ledgerDateGroups } = useLoaderData<LoaderData>();
 
@@ -105,188 +106,11 @@ export default function AccountDetailPage() {
             </NewButton>
           </div>
         </div>
-        <div className="mt-8 flex flex-col divide-y divide-slate-200">
-          <table className="w-full">
-            <tbody className="bg-white">
-              {ledgerDateGroups.groups.map((group) => (
-                <Fragment key={group.date}>
-                  <tr className="border-t border-slate-200">
-                    <th className="bg-slate-50 px-4 py-2 text-left text-sm font-semibold text-slate-900 sm:px-6">
-                      {group.dateFormatted}
-                    </th>
-                    <td className="bg-slate-50 py-2 pl-3 pr-1 text-right text-sm font-medium text-slate-500">
-                      {group.balanceFormatted}
-                    </td>
-                    <td className="bg-slate-50"></td>
-                  </tr>
-                  {group.lines.map((line, index) => (
-                    <tr
-                      key={line.id}
-                      className={cn(
-                        index === 0 ? "border-slate-300" : "border-slate-200",
-                        "group border-t"
-                      )}
-                    >
-                      <td className="py-4 pl-4 pr-3 text-sm sm:pl-6">
-                        <div className="text-slate-800">
-                          {line.transaction.bookings
-                            .filter((b) => b.id !== line.id)
-                            .map((b) => {
-                              switch (b.type) {
-                                case BookingType.CHARGE:
-                                case BookingType.DEPOSIT:
-                                  // TODO temporarily disabled invariant until all accounts can be migrated
-                                  // invariant(b.account, "account not found");
-                                  return (
-                                    <Link key={b.id} to={`../${b.account?.id}`}>
-                                      {b.account?.name || "--- unavailable ---"}
-                                    </Link>
-                                  );
-                                case BookingType.INCOME:
-                                case BookingType.EXPENSE:
-                                  invariant(
-                                    b.incomeExpenseCategory,
-                                    "incomeExpenseCategory not found"
-                                  );
-                                  return b.incomeExpenseCategory.name;
-                                default:
-                                  return "";
-                              }
-                            })
-                            .map((element, index) =>
-                              index === 0 ? element : `, ${element}`
-                            )}
-                        </div>
-                        <div className="text-slate-500">
-                          {line.transaction.note}
-                        </div>
-                      </td>
-                      <td
-                        className={cn(
-                          "whitespace-nowrap py-4 pl-3 pr-1 text-right text-sm font-medium",
-                          {
-                            "text-slate-800": (
-                              [
-                                BookingType.CHARGE,
-                                BookingType.EXPENSE,
-                                BookingType.DEPRECIATION,
-                              ] as BookingType[]
-                            ).includes(line.type),
-                            "text-emerald-600": (
-                              [
-                                BookingType.DEPOSIT,
-                                BookingType.INCOME,
-                                BookingType.APPRECIATION,
-                              ] as BookingType[]
-                            ).includes(line.type),
-                          }
-                        )}
-                      >
-                        {line.amountFormatted}
-                      </td>
-                      <td className="w-5 items-center py-4 pr-1">
-                        <Menu
-                          as="div"
-                          className="invisible relative inline-block text-left group-hover:visible"
-                        >
-                          <div>
-                            <Menu.Button className="flex h-8 items-center rounded-full text-slate-400 hover:text-slate-600 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 focus:ring-offset-slate-100">
-                              <span className="sr-only">Open options</span>
-                              <DotsVerticalIcon
-                                className="h-5 w-5"
-                                aria-hidden="true"
-                              />
-                            </Menu.Button>
-                          </div>
-
-                          <Transition
-                            as={Fragment}
-                            enter="transition ease-out duration-100"
-                            enterFrom="transform opacity-0 scale-95"
-                            enterTo="transform opacity-100 scale-100"
-                            leave="transition ease-in duration-75"
-                            leaveFrom="transform opacity-100 scale-100"
-                            leaveTo="transform opacity-0 scale-95"
-                          >
-                            <Menu.Items className="absolute right-0 z-20 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                              <div className="py-1">
-                                <Menu.Item>
-                                  {({ active }) => (
-                                    <button
-                                      type="button"
-                                      onClick={() =>
-                                        formModal.open({
-                                          type: "edit",
-                                          id: line.transaction.id,
-                                        })
-                                      }
-                                      className={cn(
-                                        active
-                                          ? "bg-slate-100 text-slate-900"
-                                          : "text-slate-700",
-                                        "block w-full px-4  py-2 text-left text-sm"
-                                      )}
-                                    >
-                                      Edit
-                                      <span className="sr-only">
-                                        , {line.transaction.date},{" "}
-                                        {line.transaction.note}
-                                      </span>
-                                    </button>
-                                  )}
-                                </Menu.Item>
-                                <deleteAction.Form
-                                  action={`/app/transactions/${line.transaction.id}/delete`}
-                                  method="post"
-                                >
-                                  <Menu.Item>
-                                    {({ active }) => (
-                                      <button
-                                        type="submit"
-                                        className={cn(
-                                          active
-                                            ? "bg-slate-100 text-slate-900"
-                                            : "text-slate-700",
-                                          "block w-full px-4 py-2 text-left text-sm"
-                                        )}
-                                      >
-                                        Delete
-                                        <span className="sr-only">
-                                          , {line.transaction.date},{" "}
-                                          {line.transaction.note}
-                                        </span>
-                                      </button>
-                                    )}
-                                  </Menu.Item>
-                                </deleteAction.Form>
-                              </div>
-                            </Menu.Items>
-                          </Transition>
-                        </Menu>
-                      </td>
-                    </tr>
-                  ))}
-                </Fragment>
-              ))}
-              <tr className="border-t border-slate-200">
-                <th className="bg-slate-50 px-4 py-2 text-left text-sm font-semibold text-slate-900 sm:px-6"></th>
-                <td className="bg-slate-50 py-2 pl-3 pr-1 text-right text-sm text-slate-500">
-                  {ledgerDateGroups.initialPageBalanceFormatted}
-                </td>
-                <td className="bg-slate-50"></td>
-              </tr>
-            </tbody>
-          </table>
-          {ledgerDateGroups.page < ledgerDateGroups.pageCount - 1 && (
-            <LedgerLink
-              to={`?page=${ledgerDateGroups.page + 1}`}
-              replace={true}
-            >
-              {/* TODO solve remaining problem with this pagination: now with scroll restoration working properly, this will always jump up as it is a full navigation. better use a fetcher and somehow patch the URL? or add additional scroll position restoration */}
-              Load more…
-            </LedgerLink>
-          )}
-        </div>
+        <Ledger
+          key={account.id}
+          ledgerDateGroups={ledgerDateGroups}
+          formModal={formModal}
+        />
         <FormModal
           size={ModalSize.EXTRA_LARGE}
           modal={formModal}
@@ -297,6 +121,229 @@ export default function AccountDetailPage() {
     </div>
   );
 }
+
+function mergeLedgerDateGroups(
+  first: SerializeType<LoaderData>["ledgerDateGroups"]["groups"],
+  second: SerializeType<LoaderData>["ledgerDateGroups"]["groups"]
+) {
+  if (first.length === 0) return second;
+  if (second.length === 0) return first;
+
+  if (first.at(-1)!.date !== second[0].date) {
+    return first.concat(second);
+  }
+
+  return first
+    .slice(0, -1)
+    .concat({
+      ...first.at(-1)!,
+      lines: first.at(-1)!.lines.concat(second[0].lines),
+    })
+    .concat(second.slice(1));
+}
+
+function Ledger({ ledgerDateGroups, formModal }: LedgerProps) {
+  const deleteAction = useFetcher();
+  const pageLoader = useFetcher<SerializeType<LoaderData>>();
+  const currentPage = pageLoader.data?.ledgerDateGroups.page || 0;
+  const [groups, setGroups] = useState(ledgerDateGroups.groups);
+
+  useEffect(() => {
+    if (pageLoader.type === "done")
+      setGroups((groups) =>
+        mergeLedgerDateGroups(groups, pageLoader.data.ledgerDateGroups.groups)
+      );
+  }, [pageLoader]);
+
+  return (
+    <div className="mt-8 flex flex-col divide-y divide-slate-200">
+      <table className="w-full">
+        <tbody className="bg-white">
+          {groups.map((group) => (
+            <Fragment key={group.date}>
+              <tr className="border-t border-slate-200">
+                <th className="bg-slate-50 px-4 py-2 text-left text-sm font-semibold text-slate-900 sm:px-6">
+                  {group.dateFormatted}
+                </th>
+                <td className="bg-slate-50 py-2 pl-3 pr-1 text-right text-sm font-medium text-slate-500">
+                  {group.balanceFormatted}
+                </td>
+                <td className="bg-slate-50"></td>
+              </tr>
+              {group.lines.map((line, index) => (
+                <tr
+                  key={line.id}
+                  className={cn(
+                    index === 0 ? "border-slate-300" : "border-slate-200",
+                    "group border-t"
+                  )}
+                >
+                  <td className="py-4 pl-4 pr-3 text-sm sm:pl-6">
+                    <div className="text-slate-800">
+                      {line.transaction.bookings
+                        .filter((b) => b.id !== line.id)
+                        .map((b) => {
+                          switch (b.type) {
+                            case BookingType.CHARGE:
+                            case BookingType.DEPOSIT:
+                              // TODO temporarily disabled invariant until all accounts can be migrated
+                              // invariant(b.account, "account not found");
+                              return (
+                                <Link key={b.id} to={`../${b.account?.id}`}>
+                                  {b.account?.name || "--- unavailable ---"}
+                                </Link>
+                              );
+                            case BookingType.INCOME:
+                            case BookingType.EXPENSE:
+                              invariant(
+                                b.incomeExpenseCategory,
+                                "incomeExpenseCategory not found"
+                              );
+                              return b.incomeExpenseCategory.name;
+                            default:
+                              return "";
+                          }
+                        })
+                        .map((element, index) =>
+                          index === 0 ? element : `, ${element}`
+                        )}
+                    </div>
+                    <div className="text-slate-500">
+                      {line.transaction.note}
+                    </div>
+                  </td>
+                  <td
+                    className={cn(
+                      "whitespace-nowrap py-4 pl-3 pr-1 text-right text-sm font-medium",
+                      {
+                        "text-slate-800": (
+                          [
+                            BookingType.CHARGE,
+                            BookingType.EXPENSE,
+                            BookingType.DEPRECIATION,
+                          ] as BookingType[]
+                        ).includes(line.type),
+                        "text-emerald-600": (
+                          [
+                            BookingType.DEPOSIT,
+                            BookingType.INCOME,
+                            BookingType.APPRECIATION,
+                          ] as BookingType[]
+                        ).includes(line.type),
+                      }
+                    )}
+                  >
+                    {line.amountFormatted}
+                  </td>
+                  <td className="w-5 items-center py-4 pr-1">
+                    <Menu
+                      as="div"
+                      className="invisible relative inline-block text-left group-hover:visible"
+                    >
+                      <div>
+                        <Menu.Button className="flex h-8 items-center rounded-full text-slate-400 hover:text-slate-600 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 focus:ring-offset-slate-100">
+                          <span className="sr-only">Open options</span>
+                          <DotsVerticalIcon
+                            className="h-5 w-5"
+                            aria-hidden="true"
+                          />
+                        </Menu.Button>
+                      </div>
+
+                      <Transition
+                        as={Fragment}
+                        enter="transition ease-out duration-100"
+                        enterFrom="transform opacity-0 scale-95"
+                        enterTo="transform opacity-100 scale-100"
+                        leave="transition ease-in duration-75"
+                        leaveFrom="transform opacity-100 scale-100"
+                        leaveTo="transform opacity-0 scale-95"
+                      >
+                        <Menu.Items className="absolute right-0 z-20 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                          <div className="py-1">
+                            <Menu.Item>
+                              {({ active }) => (
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    formModal.open({
+                                      type: "edit",
+                                      id: line.transaction.id,
+                                    })
+                                  }
+                                  className={cn(
+                                    active
+                                      ? "bg-slate-100 text-slate-900"
+                                      : "text-slate-700",
+                                    "block w-full px-4  py-2 text-left text-sm"
+                                  )}
+                                >
+                                  Edit
+                                  <span className="sr-only">
+                                    , {line.transaction.date},{" "}
+                                    {line.transaction.note}
+                                  </span>
+                                </button>
+                              )}
+                            </Menu.Item>
+                            <deleteAction.Form
+                              action={`/app/transactions/${line.transaction.id}/delete`}
+                              method="post"
+                            >
+                              <Menu.Item>
+                                {({ active }) => (
+                                  <button
+                                    type="submit"
+                                    className={cn(
+                                      active
+                                        ? "bg-slate-100 text-slate-900"
+                                        : "text-slate-700",
+                                      "block w-full px-4 py-2 text-left text-sm"
+                                    )}
+                                  >
+                                    Delete
+                                    <span className="sr-only">
+                                      , {line.transaction.date},{" "}
+                                      {line.transaction.note}
+                                    </span>
+                                  </button>
+                                )}
+                              </Menu.Item>
+                            </deleteAction.Form>
+                          </div>
+                        </Menu.Items>
+                      </Transition>
+                    </Menu>
+                  </td>
+                </tr>
+              ))}
+            </Fragment>
+          ))}
+          <tr className="border-t border-slate-200">
+            <th className="bg-slate-50 px-4 py-2 text-left text-sm font-semibold text-slate-900 sm:px-6"></th>
+            <td className="bg-slate-50 py-2 pl-3 pr-1 text-right text-sm text-slate-500">
+              {ledgerDateGroups.initialPageBalanceFormatted}
+            </td>
+            <td className="bg-slate-50"></td>
+          </tr>
+        </tbody>
+      </table>
+      {currentPage < ledgerDateGroups.pageCount - 1 && (
+        <pageLoader.Form className="block py-8 text-center text-sm font-medium text-sky-600 hover:bg-slate-50 hover:underline">
+          <input type="hidden" name="page" value={currentPage + 1} />
+          <button type="submit" className="h-full w-full">
+            Load more…
+          </button>
+        </pageLoader.Form>
+      )}
+    </div>
+  );
+}
+
+type LedgerProps = {
+  ledgerDateGroups: SerializeType<LoaderData>["ledgerDateGroups"];
+  formModal: UseFormModalReturnValue<TransactionFormLoaderData>;
+};
 
 function LedgerLink({ className, children, ...props }: LinkProps) {
   return (

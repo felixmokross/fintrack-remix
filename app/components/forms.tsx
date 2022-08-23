@@ -532,7 +532,7 @@ export function useFormModal<TFormLoaderData>(
   };
 }
 
-type UseFormModalReturnValue<TFormLoaderData> = {
+export type UseFormModalReturnValue<TFormLoaderData> = {
   isOpen: boolean;
   open: (mode: FormModalMode) => void;
   close: () => void;

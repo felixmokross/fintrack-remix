@@ -30,7 +30,7 @@ export async function getReverseLedgerDateGroups({
 
   const pageOffset = pageSize * page;
   const nextPageOffset = pageOffset + pageSize;
-  const pagedLedgerLines = ledgerLines.slice(0, nextPageOffset);
+  const pagedLedgerLines = ledgerLines.slice(pageOffset, nextPageOffset);
   const isLastPage = page === pageCount - 1;
   const initialPageBalance = isLastPage
     ? account.preExisting && account.balanceAtStart
