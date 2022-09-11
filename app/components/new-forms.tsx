@@ -4,7 +4,7 @@ import { useId } from "react";
 import { forwardRef } from "react";
 import { cn } from "./classnames";
 import { Combobox as HeadlessCombobox } from "@headlessui/react";
-import { CheckIcon, SelectorIcon } from "./icons";
+import { CheckIcon, ChevronUpDownIcon } from "./icons";
 import { currencyItems } from "~/currencies";
 
 export const formClasses =
@@ -133,7 +133,7 @@ export function NewCombobox({
             }`}
           />
           <HeadlessCombobox.Button className="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50">
-            <SelectorIcon
+            <ChevronUpDownIcon
               className="h-5 w-5 text-slate-400"
               aria-hidden="true"
             />

@@ -16,7 +16,7 @@ import {
   CheckIcon,
   PencilIcon,
   PlusIcon,
-  SelectorIcon,
+  ChevronUpDownIcon,
 } from "~/components/icons";
 import { cn } from "./classnames";
 import { useId } from "react";
@@ -178,7 +178,10 @@ export function Combobox({
           aria-describedby={error ? errorId : undefined}
         />
         <HeadlessCombobox.Button className="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50">
-          <SelectorIcon className="h-5 w-5 text-slate-400" aria-hidden="true" />
+          <ChevronUpDownIcon
+            className="h-5 w-5 text-slate-400"
+            aria-hidden="true"
+          />
         </HeadlessCombobox.Button>
         {filteredOptions.length > 0 && (
           <HeadlessCombobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
