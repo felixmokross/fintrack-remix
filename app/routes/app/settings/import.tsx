@@ -1,3 +1,4 @@
+import { CheckCircleIcon } from "@heroicons/react/20/solid";
 import type {
   Account,
   AssetClass,
@@ -21,7 +22,6 @@ import { json } from "@remix-run/server-runtime";
 import cuid from "cuid";
 import { Button } from "~/components/button";
 import { Input } from "~/components/forms";
-import { CheckCircleIcon } from "~/components/icons";
 import { prisma } from "~/db.server";
 import type {
   AccountCategory as ImportAccountCategory,

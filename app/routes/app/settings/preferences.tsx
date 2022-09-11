@@ -1,3 +1,4 @@
+import { CheckCircleIcon } from "@heroicons/react/20/solid";
 import { Form, useLoaderData, useTransition } from "@remix-run/react";
 import type { ActionFunction, LoaderFunction } from "@remix-run/server-runtime";
 import { redirect } from "@remix-run/server-runtime";
@@ -5,7 +6,6 @@ import { json } from "@remix-run/server-runtime";
 import invariant from "tiny-invariant";
 import { Button } from "~/components/button";
 import { Combobox, CurrencyCombobox } from "~/components/forms";
-import { CheckCircleIcon } from "~/components/icons";
 import { prisma } from "~/db.server";
 import { getLocalesWithDisplayName } from "~/locales.server";
 import { getSession, requireUserId, sessionStorage } from "~/session.server";

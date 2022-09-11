@@ -11,13 +11,6 @@ import type {
 import { useEffect } from "react";
 import { useState } from "react";
 import { currencyItems } from "~/currencies";
-import {
-  CheckCircleIcon,
-  CheckIcon,
-  PencilIcon,
-  PlusIcon,
-  ChevronUpDownIcon,
-} from "~/components/icons";
 import { cn } from "./classnames";
 import { useId } from "react";
 import type { FetcherWithComponents } from "@remix-run/react";
@@ -25,6 +18,12 @@ import { useFetcher } from "@remix-run/react";
 import type { ModalSize } from "./modal";
 import { Modal } from "./modal";
 import type { FormErrors, SerializeType } from "~/utils";
+import { PencilSquareIcon, PlusIcon } from "@heroicons/react/24/outline";
+import {
+  CheckCircleIcon,
+  CheckIcon,
+  ChevronUpDownIcon,
+} from "@heroicons/react/20/solid";
 
 const labelClassName = "block text-sm font-medium text-slate-700";
 
@@ -569,7 +568,7 @@ export function FormModal<
         <fieldset disabled={disabled}>
           <Modal.Body
             title={title}
-            icon={mode.type === "edit" ? PencilIcon : PlusIcon}
+            icon={mode.type === "edit" ? PencilSquareIcon : PlusIcon}
           >
             <FormComponent
               {...({

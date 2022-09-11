@@ -1,7 +1,6 @@
 import { Menu, Transition } from "@headlessui/react";
 import { BookingType } from "@prisma/client";
 import { Fragment, useReducer } from "react";
-import { ChevronDownIcon, TrashIcon } from "~/components/icons";
 import type { getAccountListItems } from "~/models/accounts.server";
 import type { getIncomeExpenseCategoryListItems } from "~/models/income-expense-categories.server";
 import type {
@@ -13,6 +12,7 @@ import { cn } from "./classnames";
 import type { FormActionData, FormProps } from "./forms";
 import { Combobox } from "./forms";
 import { CurrencyCombobox, Input } from "./forms";
+import { ChevronDownIcon, TrashIcon } from "@heroicons/react/20/solid";
 
 export type TransactionFormLoaderData = {
   accounts: Awaited<ReturnType<typeof getAccountListItems>>;

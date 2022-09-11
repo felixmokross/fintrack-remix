@@ -1,13 +1,19 @@
 import { Disclosure, Menu, Transition } from "@headlessui/react";
 import { NavLink, Link, Outlet, Form } from "@remix-run/react";
 import { Fragment, useRef } from "react";
-import { SearchIcon, XIcon, MenuIcon, CogIcon } from "~/components/icons";
 import { cn } from "~/components/classnames";
 import { useUser } from "~/utils";
 import { Toaster } from "~/components/toaster";
 import { LoadingIndicator } from "~/components/loading-indicator";
 import { Logo, LogoSmall } from "~/components/logo";
 import { formClasses } from "~/components/new-forms";
+import {
+  Bars3Icon,
+  Cog6ToothIcon,
+  Cog8ToothIcon,
+  MagnifyingGlassIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
 
 export default function App() {
   const noFocusRef = useRef(null);
@@ -85,7 +91,7 @@ export default function App() {
                       </label>
                       <div className="relative">
                         <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                          <SearchIcon
+                          <MagnifyingGlassIcon
                             className="h-5 w-5 text-slate-400"
                             aria-hidden="true"
                           />
@@ -105,9 +111,12 @@ export default function App() {
                     <Disclosure.Button className="inline-flex items-center justify-center rounded-md p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-sky-500">
                       <span className="sr-only">Open main menu</span>
                       {open ? (
-                        <XIcon className="block h-6 w-6" aria-hidden="true" />
+                        <XMarkIcon
+                          className="block h-6 w-6"
+                          aria-hidden="true"
+                        />
                       ) : (
-                        <MenuIcon
+                        <Bars3Icon
                           className="block h-6 w-6"
                           aria-hidden="true"
                         />
@@ -121,7 +130,7 @@ export default function App() {
                       className="flex-shrink-0 rounded-full bg-white p-1 text-slate-400 hover:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2"
                     >
                       <span className="sr-only">Go to settings</span>
-                      <CogIcon className="h-6 w-6" aria-hidden="true" />
+                      <Cog6ToothIcon className="h-6 w-6" aria-hidden="true" />
                     </Link>
 
                     {/* Profile dropdown */}
@@ -251,7 +260,7 @@ export default function App() {
                       className="ml-auto flex-shrink-0 rounded-full bg-white p-1 text-slate-400 hover:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2"
                     >
                       <span className="sr-only">Go to settings</span>
-                      <CogIcon className="h-6 w-6" aria-hidden="true" />
+                      <Cog8ToothIcon className="h-6 w-6" aria-hidden="true" />
                     </Link>
                   </div>
                   <div className="mt-3 space-y-1">

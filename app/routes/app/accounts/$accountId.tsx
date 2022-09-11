@@ -19,10 +19,10 @@ import type { UseFormModalReturnValue } from "~/components/forms";
 import { FormModal, useFormModal } from "~/components/forms";
 import { ModalSize } from "~/components/modal";
 import { Menu, Transition } from "@headlessui/react";
-import { DotsVerticalIcon } from "~/components/icons";
 import { Link } from "~/components/link";
 import { NewButton } from "~/components/new-button";
 import type { SerializeType } from "~/utils";
+import { EllipsisVerticalIcon } from "@heroicons/react/20/solid";
 
 type LoaderData = {
   account: NonNullable<Awaited<ReturnType<typeof getAccount>>>;
@@ -243,7 +243,7 @@ function Ledger({ ledgerDateGroups, formModal }: LedgerProps) {
                       <div>
                         <Menu.Button className="flex h-8 items-center rounded-full text-slate-400 hover:text-slate-600 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 focus:ring-offset-slate-100">
                           <span className="sr-only">Open options</span>
-                          <DotsVerticalIcon
+                          <EllipsisVerticalIcon
                             className="h-5 w-5"
                             aria-hidden="true"
                           />

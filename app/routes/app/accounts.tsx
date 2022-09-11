@@ -14,8 +14,8 @@ import { requireUserId } from "~/session.server";
 import { getTitle, useUser } from "~/utils";
 import { FormModal, useFormModal } from "~/components/forms";
 import { cn } from "~/components/classnames";
-import { PencilIcon, TrashIcon } from "~/components/icons";
 import { NewButton } from "~/components/new-button";
+import { PencilSquareIcon, TrashIcon } from "@heroicons/react/20/solid";
 
 type LoaderData = {
   accountsByAssetClass: Awaited<
@@ -111,7 +111,7 @@ export default function AccountsPage() {
                                   e.preventDefault();
                                 }}
                               >
-                                <PencilIcon className="h-4 w-4" />
+                                <PencilSquareIcon className="h-4 w-4" />
                                 <span className="sr-only">Edit {a.name}</span>
                               </button>
                               {/* TODO figure out why normal form submit does not work (form within an a?) */}
